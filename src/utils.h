@@ -20,10 +20,10 @@
 #include <vector>
 #include <ctime>
 #include "uri.h"
-#include "platform/util/util.h"
+#include "kodi/util/util.h"
 
 #ifdef TARGET_WINDOWS
-#include "platform/util/StdString.h"
+#include "kodi/util/StdString.h"
 #include "windows/WindowsUtils.h"
 #endif
 

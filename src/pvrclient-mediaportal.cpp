@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform/util/timeutils.h"
+#include "kodi/util/timeutils.h"
 
 #include "client.h"
 #include "timers.h"
@@ -43,7 +43,7 @@ using namespace ADDON;
 int g_iTVServerXBMCBuild = 0;
 
 /* PVR client version (don't forget to update also the addon.xml and the Changelog.txt files) */
-#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.9.23"
+#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.9.15"
 
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"

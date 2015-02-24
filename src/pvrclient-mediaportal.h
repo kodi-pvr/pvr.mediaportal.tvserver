@@ -21,13 +21,13 @@
 #include <vector>
 
 /* Master defines for client control */
-#include "xbmc_pvr_types.h"
+#include "kodi/xbmc_pvr_types.h"
 
 /* Local includes */
 #include "Socket.h"
 #include "Cards.h"
 #include "epg.h"
-#include "platform/threads/mutex.h"
+#include "kodi/threads/mutex.h"
 
 /* Use a forward declaration here. Including RTSPClient.h via TSReader.h at this point gives compile errors */
 class CTsReader;

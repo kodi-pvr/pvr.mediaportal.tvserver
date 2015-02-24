@@ -24,10 +24,10 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "platform/util/StdString.h"
-#include "libXBMC_addon.h"
-#include "libXBMC_pvr.h"
-#include "libXBMC_gui.h"
+#include "kodi/util/StdString.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_pvr.h"
+#include "kodi/libXBMC_gui.h"
 
 enum eStreamingMethod
 {

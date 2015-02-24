@@ -18,7 +18,7 @@
  *
  */
 
-#include "platform/os.h"
+#include "kodi/os.h"
 
 // Additional typedefs
 typedef uint8_t byte;

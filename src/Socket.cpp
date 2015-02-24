@@ -16,10 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "libXBMC_addon.h"
+#include "kodi/libXBMC_addon.h"
 #include "utils.h"
 #include <string>
-#include "platform/os.h"
+#include "kodi/os.h"
 #include "client.h"
 #include "Socket.h"
 

@@ -32,7 +32,6 @@
 
 #include "FileReader.h"
 #include "MemoryBuffer.h"
-#include "utils.h"
 
 class CMemoryReader : public FileReader
 {
@@ -47,6 +46,6 @@ class CMemoryReader : public FileReader
 
   private:
     CMemoryBuffer& m_buffer;
-    CMemoryReader(const CMemoryReader&);
+    CMemoryReader& operator=(const CMemoryReader& memoryreader) {};
 };
 #endif //LIVE555

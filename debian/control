@@ -1,0 +1,23 @@
+Source: kodi-pvr-mediaportal-tvserver
+Priority: extra
+Maintainer: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
+Build-Depends: debhelper (>= 9.0.0), cmake, libtinyxml-dev, kodi-pvr-dev,
+               libkodiplatform-dev, kodi-addon-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.scintilla.utwente.nl/~marcelg/kodi/
+
+Package: kodi-pvr-mediaportal-tvserver
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: MediaPortal PVR for Kodi
+ MediaPortal PVR for Kodi
+
+Package: kodi-pvr-mediaportal-tvserver-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: debug symbols for MediaPortal PVR for Kodi
+ debug symbols for the MediaPortal PVR for Kodi
+

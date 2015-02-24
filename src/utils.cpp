@@ -24,7 +24,7 @@
 #include "utils.h"
 #include <string>
 #include <stdio.h>
-#include "platform/util/StdString.h"
+#include "kodi/util/StdString.h"
 
 using namespace std;
 using namespace ADDON;

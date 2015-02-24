@@ -19,7 +19,7 @@
 
 #include "client.h"
 #include "GenreTable.h"
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.h"
 
 using namespace ADDON;
 using namespace std;

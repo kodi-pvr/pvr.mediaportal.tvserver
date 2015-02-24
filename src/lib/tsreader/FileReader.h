@@ -33,8 +33,8 @@
  *  http://forums.dvbowners.com/
  */
 
-#include "platform/os.h"
-#include "platform/util/StdString.h"
+#include "kodi/os.h"
+#include "kodi/util/StdString.h"
 
 class FileReader
 {
