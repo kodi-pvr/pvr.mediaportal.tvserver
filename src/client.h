@@ -27,7 +27,7 @@
 #include "kodi/util/StdString.h"
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
-#include "kodi/libXBMC_gui.h"
+#include "kodi/libKODI_guilib.h"
 
 enum eStreamingMethod
 {
@@ -74,7 +74,7 @@ extern eStreamingMethod g_eStreamingMethod;
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;
-extern CHelper_libXBMC_gui          *GUI;
+extern CHelper_libKODI_guilib       *GUI;
 
 extern int              g_iTVServerXBMCBuild;
 
