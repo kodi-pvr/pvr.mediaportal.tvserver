@@ -21,7 +21,7 @@
 
 #include "client.h"
 #include "GUIDialogRecordSettings.h"
-#include "kodi/libXBMC_gui.h"
+#include "kodi/libKODI_guilib.h"
 #include "timers.h"
 #include "utils.h"
 #include "DateTime.h"
