@@ -1,5 +1,7 @@
 v1.10.2
 - Updated to PVR API v1.9.5
+- Fixed: Schedules: Fix displaying an incorrect day in Kodi for 'Weekly' and 'WeeklyEveryTimeOnThisChannel' series recordings
+- Fixed: Schedules: change the displayed days for 'EveryTimeOnThisChannel' and 'EveryTimeOnEveryChannel' to all days instead of sunday
 
 v1.10.1
 - Updated to PVR API v1.9.4

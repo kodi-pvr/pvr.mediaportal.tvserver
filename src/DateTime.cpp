@@ -123,6 +123,9 @@ bool CDateTime::SetFromDateTime(const std::string& dateTime)
   m_time.tm_wday = 0;
   m_time.tm_yday = 0;
 
+  // call mktime to set the timeinfo->tm_wday field
+  mktime(&m_time);
+
   return true;
 }
 

@@ -299,7 +299,7 @@ int cTimer::SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype
 {
   // margro: the meaning of the XBMC-PVR Weekdays field is undocumented.
   // Assuming that VDR is the source for this field:
-  //   This field contains a bitmask that correcsponds to the days of the week at which this timer runs
+  //   This field contains a bitmask that corresponds to the days of the week at which this timer runs
   //   It is based on the VDR Day field format "MTWTF--"
   //   The format is a 1 bit for every enabled day and a 0 bit for a disabled day
   //   Thus: WeekDays = "0000 0001" = "M------" (monday only)
@@ -317,8 +317,9 @@ int cTimer::SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype
       weekdays = 127; // 0111 1111
       break;
     case TvDatabase::Weekly:
+    case TvDatabase::WeeklyEveryTimeOnThisChannel:
       {
-        // Not sure what to do with this MediaPortal option...
+        // Not sure what to do with these MediaPortal options...
         // Assumption: record once a week, on the same day and time
         // => determine weekday and set the corresponding bit
         int weekday = m_startTime.GetDayOfWeek(); //days since Sunday [0-6]
@@ -333,9 +334,11 @@ int cTimer::SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype
       }
     case TvDatabase::EveryTimeOnThisChannel:
       // Don't know what to do with this MediaPortal option?
+      weekdays = 127; // 0111 1111 (daily)
       break;
     case TvDatabase::EveryTimeOnEveryChannel:
       // Don't know what to do with this MediaPortal option?
+      weekdays = 127; // 0111 1111 (daily)
       break;
     case TvDatabase::Weekends:
       weekdays = 96; // 0110 0000
@@ -354,7 +357,7 @@ TvDatabase::ScheduleRecordingType cTimer::RepeatFlags2SchedRecType(int repeatfla
 {
   // margro: the meaning of the XBMC-PVR Weekdays field is undocumented.
   // Assuming that VDR is the source for this field:
-  //   This field contains a bitmask that correcsponds to the days of the week at which this timer runs
+  //   This field contains a bitmask that corresponds to the days of the week at which this timer runs
   //   It is based on the VDR Day field format "MTWTF--"
   //   The format is a 1 bit for every enabled day and a 0 bit for a disabled day
   //   Thus: WeekDays = "0000 0001" = "M------" (monday only)
