@@ -496,7 +496,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
             broadcast.iChannelNumber      = channel.iChannelNumber;
             broadcast.startTime           = epg.StartTime();
             broadcast.endTime             = epg.EndTime();
-            broadcast.strPlotOutline      = epg.ShortText();
+            broadcast.strPlotOutline      = epg.PlotOutline();
             broadcast.strPlot             = epg.Description();
             broadcast.strIconPath         = "";
             broadcast.iGenreType          = epg.GenreType();
