@@ -21,6 +21,7 @@ if (NOT WIN32)
   add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
 endif()
 
+# Source files
 set(MPTV_SOURCES src/Cards.cpp
                  src/channels.cpp
                  src/client.cpp
@@ -36,9 +37,46 @@ set(MPTV_SOURCES src/Cards.cpp
                  src/utils.cpp)
 
 if(WIN32)
-  list(APPEND MPTV_SOURCES src/windows/FileUtils.cpp
+  set(MPTV_SOURCES_WINDOWS src/windows/FileUtils.cpp
                            src/windows/WindowsUtils.cpp)
-endif()
+  source_group("Source Files\\windows" FILES ${MPTV_SOURCES_WINDOWS})
+  list(APPEND MPTV_SOURCES ${MPTV_SOURCES_WINDOWS})
+endif(WIN32)
+
+# Header files
+set(MPTV_HEADERS src/Cards.h
+                 src/channels.h
+                 src/client.h
+                 src/DateTime.h
+                 src/epg.h
+                 src/GenreTable.h
+                 src/GUIDialogRecordSettings.h
+                 src/os-dependent.h
+                 src/pvrclient-mediaportal.h
+                 src/recordings.h
+                 src/Socket.h
+                 src/timers.h
+                 src/uri.h
+                 src/utils.h)
+source_group("Header Files" FILES ${MPTV_HEADERS})
+if(WIN32)
+  set(MPTV_HEADERS_WINDOWS src/windows/WindowsUtils.h)
+  source_group("Header Files\\windows" FILES ${MPTV_HEADERS_WINDOWS})
+  list(APPEND MPTV_HEADERS ${MPTV_HEADERS_WINDOWS})
+endif(WIN32)
+
+if(WIN32)
+# Misc files
+set(RESOURCE_FILES pvr.mediaportal.tvserver/addon.xml
+                pvr.mediaportal.tvserver/changelog.txt
+                pvr.mediaportal.tvserver/resources/genre_translation.xml
+                pvr.mediaportal.tvserver/resources/settings.xml
+                pvr.mediaportal.tvserver/resources/language/English/strings.po)
+source_group("Resource Files" FILES ${RESOURCE_FILES})
+endif(WIN32)
+
+# Make sure that CMake adds the headers to the MSVC project
+list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${RESOURCE_FILES})
 
 add_subdirectory(src/lib/tsreader)
 
@@ -47,7 +85,7 @@ set(DEPLIBS ${kodiplatform_LIBRARIES}
 
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
-endif()
+endif(WIN32)
 
 build_addon(pvr.mediaportal.tvserver MPTV DEPLIBS)
 
