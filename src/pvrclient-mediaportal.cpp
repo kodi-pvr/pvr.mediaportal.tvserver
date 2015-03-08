@@ -58,6 +58,7 @@ int g_iTVServerXBMCBuild = 0;
 cPVRClientMediaPortal::cPVRClientMediaPortal()
 {
   m_iCurrentChannel        = -1;
+  m_bCurrentChannelIsRadio = false;
   m_iCurrentCard           = -1;
   m_tcpclient              = new MPTV::Socket(MPTV::af_inet, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
   m_bConnected             = false;
@@ -1485,6 +1486,10 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     if (g_eStreamingMethod == TSReader)
     {
       XBMC->Log(LOG_NOTICE, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
+      if (channelinfo.bIsRadio)
+      {
+        usleep(100000); // 100 ms sleep to allow the buffer to fill
+      }
     }
     else
     {
@@ -1535,6 +1540,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         {
           m_iCurrentChannel = (int) channelinfo.iUniqueId;
           m_iCurrentCard = atoi(timeshiftfields[3].c_str());
+          m_bCurrentChannelIsRadio = channelinfo.bIsRadio;
         }
         else
         {
@@ -1582,6 +1588,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     // at this point everything is ready for playback
     m_iCurrentChannel = (int) channelinfo.iUniqueId;
     m_iCurrentCard = atoi(timeshiftfields[3].c_str());
+    m_bCurrentChannelIsRadio = channelinfo.bIsRadio;
   }
   XBMC->Log(LOG_NOTICE, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.strChannelName, m_iCurrentCard);
 
@@ -1614,7 +1621,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
 
     if (m_tsreader->Read(bufptr, read_wanted, &read_wanted) > 0)
     {
-      usleep(400000);
+      usleep(20000);
       read_timeouts++;
       return read_wanted;
     }
@@ -1622,9 +1629,12 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
 
     if ( read_done < (unsigned long) iBufferSize )
     {
-      if (read_timeouts > 50)
+      if (read_timeouts > 200)
       {
-        XBMC->Log(LOG_NOTICE, "XBMC requested %u bytes, but the TSReader got only %ul bytes in 2 seconds", iBufferSize, read_done);
+        if (m_bCurrentChannelIsRadio == false || read_done == 0)
+        {
+          XBMC->Log(LOG_NOTICE, "XBMC requested %u bytes, but the TSReader got only %lu bytes in 2 seconds", iBufferSize, read_done);
+        }
         read_timeouts = 0;
 
         //TODO
@@ -1635,7 +1645,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
       }
       bufptr += read_wanted;
       read_timeouts++;
-      usleep(40000);
+      usleep(10000);
     }
   }
   read_timeouts = 0;

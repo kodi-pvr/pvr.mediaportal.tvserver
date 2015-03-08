@@ -3,6 +3,7 @@ v1.10.3
   Kodi now has an internal FileReader class (since xbmc/xbmc/pull/6306) which is somehow used by the addon instead of the class in the addon.
 - EPG: Use the episode name as plot outline (when available)
 - Channel: add support for ATSC Major.Minor channel numbers
+- Radio: attempt to fix the short hickup after 1 second when tuning a radio channel
 
 v1.10.2
 - Updated to PVR API v1.9.5
