@@ -663,7 +663,15 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
       // Prepare the PVR_CHANNEL struct to transfer this channel to XBMC
       tag.iUniqueId = channel.UID();
-      tag.iChannelNumber = channel.ExternalID();
+      if (channel.MajorChannelNr() == -1)
+      {
+        tag.iChannelNumber = channel.ExternalID();
+      }
+      else
+      {
+        tag.iChannelNumber = channel.MajorChannelNr();
+        tag.iSubChannelNumber = channel.MinorChannelNr();
+      }
       PVR_STRCPY(tag.strChannelName, channel.Name());
       PVR_STRCLR(tag.strIconPath);
 #ifdef TARGET_WINDOWS
