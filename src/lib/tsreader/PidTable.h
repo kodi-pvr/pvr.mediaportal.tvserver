@@ -23,157 +23,161 @@
 
 #include <vector>
 
-// This class used to store subtitle stream specific information
-class SubtitlePid
+namespace MPTV
 {
-public:
-
-  SubtitlePid()
-  {
-    Pid = -1;
-    SubtitleServiceType = -1;
-    Lang[0] = 'U';
-    Lang[1] = 'N';
-    Lang[2] = 'K';
-    Lang[3] = 0;
-  }
-
-  bool operator == (const SubtitlePid& other) const
-  {
-    if (Pid != other.Pid
-      || Lang[0] != other.Lang[0]
-      || Lang[1] != other.Lang[1]
-      || Lang[2] != other.Lang[2]
-      || Lang[3] != other.Lang[3])
-      {
-        return false;
-      }
-    else
+    // This class used to store subtitle stream specific information
+    class SubtitlePid
     {
-      return true;
-    }
-  }
+    public:
 
-  short Pid;
-  short SubtitleServiceType;
-  byte Lang[4];
-};
+        SubtitlePid()
+        {
+            Pid = -1;
+            SubtitleServiceType = -1;
+            Lang[0] = 'U';
+            Lang[1] = 'N';
+            Lang[2] = 'K';
+            Lang[3] = 0;
+        }
 
-// This class used to store audio stream specific information
-class AudioPid
-{
-public:
-  AudioPid()
-  {
-    Pid = -1;
-    AudioServiceType = -1;
-    Lang[0] = 'U';
-    Lang[1] = 'N';
-    Lang[2] = 'K';
-    Lang[3] = 0;
-    Lang[4] = 0;
-    Lang[5] = 0;
-    Lang[6] = 0;
-  }
+        bool operator == (const SubtitlePid& other) const
+        {
+            if (Pid != other.Pid
+                || Lang[0] != other.Lang[0]
+                || Lang[1] != other.Lang[1]
+                || Lang[2] != other.Lang[2]
+                || Lang[3] != other.Lang[3])
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
-  bool operator == (const AudioPid& other) const
-  {
-    if (Pid != other.Pid
-      || Lang[0] != other.Lang[0]
-      || Lang[1] != other.Lang[1]
-      || Lang[2] != other.Lang[2]
-      || Lang[3] != other.Lang[3]
-      || Lang[4] != other.Lang[4]
-      || Lang[5] != other.Lang[5]
-      || Lang[6] != other.Lang[6]
-      || AudioServiceType != other.AudioServiceType)
-      {
-        return false;
-      }
-    else
+        short Pid;
+        short SubtitleServiceType;
+        byte Lang[4];
+    };
+
+    // This class used to store audio stream specific information
+    class AudioPid
     {
-      return true;
-    }
-  }
+    public:
+        AudioPid()
+        {
+            Pid = -1;
+            AudioServiceType = -1;
+            Lang[0] = 'U';
+            Lang[1] = 'N';
+            Lang[2] = 'K';
+            Lang[3] = 0;
+            Lang[4] = 0;
+            Lang[5] = 0;
+            Lang[6] = 0;
+        }
 
-  short Pid;
-  byte Lang[7];
-  short AudioServiceType;
-};
+        bool operator == (const AudioPid& other) const
+        {
+            if (Pid != other.Pid
+                || Lang[0] != other.Lang[0]
+                || Lang[1] != other.Lang[1]
+                || Lang[2] != other.Lang[2]
+                || Lang[3] != other.Lang[3]
+                || Lang[4] != other.Lang[4]
+                || Lang[5] != other.Lang[5]
+                || Lang[6] != other.Lang[6]
+                || AudioServiceType != other.AudioServiceType)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
-// This class used to store video stream specific information
-class VideoPid
-{
-public:
-  VideoPid()
-  {
-    Pid = -1;
-    VideoServiceType = -1;
-  }
+        short Pid;
+        byte Lang[7];
+        short AudioServiceType;
+    };
 
-  bool operator == (const VideoPid& other) const
-  {
-    if (Pid != other.Pid
-      || VideoServiceType != other.VideoServiceType)
+    // This class used to store video stream specific information
+    class VideoPid
     {
-      return false;
-    }
-    else
+    public:
+        VideoPid()
+        {
+            Pid = -1;
+            VideoServiceType = -1;
+        }
+
+        bool operator == (const VideoPid& other) const
+        {
+            if (Pid != other.Pid
+                || VideoServiceType != other.VideoServiceType)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        short Pid;
+        int VideoServiceType;
+    };
+
+    class TempPid
     {
-      return true;
-    }
-  }
+    public:
 
-  short Pid;
-  int VideoServiceType;
-};
+        TempPid()
+        {
+            Pid = -1;
+            Lang[0] = 'U';
+            Lang[1] = 'N';
+            Lang[2] = 'K';
+            Lang[3] = 0;
+            Lang[4] = 0;
+            Lang[5] = 0;
+            Lang[6] = 0;
+        }
 
-class TempPid
-{
-public:
+        short Pid;
+        byte Lang[7];
+    };
 
-  TempPid()
-  {
-    Pid = -1;
-    Lang[0] = 'U';
-    Lang[1] = 'N';
-    Lang[2] = 'K';
-    Lang[3] = 0;
-    Lang[4] = 0;
-    Lang[5] = 0;
-    Lang[6] = 0;
-  }
+    class CPidTable
+    {
+    public:
 
-  short Pid;
-  byte Lang[7];
-};
+        CPidTable();
+        CPidTable(const CPidTable& pids);
+        virtual ~CPidTable();
+        void Reset();
 
-class CPidTable
-{
-public:
+        void LogPIDs();
+        const char* StreamFormatAsString(int streamType);
 
-  CPidTable();
-  CPidTable(const CPidTable& pids);
-  virtual ~CPidTable();
-  void Reset();
+        bool HasTeletextPageInfo(int page); // do we have a TeletextServiceInfo entry for that page
 
-  void LogPIDs();
-  const char* StreamFormatAsString(int streamType);
+        CPidTable& operator = (const CPidTable& pids);
+        bool operator==(const CPidTable& other) const;
 
-  bool HasTeletextPageInfo(int page); // do we have a TeletextServiceInfo entry for that page
+        void Copy(const CPidTable &pids);
 
-  CPidTable& operator = (const CPidTable& pids);
-  bool operator==(const CPidTable& other) const;
+        unsigned long PcrPid;
+        unsigned long PmtPid;
+        short TeletextPid; // which PID contains the teletext data
 
-  void Copy(const CPidTable &pids);
+        int  ServiceId;
 
-  unsigned long PcrPid;
-  unsigned long PmtPid;
-  short TeletextPid; // which PID contains the teletext data
+        std::vector<VideoPid> videoPids;
+        std::vector<AudioPid> audioPids;
+        std::vector<SubtitlePid> subtitlePids;
+    };
+}
 
-  int  ServiceId;
-
-  std::vector<VideoPid> videoPids;
-  std::vector<AudioPid> audioPids;
-  std::vector<SubtitlePid> subtitlePids;
-};

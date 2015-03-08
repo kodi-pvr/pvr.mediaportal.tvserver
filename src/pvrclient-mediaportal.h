@@ -30,7 +30,10 @@
 #include "kodi/threads/mutex.h"
 
 /* Use a forward declaration here. Including RTSPClient.h via TSReader.h at this point gives compile errors */
-class CTsReader;
+namespace MPTV
+{
+    class CTsReader;
+}
 
 class cPVRClientMediaPortal: public PLATFORM::PreventCopy
 {
@@ -128,7 +131,7 @@ private:
   CGenreTable*            m_genretable;
   PLATFORM::CMutex        m_mutex;
   int64_t                 m_iLastRecordingUpdate;
-  CTsReader*              m_tsreader;
+  MPTV::CTsReader*        m_tsreader;
   std::map<int,std::string> m_channelNames;
   int                     m_signalStateCounter;
   int                     m_iSignal;

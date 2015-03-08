@@ -39,39 +39,43 @@
 #include "PatParser.h"
 #include "kodi/threads/mutex.h"
 
-class CTsReader;
-
-class CDeMultiplexer : public CPacketSync, public IPatParserCallback
+namespace MPTV
 {
-public:
-  CDeMultiplexer(CTsReader& filter);
-  virtual ~CDeMultiplexer(void);
 
-  void       Start();
-  void       OnTsPacket(byte* tsPacket);
-  void       OnNewChannel(CChannelInfo& info);
-  void       SetFileReader(FileReader* reader);
-  void RequestNewPat(void);
-  int ReadFromFile();
+    class CTsReader;
 
-private:
-  unsigned long m_LastDataFromRtsp;
-  bool m_bEndOfFile;
-  PLATFORM::CMutex m_sectionRead;
-  FileReader* m_reader;
-  CPatParser m_patParser;
-  CTsReader& m_filter;
+    class CDeMultiplexer : public CPacketSync, public IPatParserCallback
+    {
+    public:
+        CDeMultiplexer(CTsReader& filter);
+        virtual ~CDeMultiplexer(void);
 
-  int m_iPatVersion;
-  int m_ReqPatVersion;
-  int m_WaitNewPatTmo;
-  int m_receivedPackets;
+        void       Start();
+        void       OnTsPacket(byte* tsPacket);
+        void       OnNewChannel(CChannelInfo& info);
+        void       SetFileReader(FileReader* reader);
+        void RequestNewPat(void);
+        int ReadFromFile();
 
-  bool m_bStarting;
+    private:
+        unsigned long m_LastDataFromRtsp;
+        bool m_bEndOfFile;
+        PLATFORM::CMutex m_sectionRead;
+        FileReader* m_reader;
+        CPatParser m_patParser;
+        CTsReader& m_filter;
 
-  bool m_bAudioAtEof;
-  bool m_bVideoAtEof;
+        int m_iPatVersion;
+        int m_ReqPatVersion;
+        int m_WaitNewPatTmo;
+        int m_receivedPackets;
 
-  // XBMC specific
-  bool m_bGotNewChannel;
-};
+        bool m_bStarting;
+
+        bool m_bAudioAtEof;
+        bool m_bVideoAtEof;
+
+        // XBMC specific
+        bool m_bGotNewChannel;
+    };
+}

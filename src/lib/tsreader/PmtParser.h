@@ -49,26 +49,30 @@
 #define DESCRIPTOR_DVB_SUBTITLING   0x59
 #define DESCRIPTOR_MPEG_ISO639_Lang 0x0a
 
-class IPmtCallBack
+namespace MPTV
 {
-public:
-  virtual void OnPmtReceived(int pmtPid)=0;
-  virtual void OnPidsReceived(const CPidTable& info)=0;
-};
+    class IPmtCallBack
+    {
+    public:
+        virtual void OnPmtReceived(int pmtPid) = 0;
+        virtual void OnPidsReceived(const CPidTable& info) = 0;
+    };
 
-class CPmtParser: public  CSectionDecoder
-{
-public:
-  CPmtParser(void);
-  virtual     ~CPmtParser(void);
-  void        OnNewSection(CSection& section);
-  void        SetPmtCallBack(IPmtCallBack* callback);
-  bool        IsReady();
-  CPidTable&  GetPidInfo();
+    class CPmtParser : public  CSectionDecoder
+    {
+    public:
+        CPmtParser(void);
+        virtual     ~CPmtParser(void);
+        void        OnNewSection(CSection& section);
+        void        SetPmtCallBack(IPmtCallBack* callback);
+        bool        IsReady();
+        CPidTable&  GetPidInfo();
 
-private:
-  bool          m_isFound;
-  IPmtCallBack* m_pmtCallback;
-  CTsHeader     m_tsHeader;
-  CPidTable     m_pidInfo;  
-};
+    private:
+        bool          m_isFound;
+        IPmtCallBack* m_pmtCallback;
+        CTsHeader     m_tsHeader;
+        CPidTable     m_pidInfo;
+    };
+}
+

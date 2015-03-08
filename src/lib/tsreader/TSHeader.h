@@ -20,30 +20,34 @@
  */
 #pragma once
 
-class CTsHeader
+namespace MPTV
 {
-public:
-  CTsHeader();
-  CTsHeader(byte* tsPacket);
-  virtual ~CTsHeader(void);
-  void Decode(byte *data);
-  void LogHeader();
-  bool PayLoadOnly();
-  bool AdaptionFieldOnly();
-  bool AdaptionFieldAndPayLoad();
+    class CTsHeader
+    {
+    public:
+        CTsHeader();
+        CTsHeader(byte* tsPacket);
+        virtual ~CTsHeader(void);
+        void Decode(byte *data);
+        void LogHeader();
+        bool PayLoadOnly();
+        bool AdaptionFieldOnly();
+        bool AdaptionFieldAndPayLoad();
 
-  byte SyncByte;
-  bool TransportError;
-  bool PayloadUnitStart;
-  bool TransportPriority;
-  unsigned short Pid;
-  byte TScrambling;
-  byte AdaptionControl;
-  byte ContinuityCounter;
-  byte AdaptionFieldLength;
-  byte PayLoadStart;
-  bool HasAdaptionField;
-  bool HasPayload;
-private:
-  byte* m_packet;
-};
+        byte SyncByte;
+        bool TransportError;
+        bool PayloadUnitStart;
+        bool TransportPriority;
+        unsigned short Pid;
+        byte TScrambling;
+        byte AdaptionControl;
+        byte ContinuityCounter;
+        byte AdaptionFieldLength;
+        byte PayLoadStart;
+        bool HasAdaptionField;
+        bool HasPayload;
+    private:
+        byte* m_packet;
+    };
+}
+

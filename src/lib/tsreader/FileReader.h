@@ -36,29 +36,32 @@
 #include "kodi/os.h"
 #include "kodi/util/StdString.h"
 
-class FileReader
+namespace MPTV
 {
-  public:
-    FileReader();
-    virtual ~FileReader();
+    class FileReader
+    {
+    public:
+        FileReader();
+        virtual ~FileReader();
 
-    // Open and write to the file
-    virtual long GetFileName(std::string& fileName);
-    virtual long SetFileName(const std::string& fileName);
-    virtual long OpenFile(const std::string& fileName);
-    virtual long OpenFile();
-    virtual long CloseFile();
-    virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    virtual bool IsFileInvalid();
-    virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    virtual int64_t GetFilePointer();
-    virtual int64_t GetFileSize();
-    virtual bool IsBuffer() { return false; };
-    virtual int64_t OnChannelChange(void);
-    virtual int HasData(){return 0; } ;
+        // Open and write to the file
+        virtual long GetFileName(std::string& fileName);
+        virtual long SetFileName(const std::string& fileName);
+        virtual long OpenFile(const std::string& fileName);
+        virtual long OpenFile();
+        virtual long CloseFile();
+        virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+        virtual bool IsFileInvalid();
+        virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+        virtual int64_t GetFilePointer();
+        virtual int64_t GetFileSize();
+        virtual bool IsBuffer() { return false; };
+        virtual int64_t OnChannelChange(void);
+        virtual int HasData(){ return 0; };
 
-  protected:
-    void*      m_hFile;               // Handle to file for streaming
-    CStdString m_fileName;           // The filename where we read from
-    int64_t    m_fileSize;
-};
+    protected:
+        void*      m_hFile;               // Handle to file for streaming
+        CStdString m_fileName;           // The filename where we read from
+        int64_t    m_fileSize;
+    };
+}

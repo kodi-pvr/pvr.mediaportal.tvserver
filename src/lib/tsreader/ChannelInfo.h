@@ -21,28 +21,32 @@
 #pragma once
 #include "PidTable.h"
 
-class CChannelInfo
+namespace MPTV
 {
-public:
-  CChannelInfo(void);
-  virtual ~CChannelInfo(void);
-  void Reset();
-  int NetworkId;
-  int TransportId;
-  int ServiceId;
-  int MajorChannel;
-  int MinorChannel;
-  int Frequency;
-  int EIT_schedule_flag;
-  int EIT_present_following_flag;
-  int RunningStatus;
-  int FreeCAMode;
-  int ServiceType;
-  int Modulation;
-  int LCN;
-  char ProviderName[255];
-  char ServiceName[255];
 
-  CPidTable PidTable;
-  int PatVersion;
-};
+    class CChannelInfo
+    {
+    public:
+        CChannelInfo(void);
+        virtual ~CChannelInfo(void);
+        void Reset();
+        int NetworkId;
+        int TransportId;
+        int ServiceId;
+        int MajorChannel;
+        int MinorChannel;
+        int Frequency;
+        int EIT_schedule_flag;
+        int EIT_present_following_flag;
+        int RunningStatus;
+        int FreeCAMode;
+        int ServiceType;
+        int Modulation;
+        int LCN;
+        char ProviderName[255];
+        char ServiceName[255];
+
+        CPidTable PidTable;
+        int PatVersion;
+    };
+}

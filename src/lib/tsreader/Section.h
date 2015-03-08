@@ -22,25 +22,29 @@
 
 #define MAX_SECTION_LENGTH 4300
 
-class CSection
+namespace MPTV
 {
-public:
-  CSection(void);
-  virtual ~CSection(void);
-  void   Reset();
-  bool   DecodeHeader();
-  int    CalcSectionLength(byte* tsPacket, int start);
-  bool   SectionComplete();
-  CSection& operator = (const CSection& section);
-  void Copy(const CSection &section);
+    class CSection
+    {
+    public:
+        CSection(void);
+        virtual ~CSection(void);
+        void   Reset();
+        bool   DecodeHeader();
+        int    CalcSectionLength(byte* tsPacket, int start);
+        bool   SectionComplete();
+        CSection& operator = (const CSection& section);
+        void Copy(const CSection &section);
 
-  int table_id;
-  int table_id_extension;
-  int section_length;
-  int section_number;
-  int version_number;
-  int section_syntax_indicator;
+        int table_id;
+        int table_id_extension;
+        int section_length;
+        int section_number;
+        int version_number;
+        int section_syntax_indicator;
 
-  int BufferPos;
-  byte Data[MAX_SECTION_LENGTH*5];
-};
+        int BufferPos;
+        byte Data[MAX_SECTION_LENGTH * 5];
+    };
+}
+

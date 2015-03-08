@@ -22,13 +22,16 @@
 
 #include "os-dependent.h"
 
-uint32_t crc32 (char *data, int len);
-
-class CDvbUtil
+namespace MPTV
 {
-public:
-  CDvbUtil(void);
-  void getString468A(byte *buf, int bufLen, char *text, int textLen);
-public:
-  virtual ~CDvbUtil(void);
-};
+    uint32_t crc32(char *data, int len);
+
+    class CDvbUtil
+    {
+    public:
+        CDvbUtil(void);
+        void getString468A(byte *buf, int bufLen, char *text, int textLen);
+    public:
+        virtual ~CDvbUtil(void);
+    };
+}

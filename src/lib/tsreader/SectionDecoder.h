@@ -27,32 +27,35 @@
 
 #define MAX_SECTIONS 256
 
-class CSectionDecoder : public CDvbUtil
+namespace MPTV
 {
-public:
-  CSectionDecoder(void);
-  ~CSectionDecoder(void);
-  void SetCallBack(ISectionCallback* callback);
-  void OnTsPacket(byte* tsPacket);
-  void OnTsPacket(CTsHeader& header,byte* tsPacket);
-  void SetPid(int pid);
-  int  GetPid();
-  void Reset();
-  void EnableLogging(bool onOff);
-  void EnableCrcCheck(bool onOff);
-  virtual void OnNewSection(CSection& section);
-protected:
-private:
-  int StartNewSection(byte* tsPacket,int index,int sectionLen);
-  int AppendSection(byte* tsPacket, int index, int sectionLen);
-  int SnapshotSectionLength(byte* tsPacket,int start);
+    class CSectionDecoder : public CDvbUtil
+    {
+    public:
+        CSectionDecoder(void);
+        ~CSectionDecoder(void);
+        void SetCallBack(ISectionCallback* callback);
+        void OnTsPacket(byte* tsPacket);
+        void OnTsPacket(CTsHeader& header, byte* tsPacket);
+        void SetPid(int pid);
+        int  GetPid();
+        void Reset();
+        void EnableLogging(bool onOff);
+        void EnableCrcCheck(bool onOff);
+        virtual void OnNewSection(CSection& section);
+    protected:
+    private:
+        int StartNewSection(byte* tsPacket, int index, int sectionLen);
+        int AppendSection(byte* tsPacket, int index, int sectionLen);
+        int SnapshotSectionLength(byte* tsPacket, int start);
 
-  bool              m_bLog;
-  bool              m_bCrcCheck;
-  int               m_pid;
-  CSection          m_section;
-  int               m_iContinuityCounter;
-  ISectionCallback* m_pCallback;
-  CTsHeader         m_header;
-  CTsHeader         m_headerSection;
-};
+        bool              m_bLog;
+        bool              m_bCrcCheck;
+        int               m_pid;
+        CSection          m_section;
+        int               m_iContinuityCounter;
+        ISectionCallback* m_pCallback;
+        CTsHeader         m_header;
+        CTsHeader         m_headerSection;
+    };
+}

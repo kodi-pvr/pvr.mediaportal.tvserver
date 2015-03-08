@@ -25,18 +25,21 @@
 
 #include "os-dependent.h"
 
-class CPacketSync
+namespace MPTV
 {
-public:
-  CPacketSync(void);
+    class CPacketSync
+    {
+    public:
+        CPacketSync(void);
 
-public:
-  virtual ~CPacketSync(void);
-  void OnRawData(byte* pData, int nDataLen);
-  virtual void OnTsPacket(byte* tsPacket);
-  void Reset(void);
+    public:
+        virtual ~CPacketSync(void);
+        void OnRawData(byte* pData, int nDataLen);
+        virtual void OnTsPacket(byte* tsPacket);
+        void Reset(void);
 
-private:
-  byte  m_tempBuffer[200];
-  int   m_tempBufferPos;
-};
+    private:
+        byte  m_tempBuffer[200];
+        int   m_tempBufferPos;
+    };
+}

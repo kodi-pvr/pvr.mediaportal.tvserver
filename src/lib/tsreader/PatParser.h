@@ -25,36 +25,39 @@
 #include "ChannelInfo.h"
 #include <vector>
 
-class IPatParserCallback
+namespace MPTV
 {
-public:
-  virtual void OnNewChannel(CChannelInfo& info)=0;
-};
+    class IPatParserCallback
+    {
+    public:
+        virtual void OnNewChannel(CChannelInfo& info) = 0;
+    };
 
-class CPatParser : public CSectionDecoder
-{
-public:
-  enum PatState
-  {
-    Idle,
-    Parsing,
-  };
-  CPatParser(void);
-  virtual ~CPatParser(void);
-  void        SkipPacketsAtStart(int64_t packets);
-  void        OnTsPacket(byte* tsPacket);
-  void        Reset();
-  void        OnNewSection(CSection& section);
-  int         Count();
-  bool        GetChannel(int index, CChannelInfo& info);
-  void        Dump();
-  void        SetCallBack(IPatParserCallback* callback);
-private:
-  void        CleanUp();
-  IPatParserCallback* m_pCallback;
-  std::vector<CPmtParser*> m_pmtParsers;
-  int64_t     m_packetsReceived;
-  int64_t     m_packetsToSkip;
-  int          m_iPatTableVersion;
-  PatState    m_iState;
-};
+    class CPatParser : public CSectionDecoder
+    {
+    public:
+        enum PatState
+        {
+            Idle,
+            Parsing,
+        };
+        CPatParser(void);
+        virtual ~CPatParser(void);
+        void        SkipPacketsAtStart(int64_t packets);
+        void        OnTsPacket(byte* tsPacket);
+        void        Reset();
+        void        OnNewSection(CSection& section);
+        int         Count();
+        bool        GetChannel(int index, CChannelInfo& info);
+        void        Dump();
+        void        SetCallBack(IPatParserCallback* callback);
+    private:
+        void        CleanUp();
+        IPatParserCallback* m_pCallback;
+        std::vector<CPmtParser*> m_pmtParsers;
+        int64_t     m_packetsReceived;
+        int64_t     m_packetsToSkip;
+        int          m_iPatTableVersion;
+        PatState    m_iState;
+    };
+}

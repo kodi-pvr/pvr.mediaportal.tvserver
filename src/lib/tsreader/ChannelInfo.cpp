@@ -21,31 +21,34 @@
 
 #include "ChannelInfo.h"
 
-CChannelInfo::CChannelInfo(void)
+namespace MPTV
 {
-  Reset();
-}
+    CChannelInfo::CChannelInfo(void)
+    {
+        Reset();
+    }
 
-CChannelInfo::~CChannelInfo(void)
-{
-}
+    CChannelInfo::~CChannelInfo(void)
+    {
+    }
 
-void CChannelInfo::Reset()
-{
-  PatVersion=-1;
-  LCN=10000;
-  NetworkId=0;
-  TransportId=0;
-  ServiceId=0;
-  EIT_schedule_flag=0;
-  EIT_present_following_flag=0;
-  RunningStatus=0;
-  FreeCAMode=0;
-  ServiceType=0;
-  MajorChannel=0;
-  MinorChannel=0;
-  Frequency=0;
-  Modulation=0;
-  strcpy(ProviderName,"");
-  strcpy(ServiceName,"");
+    void CChannelInfo::Reset()
+    {
+        PatVersion = -1;
+        LCN = 10000;
+        NetworkId = 0;
+        TransportId = 0;
+        ServiceId = 0;
+        EIT_schedule_flag = 0;
+        EIT_present_following_flag = 0;
+        RunningStatus = 0;
+        FreeCAMode = 0;
+        ServiceType = 0;
+        MajorChannel = 0;
+        MinorChannel = 0;
+        Frequency = 0;
+        Modulation = 0;
+        strcpy(ProviderName, "");
+        strcpy(ServiceName, "");
+    }
 }

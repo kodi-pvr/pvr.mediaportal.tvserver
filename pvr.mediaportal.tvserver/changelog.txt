@@ -1,3 +1,7 @@
+v1.10.3
+- Move tsreader sources into the MPTV namespace to prevent a crash on RPi when using the FileReader class.
+  Kodi now has an internal FileReader class (since xbmc/xbmc/pull/6306) which is somehow used by the addon instead of the class in the addon.
+
 v1.10.2
 - Updated to PVR API v1.9.5
 - Fixed: Schedules: Fix displaying an incorrect day in Kodi for 'Weekly' and 'WeeklyEveryTimeOnThisChannel' series recordings

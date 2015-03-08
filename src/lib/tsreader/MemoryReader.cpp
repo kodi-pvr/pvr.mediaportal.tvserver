@@ -31,31 +31,34 @@
 
 #include "MemoryReader.h"
 
-CMemoryReader::CMemoryReader(CMemoryBuffer& buffer)
-:m_buffer(buffer)
+namespace MPTV
 {
-}
+    CMemoryReader::CMemoryReader(CMemoryBuffer& buffer)
+        :m_buffer(buffer)
+    {
+    }
 
-CMemoryReader::~CMemoryReader(void)
-{
-}
+    CMemoryReader::~CMemoryReader(void)
+    {
+    }
 
-long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
-{
-  *dwReadBytes = m_buffer.ReadFromBuffer(pbData,lDataLength);
-  if ((*dwReadBytes) <=0)
-    return S_FALSE;
-  return S_OK;
-}
+    long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
+    {
+        *dwReadBytes = m_buffer.ReadFromBuffer(pbData,lDataLength);
+        if ((*dwReadBytes) <=0)
+            return S_FALSE;
+        return S_OK;
+    }
 
-unsigned long CMemoryReader::setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
-{
-  return 0;
-}
+    unsigned long CMemoryReader::setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
+    {
+        return 0;
+    }
 
-int CMemoryReader::HasData()
-{
-  return (m_buffer.Size());
+    int CMemoryReader::HasData()
+    {
+        return (m_buffer.Size());
+    }
 }
 
 #endif //LIVE555
