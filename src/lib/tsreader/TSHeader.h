@@ -14,36 +14,41 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
 #pragma once
 
-class CTsHeader
+namespace MPTV
 {
-public:
-  CTsHeader();
-  CTsHeader(byte* tsPacket);
-  virtual ~CTsHeader(void);
-  void Decode(byte *data);
-  void LogHeader();
-  bool PayLoadOnly();
-  bool AdaptionFieldOnly();
-  bool AdaptionFieldAndPayLoad();
+    class CTsHeader
+    {
+    public:
+        CTsHeader();
+        CTsHeader(byte* tsPacket);
+        virtual ~CTsHeader(void);
+        void Decode(byte *data);
+        void LogHeader();
+        bool PayLoadOnly();
+        bool AdaptionFieldOnly();
+        bool AdaptionFieldAndPayLoad();
 
-  byte SyncByte;
-  bool TransportError;
-  bool PayloadUnitStart;
-  bool TransportPriority;
-  unsigned short Pid;
-  byte TScrambling;
-  byte AdaptionControl;
-  byte ContinuityCounter;
-  byte AdaptionFieldLength;
-  byte PayLoadStart;
-  bool HasAdaptionField;
-  bool HasPayload;
-private:
-  byte* m_packet;
-};
+        byte SyncByte;
+        bool TransportError;
+        bool PayloadUnitStart;
+        bool TransportPriority;
+        unsigned short Pid;
+        byte TScrambling;
+        byte AdaptionControl;
+        byte ContinuityCounter;
+        byte AdaptionFieldLength;
+        byte PayLoadStart;
+        bool HasAdaptionField;
+        bool HasPayload;
+    private:
+        byte* m_packet;
+    };
+}
+

@@ -44,9 +44,9 @@ void cEpg::Reset()
 {
   m_genre.clear();
   m_title.clear();
-  m_shortText.clear();
   m_description.clear();
   m_episodePart.clear();
+  m_episodeName.clear();
 
   m_uid             = 0;
   m_originalAirDate = 0;
@@ -102,7 +102,6 @@ bool cEpg::ParseLine(string& data)
 
       m_title = epgfields[2];
       m_description = epgfields[3];
-      m_shortText = epgfields[2];
       m_genre = epgfields[4];
       if (m_genretable) m_genretable->GenreToTypes(m_genre, m_genre_type, m_genre_subtype);
 
@@ -157,4 +156,12 @@ time_t cEpg::OriginalAirDate(void) const
 {
   time_t retval = m_endTime.GetAsTime();
   return retval;
+}
+
+const char *cEpg::PlotOutline(void) const
+{
+  if (m_episodeName.empty())
+    return m_title.c_str();
+  else
+    return m_episodeName.c_str();
 }

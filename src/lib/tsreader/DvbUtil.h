@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -22,13 +23,16 @@
 
 #include "os-dependent.h"
 
-uint32_t crc32 (char *data, int len);
-
-class CDvbUtil
+namespace MPTV
 {
-public:
-  CDvbUtil(void);
-  void getString468A(byte *buf, int bufLen, char *text, int textLen);
-public:
-  virtual ~CDvbUtil(void);
-};
+    uint32_t crc32(char *data, int len);
+
+    class CDvbUtil
+    {
+    public:
+        CDvbUtil(void);
+        void getString468A(byte *buf, int bufLen, char *text, int textLen);
+    public:
+        virtual ~CDvbUtil(void);
+    };
+}

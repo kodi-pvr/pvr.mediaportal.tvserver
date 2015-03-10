@@ -14,35 +14,40 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
 #pragma once
 #include "PidTable.h"
 
-class CChannelInfo
+namespace MPTV
 {
-public:
-  CChannelInfo(void);
-  virtual ~CChannelInfo(void);
-  void Reset();
-  int NetworkId;
-  int TransportId;
-  int ServiceId;
-  int MajorChannel;
-  int MinorChannel;
-  int Frequency;
-  int EIT_schedule_flag;
-  int EIT_present_following_flag;
-  int RunningStatus;
-  int FreeCAMode;
-  int ServiceType;
-  int Modulation;
-  int LCN;
-  char ProviderName[255];
-  char ServiceName[255];
 
-  CPidTable PidTable;
-  int PatVersion;
-};
+    class CChannelInfo
+    {
+    public:
+        CChannelInfo(void);
+        virtual ~CChannelInfo(void);
+        void Reset();
+        int NetworkId;
+        int TransportId;
+        int ServiceId;
+        int MajorChannel;
+        int MinorChannel;
+        int Frequency;
+        int EIT_schedule_flag;
+        int EIT_present_following_flag;
+        int RunningStatus;
+        int FreeCAMode;
+        int ServiceType;
+        int Modulation;
+        int LCN;
+        char ProviderName[255];
+        char ServiceName[255];
+
+        CPidTable PidTable;
+        int PatVersion;
+    };
+}

@@ -33,19 +33,22 @@
 #include "FileReader.h"
 #include "MemoryBuffer.h"
 
-class CMemoryReader : public FileReader
+namespace MPTV
 {
-  public:
-    CMemoryReader(CMemoryBuffer& buffer);
-    virtual ~CMemoryReader(void);
-    long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
-    unsigned long setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
-    bool IsBuffer() { return true; };
-    long CloseFile() { return S_OK; };
-    int HasData();
+    class CMemoryReader : public FileReader
+    {
+      public:
+        CMemoryReader(CMemoryBuffer& buffer);
+        virtual ~CMemoryReader(void);
+        long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+        unsigned long setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
+        bool IsBuffer() { return true; };
+        long CloseFile() { return S_OK; };
+        int HasData();
 
-  private:
-    CMemoryBuffer& m_buffer;
-    CMemoryReader& operator=(const CMemoryReader& memoryreader) {};
-};
+      private:
+        CMemoryBuffer& m_buffer;
+        CMemoryReader& operator=(const CMemoryReader& memoryreader) {};
+    };
+}
 #endif //LIVE555

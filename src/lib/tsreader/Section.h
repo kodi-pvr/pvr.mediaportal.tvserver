@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -22,25 +23,29 @@
 
 #define MAX_SECTION_LENGTH 4300
 
-class CSection
+namespace MPTV
 {
-public:
-  CSection(void);
-  virtual ~CSection(void);
-  void   Reset();
-  bool   DecodeHeader();
-  int    CalcSectionLength(byte* tsPacket, int start);
-  bool   SectionComplete();
-  CSection& operator = (const CSection& section);
-  void Copy(const CSection &section);
+    class CSection
+    {
+    public:
+        CSection(void);
+        virtual ~CSection(void);
+        void   Reset();
+        bool   DecodeHeader();
+        int    CalcSectionLength(byte* tsPacket, int start);
+        bool   SectionComplete();
+        CSection& operator = (const CSection& section);
+        void Copy(const CSection &section);
 
-  int table_id;
-  int table_id_extension;
-  int section_length;
-  int section_number;
-  int version_number;
-  int section_syntax_indicator;
+        int table_id;
+        int table_id_extension;
+        int section_length;
+        int section_number;
+        int version_number;
+        int section_syntax_indicator;
 
-  int BufferPos;
-  byte Data[MAX_SECTION_LENGTH*5];
-};
+        int BufferPos;
+        byte Data[MAX_SECTION_LENGTH * 5];
+    };
+}
+

@@ -15,7 +15,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -33,6 +34,8 @@ private:
   bool iswebstream;
   bool visibleinguide;
   std::string url;
+  int majorChannelNr;
+  int minorChannelNr;
 
 public:
   cChannel();
@@ -46,5 +49,7 @@ public:
   bool IsWebstream(void) const { return iswebstream; }
   bool VisibleInGuide(void) const { return visibleinguide; }
   const char* URL(void) const { return url.c_str(); }
+  int MajorChannelNr(void) const { return majorChannelNr; }
+  int MinorChannelNr(void) const { return minorChannelNr; }
 };
 

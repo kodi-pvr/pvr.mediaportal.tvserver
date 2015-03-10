@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -25,18 +26,21 @@
 
 #include "os-dependent.h"
 
-class CPacketSync
+namespace MPTV
 {
-public:
-  CPacketSync(void);
+    class CPacketSync
+    {
+    public:
+        CPacketSync(void);
 
-public:
-  virtual ~CPacketSync(void);
-  void OnRawData(byte* pData, int nDataLen);
-  virtual void OnTsPacket(byte* tsPacket);
-  void Reset(void);
+    public:
+        virtual ~CPacketSync(void);
+        void OnRawData(byte* pData, int nDataLen);
+        virtual void OnTsPacket(byte* tsPacket);
+        void Reset(void);
 
-private:
-  byte  m_tempBuffer[200];
-  int   m_tempBufferPos;
-};
+    private:
+        byte  m_tempBuffer[200];
+        int   m_tempBufferPos;
+    };
+}

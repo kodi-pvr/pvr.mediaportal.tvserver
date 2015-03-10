@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -25,36 +26,39 @@
 #include "ChannelInfo.h"
 #include <vector>
 
-class IPatParserCallback
+namespace MPTV
 {
-public:
-  virtual void OnNewChannel(CChannelInfo& info)=0;
-};
+    class IPatParserCallback
+    {
+    public:
+        virtual void OnNewChannel(CChannelInfo& info) = 0;
+    };
 
-class CPatParser : public CSectionDecoder
-{
-public:
-  enum PatState
-  {
-    Idle,
-    Parsing,
-  };
-  CPatParser(void);
-  virtual ~CPatParser(void);
-  void        SkipPacketsAtStart(int64_t packets);
-  void        OnTsPacket(byte* tsPacket);
-  void        Reset();
-  void        OnNewSection(CSection& section);
-  int         Count();
-  bool        GetChannel(int index, CChannelInfo& info);
-  void        Dump();
-  void        SetCallBack(IPatParserCallback* callback);
-private:
-  void        CleanUp();
-  IPatParserCallback* m_pCallback;
-  std::vector<CPmtParser*> m_pmtParsers;
-  int64_t     m_packetsReceived;
-  int64_t     m_packetsToSkip;
-  int          m_iPatTableVersion;
-  PatState    m_iState;
-};
+    class CPatParser : public CSectionDecoder
+    {
+    public:
+        enum PatState
+        {
+            Idle,
+            Parsing,
+        };
+        CPatParser(void);
+        virtual ~CPatParser(void);
+        void        SkipPacketsAtStart(int64_t packets);
+        void        OnTsPacket(byte* tsPacket);
+        void        Reset();
+        void        OnNewSection(CSection& section);
+        int         Count();
+        bool        GetChannel(int index, CChannelInfo& info);
+        void        Dump();
+        void        SetCallBack(IPatParserCallback* callback);
+    private:
+        void        CleanUp();
+        IPatParserCallback* m_pCallback;
+        std::vector<CPmtParser*> m_pmtParsers;
+        int64_t     m_packetsReceived;
+        int64_t     m_packetsToSkip;
+        int          m_iPatTableVersion;
+        PatState    m_iState;
+    };
+}

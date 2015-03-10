@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -49,26 +50,30 @@
 #define DESCRIPTOR_DVB_SUBTITLING   0x59
 #define DESCRIPTOR_MPEG_ISO639_Lang 0x0a
 
-class IPmtCallBack
+namespace MPTV
 {
-public:
-  virtual void OnPmtReceived(int pmtPid)=0;
-  virtual void OnPidsReceived(const CPidTable& info)=0;
-};
+    class IPmtCallBack
+    {
+    public:
+        virtual void OnPmtReceived(int pmtPid) = 0;
+        virtual void OnPidsReceived(const CPidTable& info) = 0;
+    };
 
-class CPmtParser: public  CSectionDecoder
-{
-public:
-  CPmtParser(void);
-  virtual     ~CPmtParser(void);
-  void        OnNewSection(CSection& section);
-  void        SetPmtCallBack(IPmtCallBack* callback);
-  bool        IsReady();
-  CPidTable&  GetPidInfo();
+    class CPmtParser : public  CSectionDecoder
+    {
+    public:
+        CPmtParser(void);
+        virtual     ~CPmtParser(void);
+        void        OnNewSection(CSection& section);
+        void        SetPmtCallBack(IPmtCallBack* callback);
+        bool        IsReady();
+        CPidTable&  GetPidInfo();
 
-private:
-  bool          m_isFound;
-  IPmtCallBack* m_pmtCallback;
-  CTsHeader     m_tsHeader;
-  CPidTable     m_pidInfo;  
-};
+    private:
+        bool          m_isFound;
+        IPmtCallBack* m_pmtCallback;
+        CTsHeader     m_tsHeader;
+        CPidTable     m_pidInfo;
+    };
+}
+

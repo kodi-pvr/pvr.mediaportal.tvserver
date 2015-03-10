@@ -6,6 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 include_directories(../..)
 
+# Source files
 SET(SOURCES ChannelInfo.cpp
             DeMultiplexer.cpp
             DvbUtil.cpp
@@ -21,4 +22,22 @@ SET(SOURCES ChannelInfo.cpp
             TSHeader.cpp
             TSReader.cpp)
 
-ADD_LIBRARY(tsreader STATIC ${SOURCES})
+# Header files
+SET(HEADERS ChannelInfo.h
+            DeMultiplexer.h
+            DvbUtil.h
+            FileReader.h
+            MemoryReader.h
+            MultiFileReader.h
+            PacketSync.h
+            PatParser.h
+            PidTable.h
+            PmtParser.h
+            Section.h
+            SectionDecoder.h
+            TSDebug.h
+            TSHeader.h
+            TSReader.h)
+SOURCE_GROUP("Header Files" FILES ${HEADERS})
+
+ADD_LIBRARY(tsreader STATIC ${HEADERS} ${SOURCES})

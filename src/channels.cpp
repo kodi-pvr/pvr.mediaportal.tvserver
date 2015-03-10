@@ -30,6 +30,8 @@ cChannel::cChannel()
   iswebstream = false;
   encrypted = false;
   visibleinguide = true;
+  majorChannelNr = -1;
+  minorChannelNr = -1;
 }
 
 cChannel::~cChannel()
@@ -54,6 +56,8 @@ bool cChannel::Parse(const std::string& data)
     // 4 = iswebstream
     // 5 = webstream url
     // 6 = visibleinguide (TVServerXBMC >= v1.2.3.120)
+    // 7 = ATSC major channel number (TVServerXBMC >= v1.8.0.126)
+    // 8 = ATSC minor channel number (TVServerXBMC >= v1.8.0.126)
 
     uid = atoi(fields[0].c_str());
     external_id = atoi(fields[1].c_str());
@@ -68,6 +72,16 @@ bool cChannel::Parse(const std::string& data)
       if (fields.size() >= 7)
       {
         visibleinguide = (strncmp(fields[6].c_str(), "1", 1) == 0);
+        if (fields.size() >= 9)
+        {
+          majorChannelNr = atoi(fields[7].c_str());
+          minorChannelNr = atoi(fields[8].c_str());
+        }
+        else
+        {
+          majorChannelNr = -1;
+          minorChannelNr = -1;
+        }
       }
     }
 

@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with XBMC; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -37,7 +37,6 @@ class cEpg
 private:
   unsigned int m_uid;
   std::string m_title;
-  std::string m_shortText;
   std::string m_description;
   MPTV::CDateTime m_startTime;
   MPTV::CDateTime m_endTime;
@@ -66,7 +65,7 @@ public:
   time_t Duration(void) const { return m_duration; }
   time_t OriginalAirDate(void) const;
   const char *Title(void) const { return m_title.c_str(); }
-  const char *ShortText(void) const { return m_shortText.c_str(); }
+  const char *PlotOutline(void) const;
   const char *Description(void) const { return m_description.c_str(); }
   const char *Genre(void) const { return m_genre.c_str(); }
   int GenreType(void) const { return m_genre_type; }

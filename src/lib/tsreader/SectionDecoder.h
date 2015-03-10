@@ -14,7 +14,8 @@
  *   
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1335  USA
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -27,32 +28,35 @@
 
 #define MAX_SECTIONS 256
 
-class CSectionDecoder : public CDvbUtil
+namespace MPTV
 {
-public:
-  CSectionDecoder(void);
-  ~CSectionDecoder(void);
-  void SetCallBack(ISectionCallback* callback);
-  void OnTsPacket(byte* tsPacket);
-  void OnTsPacket(CTsHeader& header,byte* tsPacket);
-  void SetPid(int pid);
-  int  GetPid();
-  void Reset();
-  void EnableLogging(bool onOff);
-  void EnableCrcCheck(bool onOff);
-  virtual void OnNewSection(CSection& section);
-protected:
-private:
-  int StartNewSection(byte* tsPacket,int index,int sectionLen);
-  int AppendSection(byte* tsPacket, int index, int sectionLen);
-  int SnapshotSectionLength(byte* tsPacket,int start);
+    class CSectionDecoder : public CDvbUtil
+    {
+    public:
+        CSectionDecoder(void);
+        ~CSectionDecoder(void);
+        void SetCallBack(ISectionCallback* callback);
+        void OnTsPacket(byte* tsPacket);
+        void OnTsPacket(CTsHeader& header, byte* tsPacket);
+        void SetPid(int pid);
+        int  GetPid();
+        void Reset();
+        void EnableLogging(bool onOff);
+        void EnableCrcCheck(bool onOff);
+        virtual void OnNewSection(CSection& section);
+    protected:
+    private:
+        int StartNewSection(byte* tsPacket, int index, int sectionLen);
+        int AppendSection(byte* tsPacket, int index, int sectionLen);
+        int SnapshotSectionLength(byte* tsPacket, int start);
 
-  bool              m_bLog;
-  bool              m_bCrcCheck;
-  int               m_pid;
-  CSection          m_section;
-  int               m_iContinuityCounter;
-  ISectionCallback* m_pCallback;
-  CTsHeader         m_header;
-  CTsHeader         m_headerSection;
-};
+        bool              m_bLog;
+        bool              m_bCrcCheck;
+        int               m_pid;
+        CSection          m_section;
+        int               m_iContinuityCounter;
+        ISectionCallback* m_pCallback;
+        CTsHeader         m_header;
+        CTsHeader         m_headerSection;
+    };
+}
