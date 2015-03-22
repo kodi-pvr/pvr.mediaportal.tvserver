@@ -110,11 +110,11 @@ std::string ToThumbFileName(const char* strChannelName)
 
 std::string ToXBMCPath(const std::string& strFileName)
 {
-  CStdString strXBMCFileName = strFileName;
+  CStdString strXBMCFileName(strFileName);
 
   if (strXBMCFileName.Left(2) == "\\\\")
   {
-    CStdString SMBPrefix = "smb://";
+    std::string SMBPrefix = "smb://";
 
     if (g_szSMBusername.length() > 0)
     {
@@ -125,9 +125,9 @@ std::string ToXBMCPath(const std::string& strFileName)
       }
       SMBPrefix += "@";
     }
-    strXBMCFileName.Replace("\\\\", SMBPrefix);
+    strXBMCFileName.Replace("\\\\", SMBPrefix.c_str());
+    strXBMCFileName.Replace('\\', '/');
   }
-  strXBMCFileName.Replace('\\', '/');
 
   return strXBMCFileName;
 }
