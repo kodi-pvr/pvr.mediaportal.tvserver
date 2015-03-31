@@ -44,7 +44,7 @@ using namespace MPTV;
 int g_iTVServerXBMCBuild = 0;
 
 /* PVR client version (don't forget to update also the addon.xml and the Changelog.txt files) */
-#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.10.3"
+#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.10.4"
 
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
@@ -996,11 +996,29 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         PVR_STRCLR(tag.strDirectory);
       }
 
+      std::string recordingUri(ToXBMCPath(recording.FilePath()));
+
+      if (g_bUseRTSP == false)
+      {
+        /* Recording thumbnail */
+        CStdString strThumbnailName(recordingUri);
+        strThumbnailName.Replace(".ts", ".jpg");
+
+        if (XBMC->FileExists(strThumbnailName.c_str(), false))
+        {
+          PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+        }
+        else
+        {
+          PVR_STRCLR(tag.strThumbnailPath);
+        }
+      }
+
 #ifdef TARGET_WINDOWS
-      if ( (g_bUseRTSP == false) && (recording.IsRecording() == false) && (OS::CFile::Exists( recording.FilePath() )))
+      if ((g_bUseRTSP == false) && (recording.IsRecording() == false) && (OS::CFile::Exists(recording.FilePath())))
       {
         // Direct access. Bypass the PVR addon completely (both ffmpeg and TSReader mode; Windows only)
-        PVR_STRCPY(tag.strStreamURL, ToXBMCPath(recording.FilePath()).c_str());
+        PVR_STRCPY(tag.strStreamURL, recordingUri.c_str());
       }
       else
 #endif
