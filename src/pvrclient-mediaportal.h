@@ -27,7 +27,7 @@
 #include "Socket.h"
 #include "Cards.h"
 #include "epg.h"
-#include "kodi/threads/mutex.h"
+#include "platform/threads/mutex.h"
 
 /* Use a forward declaration here. Including RTSPClient.h via TSReader.h at this point gives compile errors */
 namespace MPTV

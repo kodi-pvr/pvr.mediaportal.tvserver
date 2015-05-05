@@ -37,7 +37,7 @@
 #include "PacketSync.h"
 #include "TSHeader.h"
 #include "PatParser.h"
-#include "kodi/threads/mutex.h"
+#include "platform/threads/mutex.h"
 
 namespace MPTV
 {

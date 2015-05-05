@@ -18,9 +18,9 @@
  */
 
 #include "../FileUtils.h"
-#include "kodi/os.h"
+#include "platform/os.h"
 #include <string>
-#include "kodi/util/StdString.h"
+#include "platform/util/StdString.h"
 #include "../utils.h"
 
 namespace OS
