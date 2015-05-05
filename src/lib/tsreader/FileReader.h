@@ -33,8 +33,8 @@
  *  http://forums.dvbowners.com/
  */
 
-#include "kodi/os.h"
-#include "kodi/util/StdString.h"
+#include "platform/os.h"
+#include "platform/util/StdString.h"
 
 namespace MPTV
 {

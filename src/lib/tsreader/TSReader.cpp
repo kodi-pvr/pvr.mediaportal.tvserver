@@ -32,7 +32,7 @@
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "TSDebug.h"
-#include "kodi/util/timeutils.h"
+#include "platform/util/timeutils.h"
 #ifdef LIVE555
 #include "MemoryReader.h"
 #include "MepoRTSPClient.h"
