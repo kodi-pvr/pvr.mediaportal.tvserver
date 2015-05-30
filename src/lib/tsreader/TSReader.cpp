@@ -340,6 +340,11 @@ namespace MPTV
                 int64_t pos_before, pos_after;
                 MultiFileReader* fileReader = dynamic_cast<MultiFileReader*>(m_fileReader);
 
+                if (!fileReader)
+                {
+                  return false;
+                }
+
                 pos_before = fileReader->GetFilePointer();
 
                 if ((timeShiftBufferPos > 0) && (timeshiftBufferID != -1))
