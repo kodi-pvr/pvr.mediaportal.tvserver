@@ -139,7 +139,7 @@ namespace MPTV
         std::vector<MultiFileReaderFile *>::iterator it;
 
         m_TSBufferFile.CloseFile();
-        hr = m_TSFile.CloseFile();
+        hr = CloseTSTimeShiftFile();
 
         for (it = m_tsFiles.begin(); it < m_tsFiles.end(); ++it)
         {
@@ -149,6 +149,14 @@ namespace MPTV
 
         m_TSFileId = 0;
         return hr;
+    }
+
+    //
+    // Close TimeShift TS File
+    //
+    long MultiFileReader::CloseTSTimeShiftFile()
+    {
+        return m_TSFile.CloseFile();
     }
 
     bool MultiFileReader::IsFileInvalid()
