@@ -278,6 +278,16 @@ namespace MPTV
             m_demultiplexer.Start();
 
             m_fileReader->SetFilePointer(0LL, FILE_BEGIN);
+            if (m_bTimeShifting)
+            {
+                // Unlock ts timeShift file.
+                // This will allow mp tvserver to write(or delete) to ts timeShift files
+                // while TSReader is idle after file opening.
+                // e.g when stream url has been opened by external reader with GetLiveStreamURL().
+                // ts timeShift file will be loaded again on the first read request.
+                m_fileReader->CloseTSTimeShiftFile();
+            }
+
             m_State = State_Running;
         }
         return S_OK;
@@ -358,6 +368,13 @@ namespace MPTV
 
                 m_demultiplexer.RequestNewPat();
                 fileReader->OnChannelChange();
+
+                // Unlock ts timeShift file.
+                // This will allow mp tvserver to write(or delete) to ts timeShift files
+                // while TSReader is idle after channel switching.
+                // e.g when stream url has been opened by external reader with GetLiveStreamURL().
+                // ts timeShift file will be loaded again on the first read request.
+                fileReader->CloseTSTimeShiftFile();
 
                 XBMC->Log(LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
                 usleep(100000);
