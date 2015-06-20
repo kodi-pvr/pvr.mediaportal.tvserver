@@ -122,7 +122,7 @@ bool cRecording::ParseLine(const std::string& data)
     if ( m_keepUntilDate.SetFromDateTime(fields[8]) == false )
     {
       // invalid date (or outside time_t boundaries)
-      m_keepUntilDate = cUndefinedDate;
+      m_keepUntilDate = MPTV::cUndefinedDate;
     }
 
     if( m_filePath.length() > 0 )
