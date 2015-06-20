@@ -47,10 +47,19 @@ using namespace ADDON;
 namespace MPTV
 {
     CDeMultiplexer::CDeMultiplexer(CTsReader& filter)
-        :m_filter(filter)
+        :m_filter(filter),
+        m_LastDataFromRtsp(0),
+        m_bEndOfFile(false),
+        m_reader(NULL),
+        m_iPatVersion(-1),
+        m_ReqPatVersion(-1),
+        m_WaitNewPatTmo(0),
+        m_receivedPackets(0),
+        m_bAudioAtEof(false),
+        m_bVideoAtEof(false),
+        m_bGotNewChannel(false)
     {
         m_patParser.SetCallBack(this);
-        m_bGotNewChannel = false;
     }
 
     CDeMultiplexer::~CDeMultiplexer()
@@ -218,6 +227,8 @@ namespace MPTV
 
     void CDeMultiplexer::RequestNewPat(void)
     {
+      if (m_reader)
+      {
         m_ReqPatVersion++;
         m_ReqPatVersion &= 0x0F;
         XBMC->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
@@ -237,7 +248,7 @@ namespace MPTV
         }
 
         XBMC->Log(LOG_DEBUG, "Found a new channel after processing %li bytes. File position: %I64d\n", dwBytesProcessed, m_reader->GetFilePointer());
-
+      }
     }
 
     /// This method gets called-back from the pat parser when a new PAT/PMT/SDT has been received
