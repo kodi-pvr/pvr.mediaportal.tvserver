@@ -24,6 +24,8 @@
 namespace MPTV
 {
 
+const time_t cUndefinedDate = 946681200;   ///> 01-01-2000 00:00:00 in time_t
+
 class CDateTime
 {
 public:

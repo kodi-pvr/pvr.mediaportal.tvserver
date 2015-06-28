@@ -73,7 +73,10 @@ bool CCards::ParseLines(vector<string>& lines)
       card.Name = fields[2];
       card.Priority = atoi(fields[3].c_str());
       card.GrabEPG = stringtobool(fields[4]);
-      card.LastEpgGrab.SetFromDateTime(fields[5]);
+      if (card.LastEpgGrab.SetFromDateTime(fields[5]) == false)
+      {
+        card.LastEpgGrab.SetFromTime(MPTV::cUndefinedDate);
+      }
       card.RecordingFolder = fields[6];
       card.IdServer = atoi(fields[7].c_str());
       card.Enabled = stringtobool(fields[8]);

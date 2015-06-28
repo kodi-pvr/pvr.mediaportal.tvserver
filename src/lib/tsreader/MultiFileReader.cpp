@@ -53,16 +53,17 @@ namespace MPTV
 {
     MultiFileReader::MultiFileReader() :
         m_TSBufferFile(),
-        m_TSFile()
+        m_TSFile(),
+        m_startPosition(0),
+        m_currentFileStartOffset(0),
+        m_endPosition(0),
+        m_currentPosition(0),
+        m_lastZapPosition(0),
+        m_filesAdded(0),
+        m_filesRemoved(0),
+        m_TSFileId(0),
+        m_bDelay(0)
     {
-        m_startPosition = 0;
-        m_endPosition = 0;
-        m_currentPosition = 0;
-        m_lastZapPosition = 0;
-        m_filesAdded = 0;
-        m_filesRemoved = 0;
-        m_TSFileId = 0;
-        m_bDelay = 0;
     }
 
     MultiFileReader::~MultiFileReader()
