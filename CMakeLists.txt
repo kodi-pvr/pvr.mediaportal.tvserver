@@ -73,7 +73,7 @@ set(RESOURCE_FILES pvr.mediaportal.tvserver/addon.xml
                 pvr.mediaportal.tvserver/changelog.txt
                 pvr.mediaportal.tvserver/resources/genre_translation.xml
                 pvr.mediaportal.tvserver/resources/settings.xml
-                pvr.mediaportal.tvserver/resources/language/English/strings.po)
+                pvr.mediaportal.tvserver/resources/language/resource.language.en_gb/strings.po)
 source_group("Resource Files" FILES ${RESOURCE_FILES})
 endif(WIN32)
 
