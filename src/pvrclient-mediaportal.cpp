@@ -44,7 +44,7 @@ using namespace MPTV;
 int g_iTVServerXBMCBuild = 0;
 
 /* PVR client version (don't forget to update also the addon.xml and the Changelog.txt files) */
-#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.10.4"
+#define PVRCLIENT_MEDIAPORTAL_VERSION_STRING    "1.10.7"
 
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
