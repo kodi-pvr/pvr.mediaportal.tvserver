@@ -66,7 +66,6 @@ enum KeepMethodType
 
 };
 
-const time_t cUndefinedDate = 946681200;   ///> 01-01-2000 00:00:00 in time_t
 const int    cSecsInDay  = 86400;          ///> Amount of seconds in one day
 
 class cTimer
@@ -91,7 +90,7 @@ class cTimer
     bool Repeat() const { return (m_schedtype == TvDatabase::Once ? false : true); };
     bool Done() const { return m_done; };
     bool IsManual() const { return m_ismanual; };
-    bool IsActive() const { return (m_canceled==cUndefinedDate); };
+    bool IsActive() const { return (m_canceled==MPTV::cUndefinedDate); };
     bool IsRecording() const { return m_isrecording; };
     TvDatabase::ScheduleRecordingType RepeatFlags2SchedRecType(int repeatflags);
     std::string AddScheduleCommand();

@@ -260,12 +260,15 @@ bool cTimer::ParseLine(const char *s)
       // The DateTime value 2000-01-01 00:00:00 means: active in MediaPortal
       if(schedulefields[15].compare("2000-01-01 00:00:00Z")==0)
       {
-        m_canceled.SetFromTime(cUndefinedDate);
+        m_canceled.SetFromTime(MPTV::cUndefinedDate);
         m_active = true;
       }
       else
       {
-        m_canceled.SetFromDateTime(schedulefields[15]);
+        if (m_canceled.SetFromDateTime(schedulefields[15]) == false)
+        {
+          m_canceled.SetFromTime(MPTV::cUndefinedDate);
+        }
         m_active = false;
       }
 
