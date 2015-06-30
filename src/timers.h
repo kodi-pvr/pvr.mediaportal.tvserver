@@ -24,7 +24,7 @@
 #ifndef __TIMERS_H
 #define __TIMERS_H
 
-#include "kodi/libXBMC_pvr.h"
+#include "libXBMC_pvr.h"
 #include <stdlib.h>
 #include <string>
 #include "DateTime.h"
