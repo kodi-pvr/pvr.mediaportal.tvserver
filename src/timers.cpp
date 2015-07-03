@@ -112,7 +112,7 @@ cTimer::cTimer(const PVR_TIMER& timerinfo)
 
   SetKeepMethod(timerinfo.iLifetime);
 
-  if(timerinfo.bIsRepeating)
+  if(timerinfo.iWeekdays != PVR_WEEKDAY_NONE) // repeating?
   {
     m_schedtype = RepeatFlags2SchedRecType(timerinfo.iWeekdays);
     m_series = true;
@@ -139,6 +139,9 @@ cTimer::~cTimer()
 void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
 {
   memset(&tag, 0, sizeof(tag));
+
+  /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
+  tag.iTimerType = PVR_TIMER_TYPE_NONE;
 
   if (m_progid != -1)
   {
@@ -180,7 +183,6 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   }
   tag.iPriority         = Priority();
   tag.iLifetime         = GetLifetime();
-  tag.bIsRepeating      = Repeat();
   tag.iWeekdays         = RepeatFlags();
   tag.iMarginStart      = m_prerecordinterval;
   tag.iMarginEnd        = m_postrecordinterval;
