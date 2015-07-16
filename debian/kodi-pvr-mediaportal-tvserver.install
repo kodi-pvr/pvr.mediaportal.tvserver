@@ -1,2 +1,2 @@
-usr/lib/*/kodi/addons/pvr.mediaportal.tvserver/pvr.mediaportal.tvserver.so* usr/lib/kodi/addons/pvr.mediaportal.tvserver
+usr/lib/*/addons/pvr.mediaportal.tvserver/pvr.mediaportal.tvserver.so* usr/lib/kodi/addons/pvr.mediaportal.tvserver
 usr/share/kodi/addons/pvr.mediaportal.tvserver
