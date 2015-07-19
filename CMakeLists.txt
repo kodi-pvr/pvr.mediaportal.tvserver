@@ -11,11 +11,20 @@ find_package(kodiplatform REQUIRED)
 find_package(platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
+# Grab the addon version info from the addon.xml file
+FILE(READ ${PROJECT_NAME}/addon.xml.in MPTV_ADDONXML)
+STRING(REGEX MATCH "<addon[^>]*version.?=.?.[0-9\\.]+" MPTV_VERSION_STRING ${MPTV_ADDONXML})
+STRING(REGEX REPLACE ".*version=.([0-9\\.]+).*" "\\1" MPTV_VERSION ${MPTV_VERSION_STRING})
+
+# Generate an addon_version.h header with the version information
+configure_file(src/addon_version.h.in addon_version.h)
+
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${platform_INCLUDE_DIRS}
                     ${TINYXML_INCLUDE_DIR}
                     ${KODI_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/src)
+                    ${PROJECT_SOURCE_DIR}/src
+                    ${PROJECT_BINARY_DIR})
 
 add_definitions(-D__STDC_FORMAT_MACROS)
 
@@ -46,7 +55,8 @@ if(WIN32)
 endif(WIN32)
 
 # Header files
-set(MPTV_HEADERS src/Cards.h
+set(MPTV_HEADERS addon_version.h
+                 src/Cards.h
                  src/channels.h
                  src/client.h
                  src/DateTime.h
