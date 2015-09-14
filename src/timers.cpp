@@ -36,7 +36,7 @@ cTimer::cTimer() :
   m_keepDate(cUndefinedDate),
   m_canceled(cUndefinedDate)
 {
-  m_index              = -1;
+  m_index              = PVR_TIMER_NO_CLIENT_INDEX;
   m_active             = true;
   m_channel            = 0;
   m_schedtype          = TvDatabase::Once;
@@ -48,7 +48,7 @@ cTimer::cTimer() :
   m_done               = false;
   m_ismanual           = false;
   m_isrecording        = false;
-  m_progid             = -1;
+  m_progid             = 0;
 }
 
 
@@ -61,10 +61,10 @@ cTimer::cTimer(const PVR_TIMER& timerinfo)
   if(strlen(timerinfo.strDirectory) > 0)
   {
     // Workaround: retrieve the schedule id from the directory name if set
-    int schedule_id = 0;
+    unsigned int schedule_id = 0;
     unsigned int program_id = 0;
 
-    if (sscanf(timerinfo.strDirectory, "%9d/%9u", &schedule_id, &program_id) == 2)
+    if (sscanf(timerinfo.strDirectory, "%9u/%9u", &schedule_id, &program_id) == 2)
     {
       if (program_id == timerinfo.iClientIndex)
       {
@@ -143,7 +143,7 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
   tag.iTimerType = PVR_TIMER_TYPE_NONE;
 
-  if (m_progid != -1)
+  if (m_progid != 0)
   {
     // Use the EPG (program) id as unique id to see all scheduled programs in the EPG and timer list
     // Next program (In Home) is always the right one. Mostly seen with programs that are shown daily.
@@ -153,7 +153,7 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
     // Workaround: store the schedule and program id as directory name
     // This is needed by the PVR addon to map an XBMC timer back to the MediaPortal schedule
     // because we can't use the iClientIndex as schedule id anymore...
-    snprintf(tag.strDirectory, sizeof(tag.strDirectory)-1, "%d/%d", m_index, m_progid);
+    snprintf(tag.strDirectory, sizeof(tag.strDirectory)-1, "%u/%u", m_index, m_progid);
   }
   else
   {
@@ -293,7 +293,7 @@ bool cTimer::ParseLine(const char *s)
     if(schedulefields.size() >= 19)
       m_progid = atoi(schedulefields[18].c_str());
     else
-      m_progid = -1;
+      m_progid = 0;
 
     return true;
   }

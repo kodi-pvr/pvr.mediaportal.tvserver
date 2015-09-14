@@ -1278,7 +1278,7 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 
   cTimer timer(timerinfo);
 
-  if ((timerinfo.startTime > 0) && (timerinfo.iEpgUid != -1))
+  if ((timerinfo.startTime > 0) && (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID))
   {
     /* New scheduled recording, not an instant or manual recording
      * Present a custom dialog with advanced recording settings
