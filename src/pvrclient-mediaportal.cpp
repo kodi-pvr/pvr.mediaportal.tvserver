@@ -511,6 +511,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
             broadcast.iEpisodeNumber      = epg.EpisodeNumber();
             broadcast.iEpisodePartNumber  = atoi(epg.EpisodePart());
             broadcast.strEpisodeName      = epg.EpisodeName();
+            broadcast.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
             PVR->TransferEpgEntry(handle, &broadcast);
           }
