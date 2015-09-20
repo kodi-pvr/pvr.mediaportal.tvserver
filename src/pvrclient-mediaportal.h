@@ -85,6 +85,7 @@ public:
   PVR_ERROR AddTimer(const PVR_TIMER &timer);
   PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete = false);
   PVR_ERROR UpdateTimer(const PVR_TIMER &timer);
+  PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size);
 
   /* Live stream handling */
   bool OpenLiveStream(const PVR_CHANNEL &channel);
