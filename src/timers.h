@@ -28,31 +28,22 @@
 #include <stdlib.h>
 #include <string>
 #include "DateTime.h"
-
-/* VDR:
-enum eTimerFlags { tfNone      = 0x0000,
-                   tfActive    = 0x0001,
-                   tfInstant   = 0x0002,
-                   tfVps       = 0x0004,
-                   tfRecording = 0x0008,
-                   tfAll       = 0xFFFF,
-                 };
-*/
+#include "GenreTable.h"
 
 namespace TvDatabase
 {
 
 // From MediaPortal: TvDatabase.ScheduleRecordingType
 enum ScheduleRecordingType
-{
-  Once = 0,
-  Daily = 1,
-  Weekly = 2,
-  EveryTimeOnThisChannel = 3,
-  EveryTimeOnEveryChannel = 4,
-  Weekends = 5,
-  WorkingDays = 6,
-  WeeklyEveryTimeOnThisChannel = 7
+{                                  // English MediaPortal GUI description:
+  Once = 0,                        // Record once
+  Daily = 1,                       // Record every day at this time
+  Weekly = 2,                      // Record every week at this time
+  EveryTimeOnThisChannel = 3,      // Record every time on this channel
+  EveryTimeOnEveryChannel = 4,     // Record every time on every channel
+  Weekends = 5,                    // Record Weekends
+  WorkingDays = 6,                 // Record Weekdays
+  WeeklyEveryTimeOnThisChannel = 7 // Weekly on this channel
 };
 
 // From MediaPortal: TvDatabase.KeepMethodType
@@ -66,7 +57,132 @@ enum KeepMethodType
 
 };
 
-const int    cSecsInDay  = 86400;          ///> Amount of seconds in one day
+const int cSecsInDay  = 86400;          ///> Amount of seconds in one day
+const int cKodiTimerTypeOffset = (PVR_TIMER_TYPE_NONE + 1);        ///> Offset used to map the ScheduleRecordingType onto the iTimerType values
+const int cKodiTimerIndexOffset = (PVR_TIMER_NO_CLIENT_INDEX + 1); ///> Offset used to map the MediaPortal schedule id's to the iClientIndex values
+
+#define MPTV_REPEAT_NO_SERIES_OFFSET 0x7FFFFFF
+#define MPTV_NO_PARENT_SCHEDULE -1
+
+// Kodi Keep methods :
+// The defines below are uses as replacement for the MediaPortal Until date version since
+// we cannot have both data selection and the three above keep methods at the same time
+#define MPTV_KEEP_ONE_WEEK              7
+#define MPTV_KEEP_TWO_WEEKS            14
+#define MPTV_KEEP_THREE_WEEKS          21
+#define MPTV_KEEP_ONE_MONTH            31
+#define MPTV_KEEP_TWO_MONTHS           61
+#define MPTV_KEEP_THREE_MONTHS         92
+#define MPTV_KEEP_FOUR_MONTHS         122
+#define MPTV_KEEP_FIVE_MONTHS         153
+#define MPTV_KEEP_SIX_MONTHS          183
+#define MPTV_KEEP_SEVEN_MONTHS        214
+#define MPTV_KEEP_EIGHT_MONTHS        244
+#define MPTV_KEEP_NINE_MONTHS         275
+#define MPTV_KEEP_TEN_MONTHS          305
+#define MPTV_KEEP_ELEVEN_MONTHS       336
+#define MPTV_KEEP_ONE_YEAR            365
+
+#define MPTV_KEEP_UNTIL_SPACE_NEEDED TvDatabase::UntilSpaceNeeded
+#define MPTV_KEEP_UNTIL_WATCHED      TvDatabase::UntilWatched
+#define MPTV_KEEP_ALWAYS             TvDatabase::Always
+
+// Kodi timer types
+const int MPTV_RECORD_ONCE =
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_EVERY_TIME_ON_THIS_CHANNEL =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_EVERY_TIME_ON_EVERY_CHANNEL =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_WEEKLY =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_DAILY =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_WORKING_DAYS =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_WEEEKENDS =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+const int MPTV_RECORD_WEEKLY_EVERY_TIME_ON_THIS_CHANNEL =
+  PVR_TIMER_TYPE_IS_REPEATING |
+  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+  PVR_TIMER_TYPE_SUPPORTS_START_END_MARGIN |
+  //PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+  PVR_TIMER_TYPE_SUPPORTS_LIFETIME |
+  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+  PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+class cLifeTimeValues
+{
+  public:
+    cLifeTimeValues();
+    void SetLifeTimeValues(PVR_TIMER_TYPE& timertype);
+  private:
+    std::vector<std::pair<int, std::string>> m_lifetimeValues;
+};
 
 class cTimer
 {
@@ -100,6 +216,8 @@ class cTimer
     void SetPreRecordInterval(int minutes);
     void SetPostRecordInterval(int minutes);
 
+    void SetGenreTable(CGenreTable* genretable);
+
   private:
     int SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype);
 
@@ -120,7 +238,7 @@ class cTimer
     std::string m_title;               ///> MediaPortal programName
     MPTV::CDateTime m_startTime;       ///> MediaPortal startTime
     MPTV::CDateTime m_endTime;         ///> MediaPortal endTime
-    //                                      skipped: maxAirings field
+    //                                      skipped: maxAirings field = episodes to keep
     int         m_priority;            ///> MediaPortal priority (not the XBMC one!!!)
     std::string m_directory;           ///> MediaPortal directory
     //                                      skipped:  quality field
@@ -131,7 +249,7 @@ class cTimer
     MPTV::CDateTime m_canceled;        ///> MediaPortal canceled (date + time)
     //                                      skipped: recommendedCard
     bool        m_series;              ///> MediaPortal series
-    //                                      skipped: idParentSchedule: not yet supported in XBMC
+    int         m_parentScheduleID;    ///> MediaPortal idParentSchedule
 
     // XBMC asks for these fields:
     bool        m_active;
@@ -140,6 +258,15 @@ class cTimer
     bool        m_isrecording;
 
     int         m_progid;              ///> MediaPortal Program ID
+    std::string m_genre;               ///> The genre string for the program
+
+    CGenreTable* m_genretable;
+};
+
+namespace Timer
+{
+  // Life time values for the recordings
+  extern cLifeTimeValues* lifetimeValues;
 };
 
 #endif //__TIMERS_H
