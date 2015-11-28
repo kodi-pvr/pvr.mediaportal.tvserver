@@ -1,3 +1,6 @@
+v1.11.7
+- Fixed a regression with timer id and epg id handling introduced with PVR API v4.0.0
+
 v1.11.6
 - Updated to PVR API v4.1.0
 

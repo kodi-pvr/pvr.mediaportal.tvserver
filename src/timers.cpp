@@ -36,7 +36,7 @@ cTimer::cTimer() :
   m_keepDate(cUndefinedDate),
   m_canceled(cUndefinedDate)
 {
-  m_index              = PVR_TIMER_NO_CLIENT_INDEX;
+  m_index              = -1;
   m_active             = true;
   m_channel            = 0;
   m_schedtype          = TvDatabase::Once;
@@ -48,28 +48,28 @@ cTimer::cTimer() :
   m_done               = false;
   m_ismanual           = false;
   m_isrecording        = false;
-  m_progid             = 0;
+  m_progid             = -1;
 }
 
 
 cTimer::cTimer(const PVR_TIMER& timerinfo)
 {
 
-  m_index = timerinfo.iClientIndex;
-  m_progid = timerinfo.iEpgUid;
+  m_index = timerinfo.iClientIndex - 1;
+  m_progid = timerinfo.iEpgUid - 1;
 
   if(strlen(timerinfo.strDirectory) > 0)
   {
     // Workaround: retrieve the schedule id from the directory name if set
-    unsigned int schedule_id = 0;
+    int schedule_id = 0;
     unsigned int program_id = 0;
 
-    if (sscanf(timerinfo.strDirectory, "%9u/%9u", &schedule_id, &program_id) == 2)
+    if (sscanf(timerinfo.strDirectory, "%9d/%9u", &schedule_id, &program_id) == 2)
     {
       if (program_id == timerinfo.iClientIndex)
       {
-        m_index  = schedule_id;
-        m_progid = program_id;
+        m_index  = schedule_id - 1;
+        m_progid = program_id - 1;
       }
     }
   }
@@ -143,22 +143,22 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
   tag.iTimerType = PVR_TIMER_TYPE_NONE;
 
-  if (m_progid != 0)
+  if (m_progid != -1)
   {
     // Use the EPG (program) id as unique id to see all scheduled programs in the EPG and timer list
     // Next program (In Home) is always the right one. Mostly seen with programs that are shown daily.
-    tag.iClientIndex    = m_progid;
-    tag.iEpgUid         = m_index;
+    tag.iClientIndex    = m_progid + 1;
+    tag.iEpgUid         = m_index + 1;
 
     // Workaround: store the schedule and program id as directory name
     // This is needed by the PVR addon to map an XBMC timer back to the MediaPortal schedule
     // because we can't use the iClientIndex as schedule id anymore...
-    snprintf(tag.strDirectory, sizeof(tag.strDirectory)-1, "%u/%u", m_index, m_progid);
+    snprintf(tag.strDirectory, sizeof(tag.strDirectory)-1, "%d/%d", m_index + 1, m_progid + 1);
   }
   else
   {
-    tag.iClientIndex   = m_index; //Support older TVServer and Manual Schedule having a program name that does not have a match in MP EPG.
-    tag.iEpgUid        = 0;
+    tag.iClientIndex   = m_index + 1; //Support older TVServer and Manual Schedule having a program name that does not have a match in MP EPG.
+    tag.iEpgUid        = PVR_TIMER_NO_EPG_UID;
     PVR_STRCLR(tag.strDirectory);
   }
 
@@ -293,7 +293,7 @@ bool cTimer::ParseLine(const char *s)
     if(schedulefields.size() >= 19)
       m_progid = atoi(schedulefields[18].c_str());
     else
-      m_progid = 0;
+      m_progid = -1;
 
     return true;
   }

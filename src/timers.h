@@ -76,7 +76,7 @@ class cTimer
     virtual ~cTimer();
 
     void GetPVRtimerinfo(PVR_TIMER &tag);
-    unsigned int Index(void) const { return m_index; }
+    int Index(void) const { return m_index; }
     unsigned int Channel(void) const { return m_channel; }
     int Priority(void) { return Mepo2XBMCPriority(m_priority); }
     const char* Title(void) const { return m_title.c_str(); }
@@ -114,8 +114,8 @@ class cTimer
     int Mepo2XBMCPriority(int mepoprio);
 
     // MediaPortal database fields:
-    unsigned int m_index;              ///> MediaPortal id_Schedule
-    int          m_channel;            ///> MediaPortal idChannel
+    int         m_index;               ///> MediaPortal id_Schedule
+    int         m_channel;             ///> MediaPortal idChannel
     TvDatabase::ScheduleRecordingType m_schedtype; ///> MediaPortal scheduleType
     std::string m_title;               ///> MediaPortal programName
     MPTV::CDateTime m_startTime;       ///> MediaPortal startTime
@@ -139,7 +139,7 @@ class cTimer
     bool        m_ismanual;
     bool        m_isrecording;
 
-    unsigned int m_progid;             ///> MediaPortal Program ID
+    int         m_progid;              ///> MediaPortal Program ID
 };
 
 #endif //__TIMERS_H
