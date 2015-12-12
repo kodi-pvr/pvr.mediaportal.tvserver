@@ -131,4 +131,14 @@ public:
   int GenreType(void) const { return m_genre_type; }
   int GenreSubType(void) const { return m_genre_subtype; }
   void SetGenreTable(CGenreTable* genremap);
+
+  /**
+   * \brief Returns the series number as an integer value. Returns -1 when this field is empty.
+   */
+  int GetSeriesNumber(void) const;
+
+  /**
+  * \brief Returns the episode number as an integer value. Returns -1 when this field is empty.
+  */
+  int GetEpisodeNumber(void) const;
 };

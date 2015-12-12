@@ -306,3 +306,27 @@ int cRecording::Duration(void) const
 {
   return m_duration;
 }
+
+int cRecording::GetSeriesNumber(void) const
+{
+  // From xbmc_pvr_types.h:
+  // series number (usually called season).
+  // Set to "0" for specials/pilot.
+  // For 'invalid' see iEpisodeNumber or set to -1
+  if (m_seriesNumber.empty())
+    return -1;
+
+  return atoi(m_seriesNumber.c_str());
+}
+
+int cRecording::GetEpisodeNumber(void) const
+{
+  // From xbmc_pvr_types.h:
+  // episode number within the "iSeriesNumber" season.
+  // For 'invalid' set to -1 or iSeriesNumber=iEpisodeNumber=0
+  // to show both are invalid */
+  if (m_episodeNumber.empty())
+    return -1;
+
+  return atoi(m_episodeNumber.c_str());
+}
