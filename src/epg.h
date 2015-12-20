@@ -31,6 +31,8 @@
 #include "GenreTable.h"
 #include "DateTime.h"
 
+const int cKodiEpgIndexOffset = (PVR_TIMER_NO_EPG_UID + 1); ///> Offset used to map the MediaPortal schedule id's to the iClientIndex values
+
 
 class cEpg
 {
@@ -59,7 +61,7 @@ public:
   void Reset();
 
   bool ParseLine(std::string& data);
-  int UniqueId(void) const { return m_uid; }
+  unsigned int UniqueId(void) const { return m_uid; }
   time_t StartTime(void) const;
   time_t EndTime(void) const;
   time_t Duration(void) const { return m_duration; }
