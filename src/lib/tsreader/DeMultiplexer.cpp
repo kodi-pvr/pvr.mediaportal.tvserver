@@ -103,7 +103,7 @@ namespace MPTV
         if (m_filter.IsSeeking())
             return 0;       // Ambass : to check
 
-        PLATFORM::CLockObject lock(m_sectionRead);
+        P8PLATFORM::CLockObject lock(m_sectionRead);
         if (NULL == m_reader)
             return false;
 

@@ -37,7 +37,7 @@
 #include "PacketSync.h"
 #include "TSHeader.h"
 #include "PatParser.h"
-#include "platform/threads/mutex.h"
+#include "p8-platform/threads/mutex.h"
 
 namespace MPTV
 {
@@ -60,7 +60,7 @@ namespace MPTV
     private:
         unsigned long m_LastDataFromRtsp;
         bool m_bEndOfFile;
-        PLATFORM::CMutex m_sectionRead;
+        P8PLATFORM::CMutex m_sectionRead;
         FileReader* m_reader;
         CPatParser m_patParser;
         CTsReader& m_filter;

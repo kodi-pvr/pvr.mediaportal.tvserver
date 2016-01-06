@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform/util/timeutils.h"
+#include "p8-platform/util/timeutils.h"
 
 #include "client.h"
 #include "timers.h"
@@ -86,7 +86,7 @@ cPVRClientMediaPortal::~cPVRClientMediaPortal()
 
 string cPVRClientMediaPortal::SendCommand(string command)
 {
-  PLATFORM::CLockObject critsec(m_mutex);
+  P8PLATFORM::CLockObject critsec(m_mutex);
 
   if ( !m_tcpclient->send(command) )
   {
@@ -121,7 +121,7 @@ string cPVRClientMediaPortal::SendCommand(string command)
 
 bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
 {
-  PLATFORM::CLockObject critsec(m_mutex);
+  P8PLATFORM::CLockObject critsec(m_mutex);
 
   if ( !m_tcpclient->send(command) )
   {
@@ -1043,7 +1043,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
     }
   }
 
-  m_iLastRecordingUpdate = PLATFORM::GetTimeMs();
+  m_iLastRecordingUpdate = P8PLATFORM::GetTimeMs();
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -1235,7 +1235,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimers(ADDON_HANDLE handle)
     }
   }
 
-  if ( PLATFORM::GetTimeMs() >  m_iLastRecordingUpdate + 15000)
+  if ( P8PLATFORM::GetTimeMs() >  m_iLastRecordingUpdate + 15000)
   {
     PVR->TriggerRecordingUpdate();
   }
