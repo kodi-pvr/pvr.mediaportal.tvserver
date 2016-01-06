@@ -8,7 +8,7 @@ enable_language(CXX)
 
 find_package(kodi REQUIRED)
 find_package(kodiplatform REQUIRED)
-find_package(platform REQUIRED)
+find_package(p8-platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
 # Grab the addon version info from the addon.xml file
@@ -20,7 +20,7 @@ STRING(REGEX REPLACE ".*version=.([0-9\\.]+).*" "\\1" MPTV_VERSION ${MPTV_VERSIO
 configure_file(src/addon_version.h.in addon_version.h)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
-                    ${platform_INCLUDE_DIRS}
+                    ${p8-platform_INCLUDE_DIRS}
                     ${TINYXML_INCLUDE_DIR}
                     ${KODI_INCLUDE_DIR}
                     ${PROJECT_SOURCE_DIR}/src
@@ -125,7 +125,7 @@ source_group("Header Files\\lib\\tsreader" FILES ${TSREADER_HEADERS})
 # Make sure that CMake adds all files to the MSVC project
 list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${RESOURCE_FILES})
 
-set(DEPLIBS ${platform_LIBRARIES}
+set(DEPLIBS ${p8-platform_LIBRARIES}
             ${TINYXML_LIBRARIES})
 
 if(WIN32)
