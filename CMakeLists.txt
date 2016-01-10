@@ -11,11 +11,20 @@ find_package(kodiplatform REQUIRED)
 find_package(platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
+# Grab the addon version info from the addon.xml file
+FILE(READ ${PROJECT_NAME}/addon.xml.in MPTV_ADDONXML)
+STRING(REGEX MATCH "<addon[^>]*version.?=.?.[0-9\\.]+" MPTV_VERSION_STRING ${MPTV_ADDONXML})
+STRING(REGEX REPLACE ".*version=.([0-9\\.]+).*" "\\1" MPTV_VERSION ${MPTV_VERSION_STRING})
+
+# Generate an addon_version.h header with the version information
+configure_file(src/addon_version.h.in addon_version.h)
+
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${platform_INCLUDE_DIRS}
                     ${TINYXML_INCLUDE_DIR}
                     ${KODI_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/src)
+                    ${PROJECT_SOURCE_DIR}/src
+                    ${PROJECT_BINARY_DIR})
 
 add_definitions(-D__STDC_FORMAT_MACROS)
 
@@ -46,7 +55,8 @@ if(WIN32)
 endif(WIN32)
 
 # Header files
-set(MPTV_HEADERS src/Cards.h
+set(MPTV_HEADERS addon_version.h
+                 src/Cards.h
                  src/channels.h
                  src/client.h
                  src/DateTime.h
@@ -77,13 +87,46 @@ set(RESOURCE_FILES pvr.mediaportal.tvserver/addon.xml
 source_group("Resource Files" FILES ${RESOURCE_FILES})
 endif(WIN32)
 
-# Make sure that CMake adds the headers to the MSVC project
-list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${RESOURCE_FILES})
+# TSReader sources
+set(TSREADER_SOURCES src/lib/tsreader/ChannelInfo.cpp
+            src/lib/tsreader/DeMultiplexer.cpp
+            src/lib/tsreader/DvbUtil.cpp
+            src/lib/tsreader/FileReader.cpp
+            src/lib/tsreader/MemoryReader.cpp
+            src/lib/tsreader/MultiFileReader.cpp
+            src/lib/tsreader/PacketSync.cpp
+            src/lib/tsreader/PatParser.cpp
+            src/lib/tsreader/PidTable.cpp
+            src/lib/tsreader/PmtParser.cpp
+            src/lib/tsreader/Section.cpp
+            src/lib/tsreader/SectionDecoder.cpp
+            src/lib/tsreader/TSHeader.cpp
+            src/lib/tsreader/TSReader.cpp)
+source_group("Source Files\\lib\\tsreader" FILES ${TSREADER_SOURCES})
 
-add_subdirectory(src/lib/tsreader)
+# TSReader sources
+set(TSREADER_HEADERS src/lib/tsreader/ChannelInfo.h
+            src/lib/tsreader/DeMultiplexer.h
+            src/lib/tsreader/DvbUtil.h
+            src/lib/tsreader/FileReader.h
+            src/lib/tsreader/MemoryReader.h
+            src/lib/tsreader/MultiFileReader.h
+            src/lib/tsreader/PacketSync.h
+            src/lib/tsreader/PatParser.h
+            src/lib/tsreader/PidTable.h
+            src/lib/tsreader/PmtParser.h
+            src/lib/tsreader/Section.h
+            src/lib/tsreader/SectionDecoder.h
+            src/lib/tsreader/TSDebug.h
+            src/lib/tsreader/TSHeader.h
+            src/lib/tsreader/TSReader.h)
+source_group("Header Files\\lib\\tsreader" FILES ${TSREADER_HEADERS})
+
+# Make sure that CMake adds all files to the MSVC project
+list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${RESOURCE_FILES})
 
 set(DEPLIBS ${platform_LIBRARIES}
-            ${TINYXML_LIBRARIES} tsreader)
+            ${TINYXML_LIBRARIES})
 
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
