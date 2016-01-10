@@ -259,6 +259,7 @@ class cTimer
 
     int         m_progid;              ///> MediaPortal Program ID
     std::string m_genre;               ///> The genre string for the program
+    std::string m_description;         ///> Program description
 
     CGenreTable* m_genretable;
 };

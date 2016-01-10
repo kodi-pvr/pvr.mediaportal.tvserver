@@ -147,7 +147,6 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
     tag.iClientIndex = cKodiTimerIndexOffset + m_index;
   }
   tag.iEpgUid = cKodiEpgIndexOffset + m_progid;
-  PVR_STRCLR(tag.strDirectory);
 
   if (IsRecording())
     tag.state           = PVR_TIMER_STATE_RECORDING;
@@ -210,6 +209,7 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
     tag.iGenreSubType = 0;
   }
   PVR_STRCPY(tag.strDirectory, m_directory.c_str());
+  PVR_STRCPY(tag.strSummary, m_description.c_str());
 }
 
 time_t cTimer::StartTime(void) const
@@ -255,6 +255,7 @@ bool cTimer::ParseLine(const char *s)
     // field 18 = program id (EPG)
     // field 19 = parent schedule id (TVServerKodi build >= 130)
     // field 20 = genre of the program (TVServerKodi build >= 130)
+    // field 21 = program description (EPG) (TVServerKodi build >= 130)
     m_index = atoi(schedulefields[0].c_str());
 
     if ( m_startTime.SetFromDateTime(schedulefields[1]) == false )
@@ -319,15 +320,17 @@ bool cTimer::ParseLine(const char *s)
     else
       m_progid = -1;
 
-    if (schedulefields.size() >= 21)
+    if (schedulefields.size() >= 22)
     {
       m_parentScheduleID = atoi(schedulefields[19].c_str());
       m_genre = schedulefields[20];
+      m_description = schedulefields[21];
     }
     else
     {
       m_parentScheduleID = MPTV_NO_PARENT_SCHEDULE;
-      m_genre = "";
+      m_genre.clear();
+      m_description.clear();
     }
 
     return true;
