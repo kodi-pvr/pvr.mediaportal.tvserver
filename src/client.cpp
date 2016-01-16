@@ -38,6 +38,7 @@ bool             g_bRadioEnabled        = DEFAULT_RADIO;                 ///< Se
 bool             g_bHandleMessages      = DEFAULT_HANDLE_MSG;            ///< Send VDR's OSD status messages to XBMC OSD
 bool             g_bResolveRTSPHostname = DEFAULT_RESOLVE_RTSP_HOSTNAME; ///< Resolve the server hostname in the rtsp URLs to an IP at the TV Server side (default: false)
 bool             g_bReadGenre           = DEFAULT_READ_GENRE;            ///< Read the genre strings from MediaPortal and translate them into XBMC DVB genre id's (only English)
+bool             g_bEnableOldSeriesDlg  = false;                         ///< Show the old pre-Jarvis series recording dialog
 CStdString       g_szTVGroup            = DEFAULT_TVGROUP;               ///< Import only TV channels from this TV Server TV group
 CStdString       g_szRadioGroup         = DEFAULT_RADIOGROUP;            ///< Import only radio channels from this TV Server radio group
 std::string      g_szSMBusername        = DEFAULT_SMBUSERNAME;           ///< Windows user account used to access share
@@ -259,6 +260,14 @@ void ADDON_ReadSettings(void)
     g_bReadGenre = DEFAULT_READ_GENRE;
   }
 
+  /* Read setting "readgenre" from settings.xml */
+  if (!XBMC->GetSetting("enableoldseriesdlg", &g_bEnableOldSeriesDlg))
+  {
+    /* If setting is unknown fallback to defaults */
+    XBMC->Log(LOG_ERROR, "Couldn't get 'enableoldseriesdlg' setting, falling back to 'false' as default");
+    g_bEnableOldSeriesDlg = false;
+  }
+
   /* Read setting "sleeponrtspurl" from settings.xml */
   if (!XBMC->GetSetting("sleeponrtspurl", &g_iSleepOnRTSPurl))
   {
@@ -308,7 +317,7 @@ void ADDON_ReadSettings(void)
   XBMC->Log(LOG_DEBUG, "settings: streamingmethod: %s, usertsp=%i", (( g_eStreamingMethod == TSReader) ? "TSReader" : "ffmpeg"), (int) g_bUseRTSP);
   XBMC->Log(LOG_DEBUG, "settings: host='%s', port=%i, timeout=%i", g_szHostname.c_str(), g_iPort, g_iConnectTimeout);
   XBMC->Log(LOG_DEBUG, "settings: ftaonly=%i, useradio=%i, tvgroup='%s', radiogroup='%s'", (int) g_bOnlyFTA, (int) g_bRadioEnabled, g_szTVGroup.c_str(), g_szRadioGroup.c_str());
-  XBMC->Log(LOG_DEBUG, "settings: readgenre=%i, sleeponrtspurl=%i", (int) g_bReadGenre, g_iSleepOnRTSPurl);
+  XBMC->Log(LOG_DEBUG, "settings: readgenre=%i, enableoldseriesdlg=%i, sleeponrtspurl=%i", (int)g_bReadGenre, (int)g_bEnableOldSeriesDlg, g_iSleepOnRTSPurl);
   XBMC->Log(LOG_DEBUG, "settings: resolvertsphostname=%i", (int) g_bResolveRTSPHostname);
   XBMC->Log(LOG_DEBUG, "settings: fastchannelswitch=%i", (int) g_bFastChannelSwitch);
   XBMC->Log(LOG_DEBUG, "settings: smb user='%s', pass=%s", g_szSMBusername.c_str(), (g_szSMBpassword.length() > 0 ? "<set>" : "<empty>"));
@@ -380,6 +389,11 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   {
     XBMC->Log(LOG_INFO, "Changed setting 'readgenre' from %u to %u", g_bReadGenre, *(bool*) settingValue);
     g_bReadGenre = *(bool*) settingValue;
+  }
+  else if (str == "enableoldseriesdlg")
+  {
+    XBMC->Log(LOG_INFO, "Changed setting 'enableoldseriesdlg' from %u to %u", g_bEnableOldSeriesDlg, *(bool*)settingValue);
+    g_bEnableOldSeriesDlg = *(bool*)settingValue;
   }
   else if (str == "sleeponrtspurl")
   {

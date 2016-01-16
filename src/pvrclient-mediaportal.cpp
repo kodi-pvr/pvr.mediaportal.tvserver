@@ -34,9 +34,7 @@
 #ifdef TARGET_WINDOWS
 #include "FileUtils.h"
 #endif
-#ifdef USE_OLD_SERIES_RECORDING_DIALOG
 #include "GUIDialogRecordSettings.h"
-#endif
 
 using namespace std;
 using namespace ADDON;
@@ -1390,8 +1388,10 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 
   cTimer timer(timerinfo);
 
-#ifdef USE_OLD_SERIES_RECORDING_DIALOG
-  if ((timerinfo.startTime > 0) && (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID))
+  if (g_bEnableOldSeriesDlg && (timerinfo.startTime > 0) &&
+      (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID) &&
+      ((timerinfo.iTimerType - cKodiTimerTypeOffset) == (unsigned int) TvDatabase::Once)
+      )
   {
     /* New scheduled recording, not an instant or manual recording
      * Present a custom dialog with advanced recording settings
@@ -1408,7 +1408,6 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
     if (dlogResult == 0)
       return PVR_ERROR_NO_ERROR;						// user canceled timer in dialog
   }
-#endif
 
   result = SendCommand(timer.AddScheduleCommand());
 
