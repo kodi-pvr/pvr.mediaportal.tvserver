@@ -61,6 +61,10 @@ msgctxt "#30010"
 msgid "Wait time after tuning a channel (ms)"
 msgstr ""
 
+msgctxt "#30011"
+msgid "Enable old series recording dialog"
+msgstr ""
+
 # empty strings from id 30011 to 30014
 
 msgctxt "#30015"
