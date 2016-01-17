@@ -200,8 +200,12 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   tag.iMarginEnd = m_postrecordinterval;
   if (m_genretable)
   {
-    // genre string to gerne type/subtype mapping
-    m_genretable->GenreToTypes(m_genre, tag.iGenreType, tag.iGenreSubType);
+    // genre string to genre type/subtype mapping
+    int genreType;
+    int genreSubType;
+    m_genretable->GenreToTypes(m_genre, genreType, genreSubType);
+    tag.iGenreType = genreType;
+    tag.iGenreSubType = genreSubType;
   }
   else
   {
