@@ -49,7 +49,7 @@ int g_iTVServerXBMCBuild = 0;
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.10.0.127"
+#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.12.0.130"
 #define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  127
 
 /************************************************************/
@@ -79,6 +79,7 @@ cPVRClientMediaPortal::~cPVRClientMediaPortal()
   XBMC->Log(LOG_DEBUG, "->~cPVRClientMediaPortal()");
   if (m_bConnected)
     Disconnect();
+  SAFE_DELETE(Timer::lifetimeValues);
   SAFE_DELETE(m_tcpclient);
   SAFE_DELETE(m_genretable);
 }
@@ -245,6 +246,9 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   /* Load additional settings */
   LoadGenreTable();
   LoadCardSettings();
+
+  /* Generate the recording life time strings */
+  Timer::lifetimeValues = new cLifeTimeValues();
 
   /* The pvr addon cannot access XBMC's current locale settings, so just use the system default */
   setlocale(LC_ALL, "");
@@ -977,6 +981,8 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iGenreSubType  = recording.GenreSubType();
       tag.iPlayCount     = recording.TimesWatched();
       tag.iLastPlayedPosition = recording.LastPlayedPosition();
+      tag.iEpisodeNumber = recording.GetEpisodeNumber();
+      tag.iSeriesNumber  = recording.GetSeriesNumber();
 
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
@@ -1203,7 +1209,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimers(ADDON_HANDLE handle)
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  result = SendCommand("ListSchedules:\n");
+  result = SendCommand("ListSchedules:True\n");
 
   if (result.length() > 0)
   {
@@ -1219,6 +1225,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimers(ADDON_HANDLE handle)
       XBMC->Log(LOG_DEBUG, "SCHEDULED: %s", data.c_str() );
 
       cTimer timer;
+      timer.SetGenreTable(m_genretable);
 
       if(timer.ParseLine(data.c_str()) == true)
       {
@@ -1264,6 +1271,108 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIME
   return PVR_ERROR_NO_ERROR;
 }
 
+PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
+{
+  int maxsize = *size; // the size of the types[] array when this functon is called
+  int& count = *size;  // the amount of filled items in the types[] array
+  count = 0;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  //Note: schedule priority support is not implemented here
+  //      The MediaPortal TV Server database has a priority field but their wiki
+  //      says: "This feature is yet to be enabled".
+
+  // One-shot epg-based (maps to MediaPortal 'Once')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Once;
+  types[count].iAttributes = MPTV_RECORD_ONCE;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30110)); /* Record once */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series weekly epg-based (maps to MediaPortal 'EveryTimeOnThisChannel')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::EveryTimeOnThisChannel;
+  types[count].iAttributes = MPTV_RECORD_EVERY_TIME_ON_THIS_CHANNEL;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30115)); /* Record every time on this channel */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series weekly epg-based (maps to MediaPortal 'EveryTimeOnEveryChannel')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::EveryTimeOnEveryChannel;
+  types[count].iAttributes = MPTV_RECORD_EVERY_TIME_ON_EVERY_CHANNEL;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30116)); /* Record every time on every channel */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series weekly epg-based (maps to MediaPortal 'Weekly')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Weekly;
+  types[count].iAttributes = MPTV_RECORD_WEEKLY;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30117)); /* "Record every week at this time" */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series daily epg-based (maps to MediaPortal 'Daily')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Daily;
+  types[count].iAttributes = MPTV_RECORD_DAILY;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30118)); /* Record every day at this time */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series Weekends epg-based (maps to MediaPortal 'WorkingDays')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::WorkingDays;
+  types[count].iAttributes = MPTV_RECORD_WORKING_DAYS;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30114)); /* Record weekdays */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series Weekends epg-based (maps to MediaPortal 'Weekends')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Weekends;
+  types[count].iAttributes = MPTV_RECORD_WEEEKENDS;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30113)); /* Record Weekends */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  if (count > maxsize)
+    return PVR_ERROR_NO_ERROR;
+
+  // Series weekly epg-based (maps to MediaPortal 'WeeklyEveryTimeOnThisChannel')
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::WeeklyEveryTimeOnThisChannel;
+  types[count].iAttributes = MPTV_RECORD_WEEKLY_EVERY_TIME_ON_THIS_CHANNEL;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30119)); /* Weekly on this channel */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+
 PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 {
   string         result;
@@ -1279,7 +1388,10 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 
   cTimer timer(timerinfo);
 
-  if ((timerinfo.startTime > 0) && (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID))
+  if (g_bEnableOldSeriesDlg && (timerinfo.startTime > 0) &&
+      (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID) &&
+      ((timerinfo.iTimerType - cKodiTimerTypeOffset) == (unsigned int) TvDatabase::Once)
+      )
   {
     /* New scheduled recording, not an instant or manual recording
      * Present a custom dialog with advanced recording settings
@@ -1326,6 +1438,17 @@ PVR_ERROR cPVRClientMediaPortal::DeleteTimer(const PVR_TIMER &timer, bool UNUSED
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
+
+  // Check if this timer has a parent schedule and a program id
+  // When true, it has no real schedule at the Mediaportal side.
+  // The best we can do in that case is disable the timer for this program only
+  if ((timer.iParentClientIndex > 0) && (timer.iEpgUid > 0))
+  {
+    // Don't delete this timer, but disable it only
+    PVR_TIMER disableMe = timer;
+    disableMe.state = PVR_TIMER_STATE_DISABLED;
+    return UpdateTimer(disableMe);
+  }
 
   cTimer mepotimer(timer);
 

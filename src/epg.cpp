@@ -48,7 +48,7 @@ void cEpg::Reset()
   m_episodePart.clear();
   m_episodeName.clear();
 
-  m_uid             = 0;
+  m_uid             = PVR_TIMER_NO_EPG_UID; // 0 is defined as invalid EPG id according to the PVR_TIMER definitions
   m_originalAirDate = 0;
   m_duration        = 0;
   m_genre_type      = 0;
@@ -108,7 +108,7 @@ bool cEpg::ParseLine(string& data)
       if( epgfields.size() >= 15 )
       {
         // Since TVServerXBMC v1.x.x.104
-        m_uid = (unsigned int) atol(epgfields[5].c_str());
+        m_uid = (unsigned int) cKodiEpgIndexOffset + atol(epgfields[5].c_str());
         m_seriesNumber = atoi(epgfields[7].c_str());
         m_episodeNumber = atoi(epgfields[8].c_str());
         m_episodeName = epgfields[9];

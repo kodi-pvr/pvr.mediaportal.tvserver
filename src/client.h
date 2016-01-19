@@ -64,6 +64,7 @@ extern bool             g_bRadioEnabled;
 extern bool             g_bHandleMessages;
 extern bool             g_bResolveRTSPHostname;
 extern bool             g_bReadGenre;
+extern bool             g_bEnableOldSeriesDlg;
 extern bool             g_bFastChannelSwitch;
 extern bool             g_bUseRTSP;           ///< Use RTSP streaming when using the tsreader
 extern CStdString       g_szTVGroup;
