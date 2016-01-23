@@ -18,9 +18,9 @@
  */
 
 #include "../FileUtils.h"
-#include "platform/os.h"
+#include "p8-platform/os.h"
 #include <string>
-#include "platform/util/StdString.h"
+#include "p8-platform/util/StdString.h"
 #include "../utils.h"
 
 namespace OS

@@ -35,10 +35,10 @@
 #include "FileReader.h"
 #include "client.h" //for XBMC->Log
 #include "TSDebug.h"
-#include "platform/threads/threads.h"
+#include "p8-platform/threads/threads.h"
 #include <algorithm> //std::min, std::max
-#include "platform/util/timeutils.h" // for usleep
-#include "platform/util/util.h"
+#include "p8-platform/util/timeutils.h" // for usleep
+#include "p8-platform/util/util.h"
 #include "utils.h"
 #include <errno.h>
 

@@ -18,7 +18,7 @@
  *
  */
 
-#include "platform/os.h"
+#include "p8-platform/os.h"
 
 // Additional typedefs
 typedef uint8_t byte;

@@ -19,7 +19,7 @@
 #include "kodi/libXBMC_addon.h"
 #include "utils.h"
 #include <string>
-#include "platform/os.h"
+#include "p8-platform/os.h"
 #include "client.h"
 #include "Socket.h"
 

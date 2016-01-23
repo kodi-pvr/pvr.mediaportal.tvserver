@@ -38,13 +38,13 @@
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "platform/util/timeutils.h"
-#include "platform/util/StdString.h"
-#include "platform/threads/threads.h"
+#include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/StdString.h"
+#include "p8-platform/threads/threads.h"
 #include <inttypes.h>
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
@@ -112,7 +112,7 @@ namespace MPTV
         if (RefreshTSBufferFile() == S_FALSE)
         {
             // For radio the buffer sometimes needs some time to become available, so wait and try it more than once
-            PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
+            P8PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
 
             do
             {
