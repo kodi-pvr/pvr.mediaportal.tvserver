@@ -813,6 +813,14 @@ long long LengthLiveStream(void)
     return g_client->LengthLiveStream();
 }
 
+bool IsRealTimeStream(void)
+{
+  if (g_client == NULL)
+    return false;
+
+  return g_client->IsRealTimeStream();
+}
+
 int GetCurrentClientChannel()
 {
   if (!g_client)
