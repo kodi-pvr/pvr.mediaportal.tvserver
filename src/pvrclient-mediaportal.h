@@ -100,6 +100,7 @@ public:
   long long PositionLiveStream(void);
   bool CanPauseAndSeek(void);
   void PauseStream(bool bPaused);
+  bool IsRealTimeStream(void);
 
   /* Record stream handling */
   bool OpenRecordedStream(const PVR_RECORDING &recording);
@@ -131,7 +132,7 @@ private:
   time_t                  m_BackendTime;
   CCards                  m_cCards;
   CGenreTable*            m_genretable;
-  P8PLATFORM::CMutex        m_mutex;
+  P8PLATFORM::CMutex      m_mutex;
   int64_t                 m_iLastRecordingUpdate;
   MPTV::CTsReader*        m_tsreader;
   std::map<int,std::string> m_channelNames;

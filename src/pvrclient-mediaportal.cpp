@@ -1529,6 +1529,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   if (!IsUp())
   {
     m_iCurrentChannel = -1;
+    m_bTimeShiftStarted = false;
     m_signalStateCounter = 0;
     XBMC->Log(LOG_ERROR, "Open Live stream failed. No connection to backend.");
     return false;
@@ -1542,6 +1543,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
   m_iCurrentChannel = -1; // make sure that it is not a valid channel nr in case it will fail lateron
   m_signalStateCounter = 0;
+  m_bTimeShiftStarted = false;
 
   // Start the timeshift
   // Use the optimized TimeshiftChannel call (don't stop a running timeshift)
@@ -1800,7 +1802,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
   string result;
 
   if (!IsUp())
-     return;
+    return;
 
   if (m_bTimeShiftStarted)
   {
@@ -1854,6 +1856,11 @@ long long cPVRClientMediaPortal::PositionLiveStream(void)
     return -1;
   }
   return m_tsreader->GetFilePointer();
+}
+
+bool cPVRClientMediaPortal::IsRealTimeStream(void)
+{
+  return m_bTimeShiftStarted;
 }
 
 bool cPVRClientMediaPortal::SwitchChannel(const PVR_CHANNEL &channel)
@@ -1954,6 +1961,9 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
   XBMC->Log(LOG_NOTICE, "OpenRecordedStream (id=%s)", recording.strRecordingId);
+
+  m_bTimeShiftStarted = false;
+
   if (!IsUp())
     return false;
 
