@@ -1,1 +1,23 @@
-/pvr.mediaportal.tvserver/addon.xml
+# build artifacts
+build/
+debian/changelog
+debian/files
+debian/kodi-pvr-mediaportal.tvserver-dbg.debhelper.log
+debian/kodi-pvr-mediaportal.tvserver-dbg.substvars
+debian/kodi-pvr-mediaportal.tvserver-dbg/
+debian/kodi-pvr-mediaportal.tvserver.debhelper.log
+debian/kodi-pvr-mediaportal.tvserver.postinst.debhelper
+debian/kodi-pvr-mediaportal.tvserver.postrm.debhelper
+debian/kodi-pvr-mediaportal.tvserver.substvars
+debian/kodi-pvr-mediaportal.tvserver/
+debian/tmp/
+obj-x86_64-linux-gnu/
+pvr.mediaportal.tvserver/addon.xml
+
+# clion
+.idea/
+
+# Eclipse/CDT
+.cproject
+.project
+.settings/
