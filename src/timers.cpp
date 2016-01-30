@@ -55,7 +55,8 @@ cTimer::cTimer() :
 }
 
 
-cTimer::cTimer(const PVR_TIMER& timerinfo)
+cTimer::cTimer(const PVR_TIMER& timerinfo):
+  m_genretable(NULL)
 {
 
   m_index = timerinfo.iClientIndex - cKodiTimerIndexOffset;
