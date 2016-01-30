@@ -1,3 +1,6 @@
+v2.0.3
+- Coverity fixes
+
 v2.0.2
 - Updated to PVR API v4.2.0
 

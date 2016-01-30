@@ -55,6 +55,7 @@ namespace MPTV
         m_ReqPatVersion(-1),
         m_WaitNewPatTmo(0),
         m_receivedPackets(0),
+        m_bStarting(false),
         m_bAudioAtEof(false),
         m_bVideoAtEof(false),
         m_bGotNewChannel(false)
