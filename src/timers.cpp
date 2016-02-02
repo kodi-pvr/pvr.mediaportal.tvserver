@@ -109,6 +109,10 @@ cTimer::cTimer(const PVR_TIMER& timerinfo):
   SetKeepMethod(timerinfo.iLifetime);
 
   m_schedtype = static_cast<enum TvDatabase::ScheduleRecordingType>(timerinfo.iTimerType - cKodiTimerTypeOffset);
+  if (m_schedtype == TvDatabase::KodiManual)
+  {
+    m_schedtype = TvDatabase::Once;
+  }
 
   if ((m_schedtype == TvDatabase::Once) && (timerinfo.iWeekdays != PVR_WEEKDAY_NONE)) // huh, still repeating?
   {
@@ -154,7 +158,7 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   else if (m_active)
     tag.state           = PVR_TIMER_STATE_SCHEDULED;
   else
-    tag.state           = PVR_TIMER_STATE_CANCELLED;
+    tag.state           = PVR_TIMER_STATE_DISABLED;
 
   if (m_schedtype == TvDatabase::EveryTimeOnEveryChannel)
   {
@@ -357,6 +361,7 @@ int cTimer::SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype
   switch (schedtype)
   {
     case TvDatabase::Once:
+    case TvDatabase::KodiManual:
       weekdays = PVR_WEEKDAY_NONE;
       break;
     case TvDatabase::Daily:
