@@ -451,6 +451,9 @@ bool Socket::reconnect()
   if( !create() )
     return false;
 
+  if (_sd == INVALID_SOCKET)
+    return false;
+
   int status = ::connect ( _sd, reinterpret_cast<sockaddr*>(&_sockaddr), sizeof ( _sockaddr ) );
 
   if ( status == SOCKET_ERROR )

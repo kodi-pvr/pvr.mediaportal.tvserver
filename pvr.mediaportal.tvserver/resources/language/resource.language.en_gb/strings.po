@@ -263,7 +263,12 @@ msgctxt "#30121"
 msgid "Anytime"
 msgstr ""
 
-# empty strings from id 30122 to 30124
+msgctxt "#30122"
+msgid "Manual"
+msgstr ""
+
+#empty strings from id 30123 to 30124
+#Channel:
 
 # Channel:
 msgctxt "#30125"

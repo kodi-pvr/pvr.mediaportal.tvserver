@@ -1369,6 +1369,17 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size
   Timer::lifetimeValues->SetLifeTimeValues(types[count]);
   count++;
 
+  if (count > maxsize)
+	  return PVR_ERROR_NO_ERROR;
+
+  /* Kodi specific 'Manual' schedule type */
+  memset(&types[count], 0, sizeof(types[count]));
+  types[count].iId = cKodiTimerTypeOffset + TvDatabase::KodiManual;
+  types[count].iAttributes = MPTV_RECORD_MANUAL;
+  PVR_STRCPY(types[count].strDescription, XBMC->GetLocalizedString(30122)); /* Manual */
+  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
+  count++;
+
   return PVR_ERROR_NO_ERROR;
 }
 
