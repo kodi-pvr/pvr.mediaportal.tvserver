@@ -821,14 +821,6 @@ bool IsRealTimeStream(void)
   return g_client->IsRealTimeStream();
 }
 
-int GetCurrentClientChannel()
-{
-  if (!g_client)
-    return 0;
-  else
-    return g_client->GetCurrentClientChannel();
-}
-
 bool SwitchChannel(const PVR_CHANNEL &channelinfo)
 {
   if (!g_client)

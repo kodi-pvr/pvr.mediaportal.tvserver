@@ -1901,12 +1901,6 @@ bool cPVRClientMediaPortal::SwitchChannel(const PVR_CHANNEL &channel)
 }
 
 
-int cPVRClientMediaPortal::GetCurrentClientChannel()
-{
-  XBMC->Log(LOG_DEBUG, "GetCurrentClientChannel: uid=%i", m_iCurrentChannel);
-  return m_iCurrentChannel;
-}
-
 PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   if (g_iTVServerXBMCBuild < 108 || (m_iCurrentChannel == -1))
