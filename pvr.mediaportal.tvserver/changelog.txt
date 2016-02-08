@@ -1,3 +1,6 @@
+v2.1.0
+- Updated to PVR addon API v5.0.0
+
 v2.0.4
 - Timer: fixed: 'unable to resolve timer type' warnings (Kodi expects a manual, no EPG timer type)
 - Timer: fixed: timer disabled state (PVR_TIMER_STATE_CANCELLED should now be PVR_TIMER_STATE_DISABLED)
