@@ -1039,6 +1039,10 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         // Use rtsp url and XBMC's internal FFMPeg playback
         PVR_STRCPY(tag.strStreamURL, recording.Stream());
       }
+
+      /* TODO: PVR API 5.0.0: Implement this */
+      tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
+
       PVR->TransferRecordingEntry(handle, &tag);
     }
   }
@@ -1900,12 +1904,6 @@ bool cPVRClientMediaPortal::SwitchChannel(const PVR_CHANNEL &channel)
   }
 }
 
-
-int cPVRClientMediaPortal::GetCurrentClientChannel()
-{
-  XBMC->Log(LOG_DEBUG, "GetCurrentClientChannel: uid=%i", m_iCurrentChannel);
-  return m_iCurrentChannel;
-}
 
 PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
