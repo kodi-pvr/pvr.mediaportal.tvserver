@@ -39,7 +39,7 @@ cTimer::cTimer() :
 {
   m_index              = PVR_TIMER_NO_CLIENT_INDEX;
   m_active             = true;
-  m_channel            = 0;
+  m_channel            = PVR_CHANNEL_INVALID_UID;
   m_schedtype          = TvDatabase::Once;
   m_priority           = 0;
   m_keepmethod         = TvDatabase::UntilSpaceNeeded;
@@ -49,7 +49,7 @@ cTimer::cTimer() :
   m_done               = false;
   m_ismanual           = false;
   m_isrecording        = false;
-  m_progid             = -1;
+  m_progid             = (EPG_TAG_INVALID_UID - cKodiEpgIndexOffset);
   m_genretable         = NULL;
   m_parentScheduleID   = MPTV_NO_PARENT_SCHEDULE;
 }
@@ -327,7 +327,7 @@ bool cTimer::ParseLine(const char *s)
     if(schedulefields.size() >= 19)
       m_progid = atoi(schedulefields[18].c_str());
     else
-      m_progid = -1;
+      m_progid = (EPG_TAG_INVALID_UID - cKodiEpgIndexOffset);
 
     if (schedulefields.size() >= 22)
     {

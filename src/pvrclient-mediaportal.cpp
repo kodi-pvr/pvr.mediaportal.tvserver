@@ -973,6 +973,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       PVR_STRCPY(tag.strPlotOutline, recording.EpisodeName());
       PVR_STRCPY(tag.strPlot, recording.Description());
       PVR_STRCPY(tag.strChannelName, recording.ChannelName());
+      tag.iChannelUid    = recording.ChannelID();
       tag.recordingTime  = recording.StartTime();
       tag.iDuration      = (int) recording.Duration();
       tag.iPriority      = 0; // only available for schedules, not for recordings
@@ -983,6 +984,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iLastPlayedPosition = recording.LastPlayedPosition();
       tag.iEpisodeNumber = recording.GetEpisodeNumber();
       tag.iSeriesNumber  = recording.GetSeriesNumber();
+      tag.iEpgEventId    = EPG_TAG_INVALID_UID;
 
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
@@ -1039,9 +1041,6 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         // Use rtsp url and XBMC's internal FFMPeg playback
         PVR_STRCPY(tag.strStreamURL, recording.Stream());
       }
-
-      /* TODO: PVR API 5.0.0: Implement this */
-      tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
 
       PVR->TransferRecordingEntry(handle, &tag);
     }

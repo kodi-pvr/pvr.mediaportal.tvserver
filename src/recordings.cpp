@@ -35,7 +35,7 @@ cRecording::cRecording()
   m_duration        = 0;
   m_Index           = -1;
   m_cardSettings    = NULL;
-  m_channelID       = 0;
+  m_channelID       = PVR_CHANNEL_INVALID_UID;
   m_isRecording     = false;
   m_genre_type      = 0;
   m_genre_subtype   = 0;
