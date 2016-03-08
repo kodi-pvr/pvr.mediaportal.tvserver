@@ -1,3 +1,6 @@
+v2.2.0
+- Updated to PVR addon API v5.1.0
+
 v2.1.1
 - Timers: reduce the amount of magic numbers (PVR API 5.0.0)
 - Recordings: implement the new iChannelUid field (PVR API 5.0.0)
