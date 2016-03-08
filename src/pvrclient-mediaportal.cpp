@@ -986,6 +986,9 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iSeriesNumber  = recording.GetSeriesNumber();
       tag.iEpgEventId    = EPG_TAG_INVALID_UID;
 
+      /* TODO: PVR API 5.1.0: Implement this */
+      tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
       {
