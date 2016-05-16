@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "kodi/libXBMC_addon.h"
+#include "libXBMC_addon.h"
 #include "utils.h"
 #include <string>
 #include "p8-platform/os.h"
