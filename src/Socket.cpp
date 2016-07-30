@@ -66,18 +66,34 @@ bool Socket::setHostname ( const std::string& host )
   if (isalpha(host.c_str()[0]))
   {
     // host address is a name
-    struct hostent *he = NULL;
-    if ((he = gethostbyname( host.c_str() )) == 0)
+    struct addrinfo hints;
+    struct addrinfo *result = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = _family;
+    hints.ai_socktype = _type;
+    hints.ai_protocol = _protocol;
+
+    int retval = getaddrinfo(host.c_str(), NULL, &hints, &result);
+    if (retval != 0)
     {
       errormessage( getLastError(), "Socket::setHostname");
       return false;
     }
 
-    _sockaddr.sin_addr = *((in_addr *) he->h_addr);
+    if (result->ai_family == AF_INET)
+    {
+      struct sockaddr_in *sockaddr_ipv4 = (struct sockaddr_in *) result->ai_addr;
+      _sockaddr.sin_addr = sockaddr_ipv4->sin_addr;
+    }
+
+    freeaddrinfo(result);
   }
   else
   {
-    _sockaddr.sin_addr.s_addr = inet_addr(host.c_str());
+    if (inet_pton(_family, host.c_str(), &(_sockaddr.sin_addr)) != 1)
+    {
+      return false;
+    }
   }
   return true;
 }

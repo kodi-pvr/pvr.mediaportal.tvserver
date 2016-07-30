@@ -23,6 +23,7 @@
   #define WIN32_LEAN_AND_MEAN           // Enable LEAN_AND_MEAN support
   #pragma warning(disable:4005) // Disable "warning C4005: '_WINSOCKAPI_' : macro redefinition"
   #include <winsock2.h>
+  #include <WS2tcpip.h>
   #pragma warning(default:4005)
   #include <windows.h>
 
