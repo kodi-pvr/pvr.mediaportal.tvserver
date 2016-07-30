@@ -31,7 +31,7 @@ namespace MPTV
     {
     public:
         CDvbUtil(void);
-        void getString468A(byte *buf, int bufLen, char *text, int textLen);
+        void getString468A(byte *buf, size_t bufLen, char *text, size_t textLen);
     public:
         virtual ~CDvbUtil(void);
     };

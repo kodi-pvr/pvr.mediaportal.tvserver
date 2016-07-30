@@ -48,17 +48,17 @@ namespace MPTV
         void        OnTsPacket(byte* tsPacket);
         void        Reset();
         void        OnNewSection(CSection& section);
-        int         Count();
-        bool        GetChannel(int index, CChannelInfo& info);
+        size_t      Count();
         void        Dump();
         void        SetCallBack(IPatParserCallback* callback);
     private:
+        bool        GetChannel(size_t index, CChannelInfo& info);
         void        CleanUp();
         IPatParserCallback* m_pCallback;
         std::vector<CPmtParser*> m_pmtParsers;
         int64_t     m_packetsReceived;
         int64_t     m_packetsToSkip;
-        int          m_iPatTableVersion;
+        int         m_iPatTableVersion;
         PatState    m_iState;
     };
 }
