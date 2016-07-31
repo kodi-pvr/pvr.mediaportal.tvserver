@@ -60,7 +60,7 @@ cPVRClientMediaPortal::cPVRClientMediaPortal()
   m_iCurrentChannel        = -1;
   m_bCurrentChannelIsRadio = false;
   m_iCurrentCard           = -1;
-  m_tcpclient              = new MPTV::Socket(MPTV::af_inet, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
+  m_tcpclient              = new MPTV::Socket(MPTV::af_unspec, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
   m_bConnected             = false;
   m_bStop                  = true;
   m_bTimeShiftStarted      = false;

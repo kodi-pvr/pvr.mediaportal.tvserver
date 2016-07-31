@@ -40,6 +40,7 @@ Socket::Socket(const enum SocketFamily family, const enum SocketDomain domain, c
   _domain = domain;
   _type = type;
   _protocol = protocol;
+  _port = 0;
   memset (&_sockaddr, 0, sizeof( _sockaddr ) );
 }
 
@@ -52,6 +53,7 @@ Socket::Socket()
   _domain = pf_inet;
   _type = sock_stream;
   _protocol = tcp;
+  _port = 0;
   memset (&_sockaddr, 0, sizeof( _sockaddr ) );
 }
 
@@ -59,42 +61,12 @@ Socket::Socket()
 Socket::~Socket()
 {
   close();
+  osCleanup();
 }
 
-bool Socket::setHostname ( const std::string& host )
+bool Socket::setHostname(const std::string& host)
 {
-  if (isalpha(host.c_str()[0]))
-  {
-    // host address is a name
-    struct addrinfo hints;
-    struct addrinfo *result = NULL;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = _family;
-    hints.ai_socktype = _type;
-    hints.ai_protocol = _protocol;
-
-    int retval = getaddrinfo(host.c_str(), NULL, &hints, &result);
-    if (retval != 0)
-    {
-      errormessage( getLastError(), "Socket::setHostname");
-      return false;
-    }
-
-    if (result->ai_family == AF_INET)
-    {
-      struct sockaddr_in *sockaddr_ipv4 = (struct sockaddr_in *) result->ai_addr;
-      _sockaddr.sin_addr = sockaddr_ipv4->sin_addr;
-    }
-
-    freeaddrinfo(result);
-  }
-  else
-  {
-    if (inet_pton(_family, host.c_str(), &(_sockaddr.sin_addr)) != 1)
-    {
-      return false;
-    }
-  }
+  _hostname = host;
   return true;
 }
 
@@ -103,13 +75,8 @@ bool Socket::close()
   if (is_valid())
   {
     if (_sd != SOCKET_ERROR)
-#ifdef TARGET_WINDOWS
       closesocket(_sd);
-#else
-      ::close(_sd);
-#endif
     _sd = INVALID_SOCKET;
-    osCleanup();
     return true;
   }
   return false;
@@ -117,24 +84,10 @@ bool Socket::close()
 
 bool Socket::create()
 {
-  if( is_valid() )
-  {
-    close();
-  }
+  close();
 
   if(!osInit())
   {
-    return false;
-  }
-
-  _sd = socket(_family, _type, _protocol );
-  //0 indicates that the default protocol for the type selected is to be used.
-  //For example, IPPROTO_TCP is chosen for the protocol if the type  was set to
-  //SOCK_STREAM and the address family is AF_INET.
-
-  if (_sd == INVALID_SOCKET)
-  {
-    errormessage( getLastError(), "Socket::create" );
     return false;
   }
 
@@ -150,9 +103,10 @@ bool Socket::bind ( const unsigned short port )
     return false;
   }
 
+  _port = port;
   _sockaddr.sin_family = (sa_family_t) _family;
   _sockaddr.sin_addr.s_addr = INADDR_ANY;  //listen to all
-  _sockaddr.sin_port = htons( port );
+  _sockaddr.sin_port = htons( _port );
 
   int bind_return = ::bind(_sd, (sockaddr*)(&_sockaddr), sizeof(_sockaddr));
 
@@ -243,13 +197,13 @@ int Socket::send ( const char* data, const unsigned int len )
   if (result < 0)
   {
     XBMC->Log(LOG_ERROR, "Socket::send  - select failed");
-    _sd = INVALID_SOCKET;
+    close();
     return 0;
   }
   if (FD_ISSET(_sd, &set_w))
   {
     XBMC->Log(LOG_ERROR, "Socket::send  - failed to send data");
-    _sd = INVALID_SOCKET;
+    close();
     return 0;
   }
 
@@ -259,7 +213,7 @@ int Socket::send ( const char* data, const unsigned int len )
   {
     errormessage( getLastError(), "Socket::send");
     XBMC->Log(LOG_ERROR, "Socket::send  - failed to send data");
-    _sd = INVALID_SOCKET;
+    close();
     return 0;
   }
   return status;
@@ -344,7 +298,7 @@ bool Socket::ReadLine (string& line)
     {
       XBMC->Log(LOG_DEBUG, "%s: select failed", __FUNCTION__);
       errormessage(getLastError(), __FUNCTION__);
-      _sd = INVALID_SOCKET;
+      close();
       return false;
     }
 
@@ -366,7 +320,7 @@ bool Socket::ReadLine (string& line)
     {
       XBMC->Log(LOG_DEBUG, "%s: recv failed", __FUNCTION__);
       errormessage(getLastError(), __FUNCTION__);
-      _sd = INVALID_SOCKET;
+      close();
       return false;
     }
     buffer[result] = 0;
@@ -431,26 +385,62 @@ int Socket::recvfrom ( char* data, const int buffersize, struct sockaddr* from, 
 
 bool Socket::connect ( const std::string& host, const unsigned short port )
 {
-  if ( !is_valid() )
-  {
-    return false;
-  }
-
-  _sockaddr.sin_family = (sa_family_t) _family;
-  _sockaddr.sin_port = htons ( port );
+  close();
 
   if ( !setHostname( host ) )
   {
     XBMC->Log(LOG_ERROR, "Socket::setHostname(%s) failed.\n", host.c_str());
     return false;
   }
+  _port = port;
 
-  int status = ::connect ( _sd, reinterpret_cast<sockaddr*>(&_sockaddr), sizeof ( _sockaddr ) );
+  char strPort[15];
+  snprintf(strPort, 15, "%hu", port);
 
-  if ( status == SOCKET_ERROR )
+  struct addrinfo hints;
+  struct addrinfo* result = NULL;
+  struct addrinfo *address = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = _family;
+  hints.ai_socktype = _type;
+  hints.ai_protocol = _protocol;
+
+  int retval = getaddrinfo(host.c_str(), strPort, &hints, &result);
+  if (retval != 0)
+  {
+    errormessage(getLastError(), "Socket::connect");
+    return false;
+  }
+
+  for (address = result; address != NULL; address = address->ai_next)
+  {
+    // Create the socket
+    _sd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
+
+    if (_sd == INVALID_SOCKET)
+    {
+      errormessage(getLastError(), "Socket::create");
+      continue;
+    }
+
+    int status = ::connect(_sd, address->ai_addr, address->ai_addrlen);
+    if (status == SOCKET_ERROR)
+    {
+      close();
+      continue;
+    }
+
+    // We have a conection
+    break;
+  }
+
+  freeaddrinfo(result);
+
+  if (address == NULL)
   {
     XBMC->Log(LOG_ERROR, "Socket::connect %s:%u\n", host.c_str(), port);
-    errormessage( getLastError(), "Socket::connect" );
+    errormessage(getLastError(), "Socket::connect");
+    close();
     return false;
   }
 
@@ -459,26 +449,12 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
 
 bool Socket::reconnect()
 {
-  if ( _sd != INVALID_SOCKET )
+  if ( is_valid() )
   {
     return true;
   }
 
-  if( !create() )
-    return false;
-
-  if (_sd == INVALID_SOCKET)
-    return false;
-
-  int status = ::connect ( _sd, reinterpret_cast<sockaddr*>(&_sockaddr), sizeof ( _sockaddr ) );
-
-  if ( status == SOCKET_ERROR )
-  {
-    errormessage( getLastError(), "Socket::connect" );
-    return false;
-  }
-
-  return true;
+  return connect(_hostname, _port);
 }
 
 bool Socket::is_valid() const
