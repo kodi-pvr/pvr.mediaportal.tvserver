@@ -33,13 +33,13 @@
 #include "p8-platform/util/StdString.h"
 #include "DeMultiplexer.h"
 #include "Cards.h"
+#ifdef LIVE555
+#include "MepoRTSPClient.h"
+#include "MemoryBuffer.h"
+#endif
 
 namespace MPTV
 {
-#ifdef LIVE555
-    class CRTSPClient;
-    class CMemoryBuffer;
-#endif
     typedef enum _TsReaderState
     {
         State_Stopped = 0,
