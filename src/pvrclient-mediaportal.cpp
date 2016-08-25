@@ -49,8 +49,8 @@ int g_iTVServerXBMCBuild = 0;
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.12.0.130"
-#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  127
+#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.134"
+#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  134
 
 /************************************************************/
 /** Class interface */
