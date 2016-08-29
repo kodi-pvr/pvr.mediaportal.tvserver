@@ -77,7 +77,7 @@ void CMemorySink::afterGettingFrame(void* clientData, unsigned frameSize, unsign
   sink->continuePlaying();
 }
 
-void CMemorySink::addData(unsigned char* data, unsigned dataSize, struct timeval UNUSED(presentationTime))
+void CMemorySink::addData(unsigned char* data, size_t dataSize, struct timeval UNUSED(presentationTime))
 {
   if (dataSize == 0 || data == NULL) return;
 
@@ -90,7 +90,7 @@ void CMemorySink::addData(unsigned char* data, unsigned dataSize, struct timeval
 	P8PLATFORM::CLockObject BufferLock(m_BufferLock);
 
   m_bReEntrant = true;
-  m_buffer.PutBuffer(data, (size_t) dataSize);
+  m_buffer.PutBuffer(data, dataSize);
   m_bReEntrant = false;
 }
 
