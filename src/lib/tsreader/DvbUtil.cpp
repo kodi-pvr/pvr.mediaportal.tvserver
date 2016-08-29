@@ -94,12 +94,12 @@ namespace MPTV
     {
     }
 
-    void CDvbUtil::getString468A(byte *buf, int bufLen, char *text, int textLen)
+    void CDvbUtil::getString468A(byte *buf, size_t bufLen, char *text, size_t textLen)
     {
         byte c;
         uint16_t w;
 
-        int bufIndex = 0, textIndex = 0;
+        size_t bufIndex = 0, textIndex = 0;
 
         if (buf == NULL) return;
         if (bufLen < 1) return;

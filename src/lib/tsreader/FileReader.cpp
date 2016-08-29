@@ -63,7 +63,8 @@ namespace MPTV
 {
     FileReader::FileReader() :
         m_hFile(NULL),
-        m_fileSize(0)
+        m_fileSize(0),
+        m_fileName("")
     {
     }
 

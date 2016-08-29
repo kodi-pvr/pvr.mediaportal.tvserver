@@ -45,7 +45,8 @@ using namespace ADDON;
 
 namespace MPTV
 {
-    CTsReader::CTsReader() : m_demultiplexer(*this)
+    CTsReader::CTsReader() : m_demultiplexer(*this),
+        m_fileName("")
     {
         m_fileReader = NULL;
         m_fileDuration = NULL;

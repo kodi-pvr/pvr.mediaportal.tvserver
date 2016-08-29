@@ -149,7 +149,7 @@ namespace MPTV
                         pid.Pid = elementary_PID;
                         pid.AudioServiceType = (indicator == DESCRIPTOR_DVB_AC3) ? SERVICE_TYPE_AUDIO_AC3 : SERVICE_TYPE_AUDIO_DD_PLUS;
 
-                        for (unsigned int i(0); i < tempPids.size(); i++)
+                        for (size_t i(0); i < tempPids.size(); i++)
                         {
                             if (tempPids[i].Pid == elementary_PID)
                             {

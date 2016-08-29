@@ -23,6 +23,7 @@
   #define WIN32_LEAN_AND_MEAN           // Enable LEAN_AND_MEAN support
   #pragma warning(disable:4005) // Disable "warning C4005: '_WINSOCKAPI_' : macro redefinition"
   #include <winsock2.h>
+  #include <WS2tcpip.h>
   #pragma warning(default:4005)
   #include <windows.h>
 
@@ -63,6 +64,8 @@
   #define INVALID_SOCKET (-1)
   #endif
   #define SOCKET_ERROR (-1)
+
+  #define closesocket(sd) ::close(sd)
 #else
   #error Platform specific socket support is not yet available on this platform!
 #endif
@@ -78,7 +81,9 @@ namespace MPTV //Prevent name clash with Live555 Socket
 
 enum SocketFamily
 {
-  af_inet = AF_INET
+  af_unspec = AF_UNSPEC,
+  af_inet = AF_INET,
+  af_inet6 = AF_INET6
 };
 
 enum SocketDomain
@@ -277,6 +282,9 @@ class Socket
 
     SOCKET _sd;                         ///< Socket Descriptor
     SOCKADDR_IN _sockaddr;              ///< Socket Address
+    //struct addrinfo* _addrinfo;         ///< Socket address info
+    std::string _hostname;              ///< Hostname
+    unsigned short _port;               ///< Port number
 
     enum SocketFamily _family;          ///< Socket Address Family
     enum SocketProtocol _protocol;      ///< Socket Protocol
