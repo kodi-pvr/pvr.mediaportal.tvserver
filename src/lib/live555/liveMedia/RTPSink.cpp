@@ -52,7 +52,9 @@ RTPSink::RTPSink(UsageEnvironment& env,
     fRTPPayloadType(rtpPayloadType),
     fPacketCount(0), fOctetCount(0), fTotalOctetCount(0),
     fTimestampFrequency(rtpTimestampFrequency), fNextTimestampHasBeenPreset(True),
-    fNumChannels(numChannels) {
+    fNumChannels(numChannels),
+    fCurrentTimestamp(0)
+{
   fRTPPayloadFormatName
     = strDup(rtpPayloadFormatName == NULL ? "???" : rtpPayloadFormatName);
   gettimeofday(&fCreationTime, NULL);
@@ -238,11 +240,17 @@ RTPTransmissionStats::RTPTransmissionStats(RTPSink& rtpSink, u_int32_t SSRC)
     fPacketLossRatio(0), fTotNumPacketsLost(0), fJitter(0),
     fLastSRTime(0), fDiffSR_RRTime(0), fFirstPacket(True),
     fTotalOctetCount_hi(0), fTotalOctetCount_lo(0),
-    fTotalPacketCount_hi(0), fTotalPacketCount_lo(0) {
+    fTotalPacketCount_hi(0), fTotalPacketCount_lo(0),
+    fOldValid(False), fOldLastPacketNumReceived(0), fOldTotNumPacketsLost(0),
+    fFirstPacketNumReported(0)
+{
   gettimeofday(&fTimeCreated, NULL);
 
   fLastOctetCount = rtpSink.octetCount();
   fLastPacketCount = rtpSink.packetCount();
+  memset(&fLastFromAddress, 0, sizeof(sockaddr_in));
+  fTimeReceived.tv_sec = 0;
+  fTimeReceived.tv_usec = 0;
 }
 
 RTPTransmissionStats::~RTPTransmissionStats() {}
