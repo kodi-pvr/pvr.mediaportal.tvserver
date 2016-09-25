@@ -117,7 +117,12 @@ public:
   void adjustPacketStart(unsigned numBytes);
   void resetPacketStart();
   void resetOffset() { fCurOffset = 0; }
-  void resetOverflowData() { fOverflowDataOffset = fOverflowDataSize = 0; }
+  void resetOverflowData()
+  {
+    fOverflowDataOffset = fOverflowDataSize = 0;
+    fOverflowPresentationTime.tv_sec = 0;
+    fOverflowPresentationTime.tv_usec = 0;
+  }
 
 private:
   unsigned fPacketStart, fCurOffset, fPreferred, fMax, fLimit;
