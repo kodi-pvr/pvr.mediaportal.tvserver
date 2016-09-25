@@ -79,6 +79,8 @@ void MultiFramedRTPSource::reset() {
   fAreDoingNetworkReads = False;
   fNeedDelivery = False;
   fPacketLossInFragmentedFrame = False;
+  fSavedTo = NULL;
+  fSavedMaxSize = 0;
 }
 
 MultiFramedRTPSource::~MultiFramedRTPSource() {
