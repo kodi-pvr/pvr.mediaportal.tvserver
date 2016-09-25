@@ -81,7 +81,11 @@ void BasicTaskScheduler0::doEventLoop(char* watchVariable) {
 
 ////////// HandlerSet (etc.) implementation //////////
 
-HandlerDescriptor::HandlerDescriptor(HandlerDescriptor* nextHandler) {
+HandlerDescriptor::HandlerDescriptor(HandlerDescriptor* nextHandler)
+  : socketNum(-1),
+    handlerProc(NULL),
+    clientData(NULL)
+{
   // Link this descriptor into a doubly-linked list:
   if (nextHandler == this) { // initialization
     fNextHandler = fPrevHandler = this;
