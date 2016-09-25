@@ -1,3 +1,6 @@
+v2.4.6
+- Fixed: various Coverity reported issues for Live555
+
 v2.4.5
 - Cosmetics: remove the remark about "tsreader + FFmpeg".
 - TSReader: add Live555 RTSP support back. Current ffmpeg rtsp streams are quite unstable.
