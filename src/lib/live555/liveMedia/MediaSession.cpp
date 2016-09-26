@@ -547,7 +547,9 @@ MediaSubsession::MediaSubsession(MediaSession& parent)
     fPlayStartTime(0.0), fPlayEndTime(0.0),
     fVideoWidth(0), fVideoHeight(0), fVideoFPS(0), fNumChannels(1), fScale(1.0f), fNPT_PTS_Offset(0.0f),
     fRTPSocket(NULL), fRTCPSocket(NULL),
-    fRTPSource(NULL), fRTCPInstance(NULL), fReadSource(NULL) {
+    fRTPSource(NULL), fRTCPInstance(NULL), fReadSource(NULL),
+    rtpChannelId(0), rtcpChannelId(0)
+{
   rtpInfo.seqNum = 0; rtpInfo.timestamp = 0; rtpInfo.infoIsNew = False;
 #ifdef SUPPORT_REAL_RTSP
   RealInitSDPAttributes(this);
@@ -716,9 +718,9 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
       // and create our RTP source accordingly
       // (Later make this code more efficient, as this set grows #####)
       // (Also, add more fmts that can be implemented by SimpleRTPSource#####)
+#if 0
       Boolean createSimpleRTPSource = False; // by default; can be changed below
       Boolean doNormalMBitRule = False; // default behavior if "createSimpleRTPSource" is True
-#if 0
       if (strcmp(fCodecName, "QCELP") == 0) { // QCELP audio
         fReadSource = QCELPAudioRTPSource::createNew(env(), fRTPSocket, fRTPSource,
                                          fRTPPayloadFormat,
@@ -861,7 +863,6 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
         env().setResultMsg("RTP payload format unknown or not supported");
         break;
       }
-#endif // 0
 
       if (createSimpleRTPSource) {
         char* mimeType = new char[strlen(mediumName()) + strlen(codecName()) + 2] ;
@@ -872,6 +873,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
                                          doNormalMBitRule);
         delete[] mimeType;
       }
+#endif // 0
     }
 
     if (fReadSource == NULL) {

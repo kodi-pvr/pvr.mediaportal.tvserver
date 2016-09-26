@@ -56,7 +56,12 @@ RTPSource::RTPSource(UsageEnvironment& env, Groupsock* RTPgs,
     fCurPacketHasBeenSynchronizedUsingRTCP(False),
     fRTPPayloadFormat(rtpPayloadFormat),
     fTimestampFrequency(rtpTimestampFrequency),
-    fSSRC(our_random32()) {
+    fSSRC(our_random32()),
+    fCurPacketRTPSeqNum(0),
+    fCurPacketRTPTimestamp(0),
+    fCurPacketMarkerBit(False),
+    fLastReceivedSSRC(0)
+{
   fReceptionStatsDB = new RTPReceptionStatsDB();
 }
 
@@ -190,7 +195,9 @@ RTPReceptionStats::RTPReceptionStats(u_int32_t SSRC, u_int16_t initialSeqNum) {
   init(SSRC);
 }
 
-RTPReceptionStats::RTPReceptionStats(u_int32_t SSRC) {
+RTPReceptionStats::RTPReceptionStats(u_int32_t SSRC)  {
+  fBaseExtSeqNumReceived = 0;
+  fHighestExtSeqNumReceived = 0;
   init(SSRC);
 }
 
@@ -213,6 +220,7 @@ void RTPReceptionStats::init(u_int32_t SSRC) {
   fTotalInterPacketGaps.tv_sec = fTotalInterPacketGaps.tv_usec = 0;
   fHasBeenSynchronized = False;
   fSyncTime.tv_sec = fSyncTime.tv_usec = 0;
+  fSyncTimestamp = 0;
   reset();
 }
 

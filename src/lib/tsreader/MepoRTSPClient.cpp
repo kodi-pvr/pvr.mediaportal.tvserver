@@ -303,7 +303,8 @@ bool CRTSPClient::OpenStream(const char* url)
   XBMC->Log(LOG_DEBUG, "CRTSPClient::OpenStream()");
   m_session = NULL;
 
-  strncpy(m_url, url, RTSP_URL_BUFFERSIZE);
+  strncpy(m_url, url, RTSP_URL_BUFFERSIZE - 1);
+  m_url[RTSP_URL_BUFFERSIZE - 1] = '\0';
 
   // Open the URL, to get a SDP description:
   char* sdpDescription = getSDPDescriptionFromURL(m_ourClient, url, ""/*username*/, ""/*password*/,""/*proxyServerName*/, 0/*proxyServerPortNum*/,1234/*desiredPortNum*/);

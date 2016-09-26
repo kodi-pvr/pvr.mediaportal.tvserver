@@ -208,7 +208,7 @@ private:
   int fVerbosityLevel;
   portNumBits fTunnelOverHTTPPortNum;
   char* fUserAgentHeaderStr;
-      unsigned fUserAgentHeaderStrSize;
+  size_t fUserAgentHeaderStrSize;
   int fInputSocketNum, fOutputSocketNum;
   unsigned fServerAddress;
   static unsigned fCSeq; // sequence number, used in consecutive requests
@@ -227,7 +227,7 @@ private:
   unsigned fDescribeStatusCode;
   // 0: OK; 1: connection failed; 2: stream unavailable
   char* fResponseBuffer;
-  unsigned fResponseBufferSize;
+  size_t fResponseBufferSize;
 
   // The following fields are used to implement the non-standard Kasenna protocol:
   Boolean fServerIsKasenna;

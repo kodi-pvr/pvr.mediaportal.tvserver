@@ -86,12 +86,13 @@ RTSPClient::RTSPClient(UsageEnvironment& env,
     libSuffix = ")";
   }
   char const* const formatStr = "User-Agent: %s%s%s%s%s\r\n";
-  unsigned headerSize
+  size_t headerSize
     = strlen(formatStr) + strlen(applicationName) + strlen(libPrefix)
-    + strlen(libName) + strlen(libVersionStr) + strlen(libSuffix);
+    + strlen(libName) + strlen(libVersionStr) + strlen(libSuffix) + 1;
   fUserAgentHeaderStr = new char[headerSize];
-  sprintf(fUserAgentHeaderStr, formatStr,
-	  applicationName, libPrefix, libName, libVersionStr, libSuffix);
+  snprintf(fUserAgentHeaderStr, (headerSize-1), formatStr,
+    applicationName, libPrefix, libName, libVersionStr, libSuffix);
+  fUserAgentHeaderStr[headerSize - 1] = '\0';
   fUserAgentHeaderStrSize = strlen(fUserAgentHeaderStr);
 }
 
@@ -100,7 +101,7 @@ void RTSPClient::setUserAgentString(char const* userAgentStr) {
 
   // Change the existing user agent header string:
   char const* const formatStr = "User-Agent: %s\r\n";
-  unsigned const headerSize = strlen(formatStr) + strlen(userAgentStr) + 1;
+  size_t headerSize = strlen(formatStr) + strlen(userAgentStr) + 1;
   delete[] fUserAgentHeaderStr;
   fUserAgentHeaderStr = new char[headerSize];
   sprintf(fUserAgentHeaderStr, formatStr, userAgentStr);
@@ -200,7 +201,7 @@ char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
       REAL_DESCRIBE_HEADERS
 #endif
       "\r\n";
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(url)
       + 20 /* max int len */
       + strlen(acceptStr)
@@ -263,7 +264,7 @@ char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
 	  break;
 	}
       } else if (strncmp(lineStart, "Content-Base:", 13) == 0) {
-	int cbIndex = 13;
+	size_t cbIndex = 13;
 
 	while (lineStart[cbIndex] == ' ' || lineStart[cbIndex] == '\t') ++cbIndex;
 	if (lineStart[cbIndex] != '\0'/*sanity check*/) {
@@ -319,9 +320,9 @@ char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
 	  = fResponseBufferSize - (bytesRead + (firstLine - fResponseBuffer));
 	if (numExtraBytesNeeded > remainingBufferSize) {
 	  char tmpBuf[200];
-	  sprintf(tmpBuf, "Read buffer size (%d) is too small for \"Content-length:\" %d (need a buffer size of >= %d bytes\n",
-		  fResponseBufferSize, contentLength,
-		  fResponseBufferSize + numExtraBytesNeeded - remainingBufferSize);
+	  sprintf(tmpBuf, "Read buffer size (%lu) is too small for \"Content-length:\" %d (need a buffer size of >= %lu bytes\n",
+		  (unsigned long) fResponseBufferSize, contentLength,
+		  (unsigned long) (fResponseBufferSize + numExtraBytesNeeded - remainingBufferSize));
 	  envir().setResultMsg(tmpBuf);
 	  break;
 	}
@@ -439,7 +440,7 @@ char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
 	"a=range:npt=0-%llu\r\n"
 	"m=video 1554 RAW/RAW/UDP 33\r\n"
 	"a=control:trackID=%d\r\n";
-      unsigned sdpBufSize = strlen(sdpFmt)
+      size_t sdpBufSize = strlen(sdpFmt)
 	+ 4*3 // IP address
 	+ strlen(url)
 	+ 20 // max int length
@@ -549,7 +550,7 @@ char* RTSPClient::sendOptionsCmd(char const* url,
       REAL_OPTIONS_HEADERS
 #endif
       "\r\n";
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(url)
       + 20 /* max int len */
       + strlen(authenticatorStr)
@@ -640,7 +641,7 @@ void RTSPClient::constructSubsessionURL(MediaSubsession const& subsession,
   if (isAbsoluteURL(suffix)) {
     prefix = separator = "";
   } else {
-    unsigned prefixLen = strlen(prefix);
+    size_t prefixLen = strlen(prefix);
     separator = (prefix[prefixLen-1] == '/' || suffix[0] == '/') ? "" : "/";
   }
 }
@@ -665,23 +666,24 @@ Boolean RTSPClient::announceSDPDescription(char const* url,
       "CSeq: %d\r\n"
       "Content-Type: application/sdp\r\n"
       "%s"
-      "Content-length: %d\r\n\r\n"
+      "Content-length: %lu\r\n\r\n"
       "%s";
 	    // Note: QTSS hangs if an "ANNOUNCE" contains a "User-Agent:" field (go figure), so don't include one here
-    unsigned sdpSize = strlen(sdpDescription);
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t sdpSize = strlen(sdpDescription);
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(url)
       + 20 /* max int len */
       + strlen(authenticatorStr)
       + 20 /* max int len */
       + sdpSize;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    url,
 	    ++fCSeq,
 	    authenticatorStr,
-	    sdpSize,
+	    (unsigned long) sdpSize,
 	    sdpDescription);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "ANNOUNCE")) break;
@@ -843,18 +845,20 @@ Boolean RTSPClient::setupMediaSubsession(MediaSubsession& subsession,
 
     if (strcmp(subsession.protocolName(), "UDP") == 0) {
       char const* setupFmt = "SETUP %s%s RTSP/1.0\r\n";
-      unsigned setupSize = strlen(setupFmt)
-        + strlen(prefix) + strlen (separator);
+      size_t setupSize = strlen(setupFmt)
+        + strlen(prefix) + strlen (separator) + 1;
       setupStr = new char[setupSize];
-      sprintf(setupStr, setupFmt, prefix, separator);
+      snprintf(setupStr, (setupSize - 1), setupFmt, prefix, separator);
+      setupStr[setupSize - 1] = '\0';
 
       transportFmt = "Transport: RAW/RAW/UDP%s%s%s=%d-%d\r\n";
     } else {
       char const* setupFmt = "SETUP %s%s%s RTSP/1.0\r\n";
-      unsigned setupSize = strlen(setupFmt)
-        + strlen(prefix) + strlen (separator) + strlen(suffix);
+      size_t setupSize = strlen(setupFmt)
+        + strlen(prefix) + strlen (separator) + strlen(suffix) + 1;
       setupStr = new char[setupSize];
-      sprintf(setupStr, setupFmt, prefix, separator, suffix);
+      snprintf(setupStr, (setupSize - 1), setupFmt, prefix, separator, suffix);
+      setupStr[setupSize - 1] = '\0';
 
       transportFmt = "Transport: RTP/AVP%s%s%s=%d-%d\r\n";
     }
@@ -886,11 +890,12 @@ Boolean RTSPClient::setupMediaSubsession(MediaSubsession& subsession,
 	rtcpNumber = rtpNumber + 1;
       }
 
-      unsigned transportSize = strlen(transportFmt)
-	+ strlen(transportTypeStr) + strlen(modeStr) + strlen(portTypeStr) + 2*5 /* max port len */;
+      size_t transportSize = strlen(transportFmt)
+	+ strlen(transportTypeStr) + strlen(modeStr) + strlen(portTypeStr) + 2*5 + 1 /* max port len */;
       transportStr = new char[transportSize];
-      sprintf(transportStr, transportFmt,
+      snprintf(transportStr, (transportSize -1), transportFmt,
 	      transportTypeStr, modeStr, portTypeStr, rtpNumber, rtcpNumber);
+      transportStr[transportSize - 1] = '\0';
     }
 
     // (Later implement more, as specified in the RTSP spec, sec D.1 #####)
@@ -903,21 +908,22 @@ Boolean RTSPClient::setupMediaSubsession(MediaSubsession& subsession,
       "%s"
       "\r\n";
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(setupStr)
       + 20 /* max int len */
       + strlen(transportStr)
       + strlen(sessionStr)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    setupStr,
 	    ++fCSeq,
 	    transportStr,
 	    sessionStr,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr; delete[] sessionStr; delete[] setupStr; delete[] transportStr;
 
     // And then send it:
@@ -1085,16 +1091,16 @@ Boolean RTSPClient::playMediaSession(MediaSession& session,
       "\r\n";
 
     char const* sessURL = sessionURL(session);
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(sessURL)
       + 20 /* max int len */
       + strlen(fLastSessionId)
       + strlen(scaleStr)
       + strlen(rangeStr)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    sessURL,
 	    ++fCSeq,
 	    fLastSessionId,
@@ -1102,6 +1108,7 @@ Boolean RTSPClient::playMediaSession(MediaSession& session,
 	    rangeStr,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] scaleStr;
     delete[] rangeStr;
     delete[] authenticatorStr;
@@ -1194,16 +1201,16 @@ Boolean RTSPClient::playMediaSubsession(MediaSubsession& subsession,
       separator = suffix = "";
     }
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(prefix) + strlen(separator) + strlen(suffix)
       + 20 /* max int len */
       + strlen(subsession.sessionId)
       + strlen(scaleStr)
       + strlen(rangeStr)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    prefix, separator, suffix,
 	    ++fCSeq,
 	    subsession.sessionId,
@@ -1211,6 +1218,7 @@ Boolean RTSPClient::playMediaSubsession(MediaSubsession& subsession,
 	    rangeStr,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] scaleStr;
     delete[] rangeStr;
     delete[] authenticatorStr;
@@ -1273,19 +1281,20 @@ Boolean RTSPClient::pauseMediaSession(MediaSession& session) {
       "%s"
       "\r\n";
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(sessURL)
       + 20 /* max int len */
       + strlen(fLastSessionId)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    sessURL,
 	    ++fCSeq,
 	    fLastSessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "PAUSE")) break;
@@ -1332,19 +1341,20 @@ Boolean RTSPClient::pauseMediaSubsession(MediaSubsession& subsession) {
     constructSubsessionURL(subsession, prefix, separator, suffix);
     if (fServerIsKasenna) separator = suffix = "";
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(prefix) + strlen(separator) + strlen(suffix)
       + 20 /* max int len */
       + strlen(subsession.sessionId)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    prefix, separator, suffix,
 	    ++fCSeq,
 	    subsession.sessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "PAUSE")) break;
@@ -1392,19 +1402,20 @@ Boolean RTSPClient::recordMediaSubsession(MediaSubsession& subsession) {
     char const *prefix, *separator, *suffix;
     constructSubsessionURL(subsession, prefix, separator, suffix);
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(prefix) + strlen(separator) + strlen(suffix)
       + 20 /* max int len */
       + strlen(subsession.sessionId)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    prefix, separator, suffix,
 	    ++fCSeq,
 	    subsession.sessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "RECORD")) break;
@@ -1446,27 +1457,28 @@ Boolean RTSPClient::setMediaSessionParameter(MediaSession& /*session*/,
       "Session: %s\r\n"
       "%s"
       "%s"
-      "Content-length: %d\r\n\r\n"
+      "Content-length: %lu\r\n\r\n"
       "%s: %s\r\n";
 
-    unsigned parameterNameLen = strlen(parameterName);
-    unsigned parameterValueLen = strlen(parameterValue);
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t parameterNameLen = strlen(parameterName);
+    size_t parameterValueLen = strlen(parameterValue);
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(fBaseURL)
       + 20 /* max int len */
       + strlen(fLastSessionId)
       + strlen(authenticatorStr)
       + fUserAgentHeaderStrSize
-      + parameterNameLen + parameterValueLen;
+      + parameterNameLen + parameterValueLen + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    fBaseURL,
 	    ++fCSeq,
 	    fLastSessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr,
-	    parameterNameLen + parameterValueLen + 2, // the "+ 2" is for the \r\n after the parameter "name: value"
+	    (unsigned long) (parameterNameLen + parameterValueLen + 2), // the "+ 2" is for the \r\n after the parameter "name: value"
 	    parameterName, parameterValue);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "SET_PARAMETER")) break;
@@ -1511,26 +1523,27 @@ Boolean RTSPClient::getMediaSessionParameter(MediaSession& /*session*/,
 	"%s"
 	"%s"
 	"Content-type: text/parameters\r\n"
-	"Content-length: %d\r\n\r\n"
+	"Content-length: %lu\r\n\r\n"
 	"%s\r\n";
 
-      unsigned parameterNameLen = strlen(parameterName);
-      unsigned cmdSize = strlen(cmdFmt)
+      size_t parameterNameLen = strlen(parameterName);
+      size_t cmdSize = strlen(cmdFmt)
 	+ strlen(fBaseURL)
 	+ 20 /* max int len */
 	+ strlen(fLastSessionId)
 	+ strlen(authenticatorStr)
 	+ fUserAgentHeaderStrSize
-	+ parameterNameLen;
+	+ parameterNameLen + 1;
       cmd = new char[cmdSize];
-      sprintf(cmd, cmdFmt,
+      snprintf(cmd, (cmdSize - 1), cmdFmt,
 	      fBaseURL,
 	      ++fCSeq,
 	      fLastSessionId,
 	      authenticatorStr,
 	      fUserAgentHeaderStr,
-	      parameterNameLen + 2, // the "+ 2" is for the \r\n after the parameter name
+	      (unsigned long) parameterNameLen + 2, // the "+ 2" is for the \r\n after the parameter name
 	      parameterName);
+      cmd[cmdSize - 1] = '\0';
     } else {
       char const* const cmdFmt =
 	"GET_PARAMETER %s RTSP/1.0\r\n"
@@ -1540,19 +1553,20 @@ Boolean RTSPClient::getMediaSessionParameter(MediaSession& /*session*/,
 	"%s"
 	"\r\n";
 
-      unsigned cmdSize = strlen(cmdFmt)
+      size_t cmdSize = strlen(cmdFmt)
 	+ strlen(fBaseURL)
 	+ 20 /* max int len */
 	+ strlen(fLastSessionId)
 	+ strlen(authenticatorStr)
-	+ fUserAgentHeaderStrSize;
+	+ fUserAgentHeaderStrSize + 1;
       cmd = new char[cmdSize];
-      sprintf(cmd, cmdFmt,
+      snprintf(cmd, (cmdSize - 1), cmdFmt,
 	      fBaseURL,
 	      ++fCSeq,
 	      fLastSessionId,
 	      authenticatorStr,
 	      fUserAgentHeaderStr);
+      cmd[cmdSize - 1] = '\0';
     }
     delete[] authenticatorStr;
 
@@ -1616,9 +1630,9 @@ Boolean RTSPClient::getMediaSessionParameter(MediaSession& /*session*/,
 	  = fResponseBufferSize - (bytesRead + (firstLine - fResponseBuffer));
 	if (numExtraBytesNeeded > remainingBufferSize) {
 	  char tmpBuf[200];
-	  sprintf(tmpBuf, "Read buffer size (%d) is too small for \"Content-length:\" %d (need a buffer size of >= %d bytes\n",
-		  fResponseBufferSize, contentLength,
-		  fResponseBufferSize + numExtraBytesNeeded - remainingBufferSize);
+	  sprintf(tmpBuf, "Read buffer size (%lu) is too small for \"Content-length:\" %d (need a buffer size of >= %lu bytes\n",
+		  (unsigned long) fResponseBufferSize, contentLength,
+		  (unsigned long) (fResponseBufferSize + numExtraBytesNeeded - remainingBufferSize));
 	  envir().setResultMsg(tmpBuf);
 	  break;
 	}
@@ -1683,19 +1697,20 @@ Boolean RTSPClient::teardownMediaSession(MediaSession& session) {
       "%s"
       "\r\n";
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(sessURL)
       + 20 /* max int len */
       + strlen(fLastSessionId)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    sessURL,
 	    ++fCSeq,
 	    fLastSessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "TEARDOWN")) break;
@@ -1753,19 +1768,20 @@ Boolean RTSPClient::teardownMediaSubsession(MediaSubsession& subsession) {
     char const *prefix, *separator, *suffix;
     constructSubsessionURL(subsession, prefix, separator, suffix);
 
-    unsigned cmdSize = strlen(cmdFmt)
+    size_t cmdSize = strlen(cmdFmt)
       + strlen(prefix) + strlen(separator) + strlen(suffix)
       + 20 /* max int len */
       + strlen(subsession.sessionId)
       + strlen(authenticatorStr)
-      + fUserAgentHeaderStrSize;
+      + fUserAgentHeaderStrSize + 1;
     cmd = new char[cmdSize];
-    sprintf(cmd, cmdFmt,
+    snprintf(cmd, (cmdSize - 1), cmdFmt,
 	    prefix, separator, suffix,
 	    ++fCSeq,
 	    subsession.sessionId,
 	    authenticatorStr,
 	    fUserAgentHeaderStr);
+    cmd[cmdSize - 1] = '\0';
     delete[] authenticatorStr;
 
     if (!sendRequest(cmd, "TEARDOWN")) break;
@@ -1941,9 +1957,9 @@ Boolean RTSPClient::parseRTSPURLUsernamePassword(char const* url,
     if (_strncasecmp(url, prefix, prefixLength) != 0) break;
 
     // Look for the ':' and '@':
-    unsigned usernameIndex = prefixLength;
-    unsigned colonIndex = 0, atIndex = 0;
-    for (unsigned i = usernameIndex; url[i] != '\0' && url[i] != '/'; ++i) {
+    size_t usernameIndex = prefixLength;
+    size_t colonIndex = 0, atIndex = 0;
+    for (size_t i = usernameIndex; url[i] != '\0' && url[i] != '/'; ++i) {
       if (url[i] == ':' && colonIndex == 0) {
 	colonIndex = i;
       } else if (url[i] == '@') {
@@ -1982,25 +1998,28 @@ RTSPClient::createAuthenticatorString(Authenticator const* authenticator,
 	"Authorization: Digest username=\"%s\", realm=\"%s\", "
 	"nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\n";
       char const* response = authenticator->computeDigestResponse(cmd, url);
-      unsigned authBufSize = strlen(authFmt)
+      size_t authBufSize = strlen(authFmt)
 	+ strlen(authenticator->username()) + strlen(authenticator->realm())
-	+ strlen(authenticator->nonce()) + strlen(url) + strlen(response);
+	+ strlen(authenticator->nonce()) + strlen(url) + strlen(response) + 1;
       authenticatorStr = new char[authBufSize];
-      sprintf(authenticatorStr, authFmt,
+      snprintf(authenticatorStr, (authBufSize - 1), authFmt,
 	      authenticator->username(), authenticator->realm(),
 	      authenticator->nonce(), url, response);
+      authenticatorStr[authBufSize - 1] = '\0';
       authenticator->reclaimDigestResponse(response);
     } else { // Basic authentication
       char const* const authFmt = "Authorization: Basic %s\r\n";
 
-      unsigned usernamePasswordLength = strlen(authenticator->username()) + 1 + strlen(authenticator->password());
+      size_t usernamePasswordLength = strlen(authenticator->username()) + 1 + strlen(authenticator->password()) + 1;
       char* usernamePassword = new char[usernamePasswordLength+1];
-      sprintf(usernamePassword, "%s:%s", authenticator->username(), authenticator->password());
+      snprintf(usernamePassword, (usernamePasswordLength - 1), "%s:%s", authenticator->username(), authenticator->password());
+      usernamePassword[usernamePasswordLength - 1] = '\0';
 
       char* response = base64Encode(usernamePassword, usernamePasswordLength);
-      unsigned const authBufSize = strlen(authFmt) + strlen(response) + 1;
+      size_t const authBufSize = strlen(authFmt) + strlen(response) + 1;
       authenticatorStr = new char[authBufSize];
-      sprintf(authenticatorStr, authFmt, response);
+      snprintf(authenticatorStr, (authBufSize - 1), authFmt, response);
+      authenticatorStr[authBufSize - 1] = '\0';
       delete[] response; delete[] usernamePassword;
     }
 
@@ -2064,9 +2083,10 @@ Boolean RTSPClient::sendRequest(char const* requestString, char const* tag,
   if (!result) {
     if (tag == NULL) tag = "";
     char const* errFmt = "%s send() failed: ";
-    unsigned const errLength = strlen(errFmt) + strlen(tag);
+    size_t const errLength = strlen(errFmt) + strlen(tag) + 1;
     char* err = new char[errLength];
-    sprintf(err, errFmt, tag);
+    snprintf(err, (errLength - 1), errFmt, tag);
+    err[errLength - 1] = '\0';
     envir().setResultErrMsg(err);
     delete[] err;
   }

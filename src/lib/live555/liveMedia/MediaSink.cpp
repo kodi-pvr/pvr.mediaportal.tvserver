@@ -25,7 +25,9 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 ////////// MediaSink //////////
 
 MediaSink::MediaSink(UsageEnvironment& env)
-  : Medium(env), fSource(NULL) {
+  : Medium(env), fSource(NULL),
+  fAfterFunc(NULL), fAfterClientData(NULL)
+{
 }
 
 MediaSink::~MediaSink() {
@@ -109,7 +111,9 @@ unsigned OutPacketBuffer::maxSize = 60000; // by default
 OutPacketBuffer::OutPacketBuffer(unsigned preferredPacketSize,
 				 unsigned maxPacketSize)
   : fPreferred(preferredPacketSize), fMax(maxPacketSize),
-    fOverflowDataSize(0) {
+    fOverflowDataSize(0),
+    fOverflowDurationInMicroseconds(0)
+{
   unsigned maxNumPackets = (maxSize + (maxPacketSize-1))/maxPacketSize;
   fLimit = maxNumPackets*maxPacketSize;
   fBuf = new unsigned char[fLimit];
