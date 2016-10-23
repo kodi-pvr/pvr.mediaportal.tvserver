@@ -83,8 +83,9 @@ GroupEId::GroupEId(struct in_addr const& groupAddr,
   init(groupAddr, sourceFilterAddr, portNum, 255, numSuccessiveGroupAddrs);
 }
 
-GroupEId::GroupEId() {
-}
+// margro: removed to fix Coverity CID 135519
+//GroupEId::GroupEId() {
+//}
 
 Boolean GroupEId::isSSM() const {
   return fSourceFilterAddress.s_addr != netAddressBits(~0);
