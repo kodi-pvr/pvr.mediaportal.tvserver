@@ -569,7 +569,12 @@ Boolean getSourcePort(UsageEnvironment& env, int socket, Port& port) {
   if (!getSourcePort0(socket, portNum) || portNum == 0) {
     // Hack - call bind(), then try again:
     MAKE_SOCKADDR_IN(name, INADDR_ANY, 0);
-    bind(socket, (struct sockaddr*)&name, sizeof name);
+    int retval = bind(socket, (struct sockaddr*)&name, sizeof name);
+    if (retval != 0)
+    {
+      socketErr(env, "bind() error: ");
+      return False;
+    }
 
     if (!getSourcePort0(socket, portNum) || portNum == 0) {
       socketErr(env, "getsockname() error: ");
