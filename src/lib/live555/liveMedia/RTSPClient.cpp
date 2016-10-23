@@ -70,7 +70,7 @@ RTSPClient::RTSPClient(UsageEnvironment& env,
     fRealChallengeStr(NULL), fRealETagStr(NULL),
 #endif
     fServerIsKasenna(False), fKasennaContentType(NULL),
-    fServerIsMicrosoft(False)
+    fServerIsMicrosoft(False), fDescribeStatusCode(0)
 {
   fResponseBufferSize = 20000;
   fResponseBuffer = new char[fResponseBufferSize+1];
@@ -2541,5 +2541,9 @@ void RTSPClient::handleCmd_notSupported(char const* cseq) {
   char tmpBuf[512];
   snprintf((char*)tmpBuf, sizeof tmpBuf,
 	   "RTSP/1.0 405 Method Not Allowed\r\nCSeq: %s\r\n\r\n", cseq);
-  send(fOutputSocketNum, tmpBuf, strlen(tmpBuf), 0);
+  int retval = send(fOutputSocketNum, tmpBuf, strlen(tmpBuf), 0);
+  if (retval == SOCKET_ERROR)
+  {
+    envir().setResultErrMsg("send() failed: ");
+  }
 }
