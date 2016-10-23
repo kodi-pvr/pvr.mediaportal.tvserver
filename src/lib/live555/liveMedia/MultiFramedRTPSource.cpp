@@ -308,7 +308,12 @@ void MultiFramedRTPSource::networkReadHandler(MultiFramedRTPSource* source,
 BufferedPacket::BufferedPacket()
   : fPacketSize(MAX_PACKET_SIZE),
     fBuf(new unsigned char[MAX_PACKET_SIZE]),
-    fNextPacket(NULL) {
+    fNextPacket(NULL),
+	fHead(0), fTail(0), fUseCount(0), fRTPSeqNo(0), fRTPTimestamp(0),
+	fHasBeenSyncedUsingRTCP(False), fRTPMarkerBit(False), fIsFirstPacket(True)
+{
+  memset(&fPresentationTime, 0, sizeof(fPresentationTime));
+  memset(&fTimeReceived, 0, sizeof(fTimeReceived));
 }
 
 BufferedPacket::~BufferedPacket() {
