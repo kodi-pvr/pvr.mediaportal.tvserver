@@ -73,7 +73,7 @@ CGUIDialogRecordSettings::CGUIDialogRecordSettings(const PVR_TIMER &timerinfo, c
   // find the xml file and not the used image files. This will result in a transparent window
   // which is basically useless. Therefore, it is better to let the dialog fail by using the
   // incorrect fallback skin name "Confluence"
-  m_window = GUI->Window_create("DialogRecordSettings.xml", "Confluence", false, true);
+  m_window = GUI->Window_create("DialogRecordSettings.xml", "skin.confluence", false, true);
   if (m_window)
   {
     m_window->m_cbhdl = this;
