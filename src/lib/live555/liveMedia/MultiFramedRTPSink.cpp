@@ -42,7 +42,12 @@ MultiFramedRTPSink::MultiFramedRTPSink(UsageEnvironment& env,
 				       unsigned numChannels)
   : RTPSink(env, rtpGS, rtpPayloadType, rtpTimestampFrequency,
 	    rtpPayloadFormatName, numChannels),
-  fOutBuf(NULL), fCurFragmentationOffset(0), fPreviousFrameEndedFragmentation(False) {
+  fOutBuf(NULL), fCurFragmentationOffset(0), fPreviousFrameEndedFragmentation(False),
+  fNoFramesLeft(False), fNumFramesUsedSoFar(0), fIsFirstPacket(True), fTimestampPosition(0),
+  fSpecialHeaderPosition(0), fSpecialHeaderSize(0), fCurFrameSpecificHeaderPosition(0),
+  fCurFrameSpecificHeaderSize(0), fTotalFrameSpecificHeaderSizes(0)
+{
+  memset(&fNextSendTime, 0, sizeof(fNextSendTime));
   setPacketSizes(1000, 1448);
       // Default max packet size (1500, minus allowance for IP, UDP, UMTP headers)
       // (Also, make it a multiple of 4 bytes, just in case that matters.)
