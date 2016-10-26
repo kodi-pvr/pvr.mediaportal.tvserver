@@ -971,7 +971,6 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       PVR_STRCPY(tag.strRecordingId, strRecordingId.c_str());
 	  PVR_STRCPY(tag.strEpisodeName, recording.EpisodeName());
       PVR_STRCPY(tag.strTitle, recording.Title());
-      PVR_STRCPY(tag.strPlotOutline, recording.EpisodeName());
       PVR_STRCPY(tag.strPlot, recording.Description());
       PVR_STRCPY(tag.strChannelName, recording.ChannelName());
       tag.iChannelUid    = recording.ChannelID();
