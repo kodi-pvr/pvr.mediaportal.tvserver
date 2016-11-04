@@ -64,7 +64,8 @@ public:
 	   portNumBits portNum,
 	   unsigned numSuccessiveGroupAddrs = 1);
       // used for a 'source-specific multicast' group
-  GroupEId(); // used only as a temp constructor prior to initialization
+  // margro: removed to fix Coverity CID 135519
+  //GroupEId(); // used only as a temp constructor prior to initialization
 
   struct in_addr const& groupAddress() const { return fGroupAddress; }
   struct in_addr const& sourceFilterAddress() const { return fSourceFilterAddress; }

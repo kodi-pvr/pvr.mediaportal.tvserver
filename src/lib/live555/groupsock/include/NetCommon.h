@@ -25,8 +25,10 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 /* Windows */
 #if defined(WINNT) || defined(_WINNT) || defined(__BORLANDC__) || defined(__MINGW32__) || defined(_WIN32_WCE) || defined (_MSC_VER)
 #define _MSWSOCK_
+#pragma warning(disable:4005) // Disable "warning C4005: '_WINSOCKAPI_' : macro redefinition"
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#pragma warning(default:4005)
 #endif
 #include <windows.h>
 #include <errno.h>
@@ -121,6 +123,10 @@ typedef unsigned char u_int8_t;
 
 #ifndef SOCKLEN_T
 #define SOCKLEN_T int
+#endif
+
+#ifndef SOCKET_ERROR
+#define SOCKET_ERROR -1
 #endif
 
 #endif

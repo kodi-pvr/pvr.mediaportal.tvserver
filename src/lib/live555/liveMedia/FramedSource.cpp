@@ -27,7 +27,9 @@ FramedSource::FramedSource(UsageEnvironment& env)
   : MediaSource(env),
     fAfterGettingFunc(NULL), fAfterGettingClientData(NULL),
     fOnCloseFunc(NULL), fOnCloseClientData(NULL),
-    fIsCurrentlyAwaitingData(False) {
+    fIsCurrentlyAwaitingData(False),
+    fTo(NULL), fMaxSize(0), fFrameSize(0), fNumTruncatedBytes(0), fDurationInMicroseconds(0)
+{
   fPresentationTime.tv_sec = fPresentationTime.tv_usec = 0; // initially
 }
 

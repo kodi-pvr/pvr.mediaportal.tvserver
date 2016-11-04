@@ -42,6 +42,9 @@ Socket::Socket(const enum SocketFamily family, const enum SocketDomain domain, c
   _protocol = protocol;
   _port = 0;
   memset (&_sockaddr, 0, sizeof( _sockaddr ) );
+#ifdef TARGET_WINDOWS
+  memset(&_wsaData, 0, sizeof(_wsaData));
+#endif
 }
 
 
@@ -55,6 +58,9 @@ Socket::Socket()
   _protocol = tcp;
   _port = 0;
   memset (&_sockaddr, 0, sizeof( _sockaddr ) );
+#ifdef TARGET_WINDOWS
+  memset(&_wsaData, 0, sizeof(_wsaData));
+#endif
 }
 
 

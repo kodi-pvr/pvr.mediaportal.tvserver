@@ -232,6 +232,7 @@ int setupStreamSocket(UsageEnvironment& env,
 static int blockUntilReadable(UsageEnvironment& env,
 			      int socket, struct timeval* timeout) {
   int result = -1;
+  bool keepTrying = true;
   do {
     fd_set rd_set;
     FD_ZERO(&rd_set);
@@ -241,19 +242,28 @@ static int blockUntilReadable(UsageEnvironment& env,
 
     result = select(numFds, &rd_set, NULL, NULL, timeout);
     if (timeout != NULL && result == 0) {
+      keepTrying = false;
       break; // this is OK - timeout occurred
     } else if (result <= 0) {
       int err = env.getErrno();
-      if (err == EINTR || err == EAGAIN || err == EWOULDBLOCK) continue;
-      socketErr(env, "select() error: ");
-      break;
+      if (err == EINTR || err == EAGAIN || err == EWOULDBLOCK)
+      {
+        continue;
+      }
+      else
+      {
+        socketErr(env, "select() error: ");
+        keepTrying = false;
+        break;
+      }
     }
 
     if (!FD_ISSET(socket, &rd_set)) {
       socketErr(env, "select() error - !FD_ISSET");
+      keepTrying = false;
       break;
     }
-  } while (0);
+  } while (keepTrying);
 
   return result;
 }
@@ -389,8 +399,12 @@ unsigned getReceiveBufferSize(UsageEnvironment& env, int socket) {
 static unsigned setBufferTo(UsageEnvironment& env, int bufOptName,
 			    int socket, unsigned requestedSize) {
   SOCKLEN_T sizeSize = sizeof requestedSize;
-  setsockopt(socket, SOL_SOCKET, bufOptName, (char*)&requestedSize, sizeSize);
-
+  int retval = setsockopt(socket, SOL_SOCKET, bufOptName, (char*)&requestedSize, sizeSize);
+  if (retval != 0)
+  {
+    socketErr(env, "setBufferTo() error: ");
+    return 0;
+  }
   // Get and return the actual, resulting buffer size:
   return getBufferSize(env, bufOptName, socket);
 }
@@ -555,7 +569,12 @@ Boolean getSourcePort(UsageEnvironment& env, int socket, Port& port) {
   if (!getSourcePort0(socket, portNum) || portNum == 0) {
     // Hack - call bind(), then try again:
     MAKE_SOCKADDR_IN(name, INADDR_ANY, 0);
-    bind(socket, (struct sockaddr*)&name, sizeof name);
+    int retval = bind(socket, (struct sockaddr*)&name, sizeof name);
+    if (retval != 0)
+    {
+      socketErr(env, "bind() error: ");
+      return False;
+    }
 
     if (!getSourcePort0(socket, portNum) || portNum == 0) {
       socketErr(env, "getsockname() error: ");

@@ -100,6 +100,7 @@ char const* timestampString();
     var.sin_family = AF_INET;\
     var.sin_addr.s_addr = (adr);\
     var.sin_port = (prt);\
+    memset(var.sin_zero, 0, sizeof(var.sin_zero));\
     SET_SOCKADDR_SIN_LEN(var);
 
 
