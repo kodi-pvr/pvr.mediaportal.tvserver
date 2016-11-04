@@ -125,4 +125,8 @@ typedef unsigned char u_int8_t;
 #define SOCKLEN_T int
 #endif
 
+#ifndef SOCKET_ERROR
+#define SOCKET_ERROR -1
+#endif
+
 #endif
