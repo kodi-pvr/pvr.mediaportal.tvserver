@@ -49,8 +49,8 @@ int g_iTVServerXBMCBuild = 0;
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.134"
-#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  134
+#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
+#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  136
 
 /************************************************************/
 /** Class interface */
@@ -985,9 +985,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iEpisodeNumber = recording.GetEpisodeNumber();
       tag.iSeriesNumber  = recording.GetSeriesNumber();
       tag.iEpgEventId    = EPG_TAG_INVALID_UID;
-
-      /* TODO: PVR API 5.1.0: Implement this */
-      tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+      tag.channelType    = recording.GetChannelType();
 
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
