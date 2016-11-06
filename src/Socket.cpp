@@ -400,8 +400,9 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
   }
   _port = port;
 
-  char strPort[15];
+  char strPort[16];
   snprintf(strPort, 15, "%hu", port);
+  strPort[15] = '\0';
 
   struct addrinfo hints;
   struct addrinfo* result = NULL;
