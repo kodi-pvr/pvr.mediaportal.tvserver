@@ -49,7 +49,7 @@ bool             g_bFastChannelSwitch   = true;                          ///< Do
 bool             g_bUseRTSP             = false;                         ///< Use RTSP streaming when using the tsreader
 
 /* Client member variables */
-ADDON_STATUS            m_CurStatus    = ADDON_STATUS_UNKNOWN;
+ADDON_STATUS            m_curStatus    = ADDON_STATUS_UNKNOWN;
 cPVRClientMediaPortal  *g_client       = NULL;
 std::string             g_szUserPath   = "";
 std::string             g_szClientPath = "";
@@ -72,7 +72,10 @@ void ADDON_ReadSettings(void);
 ADDON_STATUS ADDON_Create(void* hdl, void* props)
 {
   if (!hdl || !props)
-    return ADDON_STATUS_UNKNOWN;
+  {
+    m_curStatus = ADDON_STATUS_UNKNOWN;
+    return m_curStatus;
+  }
 
   PVR_PROPERTIES* pvrprops = (PVR_PROPERTIES*)props;
 
@@ -80,7 +83,8 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->RegisterMe(hdl))
   {
     SAFE_DELETE(XBMC);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
+    return m_curStatus;
   }
 
   PVR = new CHelper_libXBMC_pvr;
@@ -88,7 +92,8 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   {
     SAFE_DELETE(PVR);
     SAFE_DELETE(XBMC);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
+    return m_curStatus;
   }
 
   GUI = new CHelper_libKODI_guilib;
@@ -97,12 +102,13 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     SAFE_DELETE(GUI);
     SAFE_DELETE(PVR);
     SAFE_DELETE(XBMC);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
+    return m_curStatus;
   }
 
   XBMC->Log(LOG_INFO, "Creating MediaPortal PVR-Client");
 
-  m_CurStatus    = ADDON_STATUS_UNKNOWN;
+  m_curStatus    = ADDON_STATUS_UNKNOWN;
   g_szUserPath   = pvrprops->strUserPath;
   g_szClientPath = pvrprops->strClientPath;
 
@@ -111,16 +117,21 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   /* Create connection to MediaPortal XBMC TV client */
   g_client       = new cPVRClientMediaPortal();
 
-  m_CurStatus = g_client->Connect();
-  if (m_CurStatus != ADDON_STATUS_OK)
+  m_curStatus = g_client->TryConnect();
+  if (m_curStatus == ADDON_STATUS_PERMANENT_FAILURE)
   {
     SAFE_DELETE(g_client);
     SAFE_DELETE(GUI);
     SAFE_DELETE(PVR);
     SAFE_DELETE(XBMC);
   }
+  else if (m_curStatus == ADDON_STATUS_LOST_CONNECTION)
+  {
+    // The addon will try to reconnect, so don't show the permanent failure.
+    return ADDON_STATUS_OK;
+  }
 
-  return m_CurStatus;
+  return m_curStatus;
 }
 
 //-- Destroy ------------------------------------------------------------------
@@ -134,7 +145,7 @@ void ADDON_Destroy()
   SAFE_DELETE(PVR);
   SAFE_DELETE(XBMC);
 
-  m_CurStatus = ADDON_STATUS_UNKNOWN;
+  m_curStatus = ADDON_STATUS_UNKNOWN;
 }
 
 //-- GetStatus ----------------------------------------------------------------
@@ -143,10 +154,10 @@ void ADDON_Destroy()
 ADDON_STATUS ADDON_GetStatus()
 {
   /* check whether we're still connected */
-  if (m_CurStatus == ADDON_STATUS_OK && g_client && !g_client->IsUp())
-    m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+  if (m_curStatus == ADDON_STATUS_OK && g_client && !g_client->IsUp())
+    m_curStatus = ADDON_STATUS_LOST_CONNECTION;
 
-  return m_CurStatus;
+  return m_curStatus;
 }
 
 //-- HasSettings --------------------------------------------------------------

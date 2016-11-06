@@ -55,13 +55,13 @@ int g_iTVServerXBMCBuild = 0;
 /************************************************************/
 /** Class interface */
 
-cPVRClientMediaPortal::cPVRClientMediaPortal()
+cPVRClientMediaPortal::cPVRClientMediaPortal() :
+  m_state(PVR_CONNECTION_STATE_UNKNOWN)
 {
   m_iCurrentChannel        = -1;
   m_bCurrentChannelIsRadio = false;
   m_iCurrentCard           = -1;
   m_tcpclient              = new MPTV::Socket(MPTV::af_unspec, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
-  m_bConnected             = false;
   m_bStop                  = true;
   m_bTimeShiftStarted      = false;
   m_BackendUTCoffset       = 0;
@@ -72,13 +72,15 @@ cPVRClientMediaPortal::cPVRClientMediaPortal()
   m_signalStateCounter     = 0;
   m_iSignal                = 0;
   m_iSNR                   = 0;
+
+  /* Generate the recording life time strings */
+  Timer::lifetimeValues = new cLifeTimeValues();
 }
 
 cPVRClientMediaPortal::~cPVRClientMediaPortal()
 {
   XBMC->Log(LOG_DEBUG, "->~cPVRClientMediaPortal()");
-  if (m_bConnected)
-    Disconnect();
+  Disconnect();
   SAFE_DELETE(Timer::lifetimeValues);
   SAFE_DELETE(m_tcpclient);
   SAFE_DELETE(m_genretable);
@@ -92,8 +94,10 @@ string cPVRClientMediaPortal::SendCommand(string command)
   {
     if ( !m_tcpclient->is_valid() )
     {
+      SetConnectionState(PVR_CONNECTION_STATE_DISCONNECTED);
+
       // Connection lost, try to reconnect
-      if ( Connect() == ADDON_STATUS_OK )
+      if (TryConnect() == ADDON_STATUS_OK)
       {
         // Resend the command
         if (!m_tcpclient->send(command))
@@ -165,23 +169,53 @@ bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
   return true;
 }
 
-ADDON_STATUS cPVRClientMediaPortal::Connect()
+ADDON_STATUS cPVRClientMediaPortal::TryConnect()
 {
-  string result;
-
   /* Open Connection to MediaPortal Backend TV Server via the XBMC TV Server plugin */
   XBMC->Log(LOG_INFO, "Mediaportal pvr addon " PVRCLIENT_MEDIAPORTAL_VERSION_STRING " connecting to %s:%i", g_szHostname.c_str(), g_iPort);
+
+  PVR_CONNECTION_STATE result = Connect();
+  
+  switch (result)
+  {
+    case PVR_CONNECTION_STATE_ACCESS_DENIED:
+    case PVR_CONNECTION_STATE_UNKNOWN:
+    case PVR_CONNECTION_STATE_SERVER_MISMATCH:
+    case PVR_CONNECTION_STATE_VERSION_MISMATCH:
+      return ADDON_STATUS_PERMANENT_FAILURE;
+    case PVR_CONNECTION_STATE_DISCONNECTED:
+    case PVR_CONNECTION_STATE_SERVER_UNREACHABLE:
+      XBMC->Log(LOG_ERROR, "Could not connect to MediaPortal TV Server backend.");
+      // Start background thread for connecting to the backend
+      if (!IsRunning())
+      {
+        XBMC->Log(LOG_INFO, "Waiting for a connection in the background.");
+        CreateThread();
+      }
+      return ADDON_STATUS_LOST_CONNECTION;
+  }
+
+  return ADDON_STATUS_OK;
+}
+
+PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
+{
+  P8PLATFORM::CLockObject critsec(m_connectionMutex);
+
+  string result;
 
   if (!m_tcpclient->create())
   {
     XBMC->Log(LOG_ERROR, "Could not connect create socket");
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    return PVR_CONNECTION_STATE_UNKNOWN;
   }
+  SetConnectionState(PVR_CONNECTION_STATE_CONNECTING);
 
   if (!m_tcpclient->connect(g_szHostname, (unsigned short) g_iPort))
   {
-    XBMC->Log(LOG_ERROR, "Could not connect to MediaPortal TV Server backend");
-    return ADDON_STATUS_LOST_CONNECTION;
+    SetConnectionState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
+    return PVR_CONNECTION_STATE_SERVER_UNREACHABLE;
   }
 
   m_tcpclient->set_non_blocking(1);
@@ -190,12 +224,16 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   result = SendCommand("PVRclientXBMC:0-1\n");
 
   if (result.length() == 0)
-    return ADDON_STATUS_UNKNOWN;
+  {
+    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    return PVR_CONNECTION_STATE_UNKNOWN;
+  }
 
   if(result.find("Unexpected protocol") != std::string::npos)
   {
     XBMC->Log(LOG_ERROR, "TVServer does not accept protocol: PVRclientXBMC:0-1");
-    return ADDON_STATUS_UNKNOWN;
+    SetConnectionState(PVR_CONNECTION_STATE_SERVER_MISMATCH);
+    return PVR_CONNECTION_STATE_SERVER_MISMATCH;
   }
 
   vector<string> fields;
@@ -207,7 +245,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerXBMC version is too old. Please upgrade to '%s' or higher!", TVSERVERXBMC_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30051), TVSERVERXBMC_MIN_VERSION_STRING);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
   // Ok, this TVServerXBMC version answers with a version string
@@ -215,7 +254,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   if( count < 4 )
   {
     XBMC->Log(LOG_ERROR, "Could not parse the TVServerXBMC version string '%s'", fields[1].c_str());
-    return ADDON_STATUS_UNKNOWN;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
   // Check for the minimal requirement: 1.1.0.70
@@ -223,7 +263,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerXBMC version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30050), fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
   else
   {
@@ -241,19 +282,16 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   snprintf(buffer, 512, "%s:%i", g_szHostname.c_str(), g_iPort);
   m_ConnectionString = buffer;
 
-  m_bConnected = true;
+  SetConnectionState(PVR_CONNECTION_STATE_CONNECTED);
 
   /* Load additional settings */
   LoadGenreTable();
   LoadCardSettings();
 
-  /* Generate the recording life time strings */
-  Timer::lifetimeValues = new cLifeTimeValues();
-
   /* The pvr addon cannot access XBMC's current locale settings, so just use the system default */
   setlocale(LC_ALL, "");
 
-  return ADDON_STATUS_OK;
+  return PVR_CONNECTION_STATE_CONNECTED;
 }
 
 void cPVRClientMediaPortal::Disconnect()
@@ -261,6 +299,11 @@ void cPVRClientMediaPortal::Disconnect()
   string result;
 
   XBMC->Log(LOG_INFO, "Disconnect");
+
+  if (IsRunning())
+  {
+    StopThread(1000);
+  }
 
   if (m_tcpclient->is_valid() && m_bTimeShiftStarted)
   {
@@ -281,7 +324,7 @@ void cPVRClientMediaPortal::Disconnect()
 
   m_tcpclient->close();
 
-  m_bConnected = false;
+  SetConnectionState(PVR_CONNECTION_STATE_DISCONNECTED);
 }
 
 /* IsUp()
@@ -291,20 +334,48 @@ void cPVRClientMediaPortal::Disconnect()
  */
 bool cPVRClientMediaPortal::IsUp()
 {
-  if(!m_tcpclient->is_valid())
+  if (m_state == PVR_CONNECTION_STATE_CONNECTED)
   {
-    if( Connect() != ADDON_STATUS_OK )
-    {
-      XBMC->Log(LOG_DEBUG, "Backend not connected!");
-      return false;
-    }
+      return true;
   }
-  return true;
+  else
+  {
+    return false;
+  }
 }
 
-void* cPVRClientMediaPortal::Process(void*)
+void* cPVRClientMediaPortal::Process(void)
 {
-  XBMC->Log(LOG_DEBUG, "->Process() Not yet implemented");
+  XBMC->Log(LOG_DEBUG, "Background thread started.");
+
+  bool keepWaiting = true;
+
+  while (!IsStopped() && keepWaiting)
+  {
+    PVR_CONNECTION_STATE result = Connect();
+    
+    switch (result)
+    {
+    case PVR_CONNECTION_STATE_ACCESS_DENIED:
+    case PVR_CONNECTION_STATE_UNKNOWN:
+    case PVR_CONNECTION_STATE_SERVER_MISMATCH:
+    case PVR_CONNECTION_STATE_VERSION_MISMATCH:
+      keepWaiting = false;
+    case PVR_CONNECTION_STATE_CONNECTED:
+      keepWaiting = false;
+    default:
+      break;
+    }
+
+    if (keepWaiting)
+    {
+      // Wait for 1 minute before re-trying
+      usleep(60000000);
+    }
+  }
+
+  XBMC->Log(LOG_DEBUG, "Background thread finished.");
+
   return NULL;
 }
 
@@ -1281,6 +1352,9 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size
   int& count = *size;  // the amount of filled items in the types[] array
   count = 0;
 
+  if (Timer::lifetimeValues == NULL)
+    return PVR_ERROR_FAILED;
+
   if (count > maxsize)
     return PVR_ERROR_NO_ERROR;
 
@@ -2180,5 +2254,17 @@ void cPVRClientMediaPortal::LoadCardSettings()
   if ( SendCommand2("GetCardSettings\n", lines) )
   {
     m_cCards.ParseLines(lines);
+  }
+}
+
+void cPVRClientMediaPortal::SetConnectionState(PVR_CONNECTION_STATE newState)
+{
+  if (newState != m_state)
+  {
+    XBMC->Log(LOG_DEBUG, "Connection state change (%d -> %d)", m_state, newState);
+    m_state = newState;
+
+    /* Notify connection state change (callback!) */
+    PVR->ConnectionStateChange(GetConnectionString(), m_state, NULL);
   }
 }
