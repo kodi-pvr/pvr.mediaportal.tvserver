@@ -7,6 +7,9 @@ v3.0.1
 v3.0.0
 - Initial Kodi v18 version
 
+V2.4.9
+- Adapt to API change - SeekTime
+
 v2.4.8
 - Add Estuary skin support for the old series timer dialog
 - Fixed: various Coverity reported issues for Live555 (part 2)

@@ -108,59 +108,35 @@ string cPVRClientMediaPortal::SendCommand(string command)
       }
       else
       {
-        XBMC->Log(LOG_ERROR, "SendCommand2: reconnect failed.");
+        XBMC->Log(LOG_ERROR, "SendCommand: reconnect failed.");
         return "";
-      }
-    }
-  }
-
-  string line;
-
-  if ( !m_tcpclient->ReadLine( line ) )
-  {
-    XBMC->Log(LOG_ERROR, "SendCommand - Failed.");
-  }
-  return line;
-}
-
-bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
-{
-  P8PLATFORM::CLockObject critsec(m_mutex);
-
-  if ( !m_tcpclient->send(command) )
-  {
-    if ( !m_tcpclient->is_valid() )
-    {
-      XBMC->Log(LOG_ERROR, "SendCommand2: connection lost, attempt to reconnect...");
-      // Connection lost, try to reconnect
-      if ( Connect() == ADDON_STATUS_OK )
-      {
-        // Resend the command
-        if (!m_tcpclient->send(command))
-        {
-          XBMC->Log(LOG_ERROR, "SendCommand2('%s') failed.", command.c_str());
-          return false;
-        }
-      }
-      else
-      {
-        XBMC->Log(LOG_ERROR, "SendCommand2: reconnect failed.");
-        return false;
       }
     }
   }
 
   string result;
 
-  if (!m_tcpclient->ReadLine(result))
+  if ( !m_tcpclient->ReadLine( result ) )
   {
-    XBMC->Log(LOG_ERROR, "SendCommand2 - Failed.");
-    return false;
+    XBMC->Log(LOG_ERROR, "SendCommand - Failed.");
+    return "";
   }
 
   if (result.find("[ERROR]:") != std::string::npos)
   {
-    XBMC->Log(LOG_ERROR, "TVServerXBMC error: %s", result.c_str());
+    XBMC->Log(LOG_ERROR, "TVServerKodi error: %s", result.c_str());
+  }
+
+  return result;
+}
+
+
+bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
+{
+  string result = SendCommand(command);
+
+  if (result.empty())
+  {
     return false;
   }
 
