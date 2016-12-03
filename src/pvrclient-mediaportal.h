@@ -28,6 +28,7 @@
 #include "Cards.h"
 #include "epg.h"
 #include "p8-platform/threads/mutex.h"
+#include "p8-platform/threads/threads.h"
 
 /* Use a forward declaration here. Including RTSPClient.h via TSReader.h at this point gives compile errors */
 namespace MPTV
@@ -35,18 +36,15 @@ namespace MPTV
     class CTsReader;
 }
 
-class cPVRClientMediaPortal: public P8PLATFORM::PreventCopy
+class cPVRClientMediaPortal: public P8PLATFORM::PreventCopy, public P8PLATFORM::CThread
 {
 public:
   /* Class interface */
   cPVRClientMediaPortal();
   ~cPVRClientMediaPortal();
 
-  /* TVServerKodi Listening Thread */
-  static void* Process(void*);
-
   /* Server handling */
-  ADDON_STATUS Connect();
+  ADDON_STATUS TryConnect();
   void Disconnect();
   bool IsUp();
 
@@ -113,14 +111,20 @@ protected:
   MPTV::Socket           *m_tcpclient;
 
 private:
+  /* TVServerKodi Listening Thread */
+  void* Process(void);
+  PVR_CONNECTION_STATE Connect();
+
+
   bool GetChannel(unsigned int number, PVR_CHANNEL &channeldata);
   void LoadGenreTable(void);
   void LoadCardSettings(void);
+  void SetConnectionState(PVR_CONNECTION_STATE newState);
 
   int                     m_iCurrentChannel;
   int                     m_iCurrentCard;
   bool                    m_bCurrentChannelIsRadio;
-  bool                    m_bConnected;
+  PVR_CONNECTION_STATE    m_state;
   bool                    m_bStop;
   bool                    m_bTimeShiftStarted;
   std::string             m_ConnectionString;
@@ -132,6 +136,7 @@ private:
   CCards                  m_cCards;
   CGenreTable*            m_genretable;
   P8PLATFORM::CMutex      m_mutex;
+  P8PLATFORM::CMutex      m_connectionMutex;
   int64_t                 m_iLastRecordingUpdate;
   MPTV::CTsReader*        m_tsreader;
   std::map<int,std::string> m_channelNames;
