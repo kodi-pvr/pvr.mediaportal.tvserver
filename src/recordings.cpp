@@ -30,7 +30,8 @@ using namespace std;
 
 using namespace ADDON;
 
-cRecording::cRecording()
+cRecording::cRecording() :
+  m_channelType(TvDatabase::ChannelType::Unknown)
 {
   m_duration        = 0;
   m_Index           = -1;
@@ -85,6 +86,7 @@ bool cRecording::ParseLine(const std::string& data)
     //[18] isrecording (bool)
     //[19] timesWatched (int)
     //[20] stopTime (int)
+    //[21] channelType (int)
 
     m_Index = atoi(fields[0].c_str());
 
@@ -170,6 +172,14 @@ bool cRecording::ParseLine(const std::string& data)
         if (fields.size() >= 21) // Since TVServerXBMC 1.2.x.121
         {
           m_lastPlayedPosition = atoi( fields[20].c_str() );
+          if (fields.size() >= 22) // Since TVServerKodi 1.15.136
+          {
+            m_channelType = atoi(fields[21].c_str());
+          }
+          else
+          {
+            m_channelType = TvDatabase::ChannelType::Unknown;
+          }
         }
       }
     }
@@ -329,4 +339,19 @@ int cRecording::GetEpisodeNumber(void) const
     return -1;
 
   return atoi(m_episodeNumber.c_str());
+}
+
+PVR_RECORDING_CHANNEL_TYPE cRecording::GetChannelType(void) const
+{
+  switch (m_channelType)
+  {
+  case TvDatabase::ChannelType::Tv:
+    return PVR_RECORDING_CHANNEL_TYPE_TV;
+    break;
+  case TvDatabase::ChannelType::Radio:
+    return PVR_RECORDING_CHANNEL_TYPE_RADIO;
+    break;
+  default:
+    return PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+  }
 }
