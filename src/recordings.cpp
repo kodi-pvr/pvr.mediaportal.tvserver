@@ -188,6 +188,7 @@ bool cRecording::ParseLine(const std::string& data)
   }
   else
   {
+    XBMC->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
     return false;
   }
 }

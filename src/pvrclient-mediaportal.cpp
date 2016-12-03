@@ -2043,7 +2043,7 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 // These URLs are stored in the field PVR_RECORDINGINFO_OLD.stream_url
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
-  XBMC->Log(LOG_NOTICE, "OpenRecordedStream (id=%s)", recording.strRecordingId);
+  XBMC->Log(LOG_NOTICE, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
 
   m_bTimeShiftStarted = false;
 
@@ -2052,7 +2052,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   if (g_eStreamingMethod == ffmpeg)
   {
-    XBMC->Log(LOG_ERROR, "Addon is in 'ffmpeg' mode. XBMC should play the RTSP url directly. Please reset your XBMC PVR database!");
+    XBMC->Log(LOG_ERROR, "Addon is in 'ffmpeg' mode. Kodi should play the RTSP url directly. Please reset your Kodi PVR database!");
     return false;
   }
 
@@ -2069,46 +2069,63 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
     snprintf(command, 256, "GetRecordingInfo:%s|True\n", recording.strRecordingId);
   result = SendCommand(command);
 
-  if(result.length() > 0)
+  if (result.empty())
   {
-    cRecording myrecording;
-    if (myrecording.ParseLine(result))
-    {
-      XBMC->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
+    XBMC->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command);
+    return false;
+  }
 
-      if (!g_bUseRTSP)
+  cRecording myrecording;
+  if (!myrecording.ParseLine(result))
+  {
+    XBMC->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command, result.c_str());
+    return false;
+  }
+
+  XBMC->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
+  if (!g_bUseRTSP)
+  {
+    recfile  = myrecording.FilePath();
+    if (recfile.length() == 0)
+    {
+      XBMC->Log(LOG_ERROR, "Backend returned an empty recording filename for recording id %s.", recording.strRecordingId);
+      recfile = myrecording.Stream();
+      if (recfile.length() > 0)
       {
-        recfile  = myrecording.FilePath();
-      }
-      else
-      {
-        recfile = myrecording.Stream();
+        XBMC->Log(LOG_NOTICE, "Trying to use the recording RTSP stream URL name instead.");
       }
     }
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer", command);
+    recfile = myrecording.Stream();
+    if (recfile.length() == 0)
+    {
+      XBMC->Log(LOG_ERROR, "Backend returned an empty RTSP stream URL for recording id %s.", recording.strRecordingId);
+      recfile = myrecording.FilePath();
+      if (recfile.length() > 0)
+      {
+        XBMC->Log(LOG_NOTICE, "Trying to use the filename instead.");
+      }
+    }
   }
 
-  if (recfile.length() > 0)
+  if (recfile.empty())
   {
-    m_tsreader = new CTsReader();
-    m_tsreader->SetCardSettings(&m_cCards);
-    if ( m_tsreader->Open(recfile.c_str()) != S_OK )
-      return false;
-    else
-      return true;
-  }
-  else
-  {
-    XBMC->Log(LOG_ERROR, "Recording playback not possible. Backend returned empty filename or stream URL for recording id %s", recording.strRecordingId );
+    XBMC->Log(LOG_ERROR, "Recording playback not possible. Backend returned an empty filename and no RTSP stream URL for recording id %s", recording.strRecordingId);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30052));
     // Tell XBMC to re-read the list with recordings to remove deleted/non-existing recordings as a result of backend auto-deletion.
     PVR->TriggerRecordingUpdate();
+    return false;
   }
 
-  return false;
+  // We have a recording file name or RTSP url, time to open it...
+  m_tsreader = new CTsReader();
+  m_tsreader->SetCardSettings(&m_cCards);
+  if ( m_tsreader->Open(recfile.c_str()) != S_OK )
+    return false;
+
+  return true;
 }
 
 void cPVRClientMediaPortal::CloseRecordedStream(void)
