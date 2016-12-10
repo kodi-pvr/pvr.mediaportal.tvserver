@@ -1,3 +1,12 @@
+v2.4.10
+- Add support for asynchronous connect. The addon will now regularly try to connect to the backend if it is not connected already.
+- Added support for the recording channelType property to distinguish between radio and tv recordings (requires TVServerKodi v1.15.0.136 or above)
+- Added a fallback for in-progress recording playback using the TSReader. When the filename is empty, try the RTSP url and vice versa.
+- OpenRecordedStream: send additional error messages to the log in case things fail here.
+
+V2.4.9
+- Adapt to API change - SeekTime
+
 v2.4.8
 - Add Estuary skin support for the old series timer dialog
 - Fixed: various Coverity reported issues for Live555 (part 2)

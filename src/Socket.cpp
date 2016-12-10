@@ -61,6 +61,7 @@ Socket::Socket()
 #ifdef TARGET_WINDOWS
   memset(&_wsaData, 0, sizeof(_wsaData));
 #endif
+  osInit();
 }
 
 
@@ -80,8 +81,10 @@ bool Socket::close()
 {
   if (is_valid())
   {
-    if (_sd != SOCKET_ERROR)
+    if ((_sd != SOCKET_ERROR) && (_sd != INVALID_SOCKET))
+    {
       closesocket(_sd);
+    }
     _sd = INVALID_SOCKET;
     return true;
   }
@@ -91,11 +94,6 @@ bool Socket::close()
 bool Socket::create()
 {
   close();
-
-  if(!osInit())
-  {
-    return false;
-  }
 
   return true;
 }
@@ -400,8 +398,9 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
   }
   _port = port;
 
-  char strPort[15];
+  char strPort[16];
   snprintf(strPort, 15, "%hu", port);
+  strPort[15] = '\0';
 
   struct addrinfo hints;
   struct addrinfo* result = NULL;
@@ -415,6 +414,11 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
   if (retval != 0)
   {
     errormessage(getLastError(), "Socket::connect");
+    return false;
+  }
+  if (result == NULL)
+  {
+    XBMC->Log(LOG_ERROR, "Socket::connect %s:%u: no address info found\n", host.c_str(), port);
     return false;
   }
 
@@ -442,11 +446,8 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
 
   freeaddrinfo(result);
 
-  if (address == NULL)
+  if (_sd == INVALID_SOCKET)
   {
-    XBMC->Log(LOG_ERROR, "Socket::connect %s:%u\n", host.c_str(), port);
-    errormessage(getLastError(), "Socket::connect");
-    close();
     return false;
   }
 
