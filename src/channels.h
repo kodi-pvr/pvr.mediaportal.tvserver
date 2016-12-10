@@ -24,6 +24,19 @@
 #include "libXBMC_pvr.h"
 #include <string>
 
+namespace TvDatabase
+{
+  // From MediaPortal: TvDatabase.ChannelType
+  namespace ChannelType
+  {
+    const int Unknown = -1; //Added
+    const int Tv = 0;
+    const int Radio = 1;
+    const int Web = 2;
+    const int All = 3;
+  };
+}
+
 class cChannel
 {
 private:

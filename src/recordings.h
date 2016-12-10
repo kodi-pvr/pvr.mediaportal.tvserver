@@ -23,7 +23,7 @@
 #include "Cards.h"
 #include "GenreTable.h"
 #include "DateTime.h"
-
+#include "channels.h"
 
 #define DEFAULTFRAMESPERSECOND 25.0
 #define MAXPRIORITY 99
@@ -44,9 +44,9 @@ private:
   MPTV::CDateTime m_startTime;
   MPTV::CDateTime m_endTime;
   int m_duration;
-  std::string m_title;             // Title of this event
-  std::string m_description;       // Description of this event
-  std::string m_episodeName;       // Short description of this event (typically the episode name in case of a series)
+  std::string m_title;             ///< Title of this event
+  std::string m_description;       ///< Description of this event
+  std::string m_episodeName;       ///< Short description of this event (typically the episode name in case of a series)
   std::string m_seriesNumber;
   std::string m_episodeNumber;
   std::string m_episodePart;
@@ -61,6 +61,7 @@ private:
   CGenreTable* m_genretable;
   int m_timesWatched;
   int m_lastPlayedPosition;
+  int m_channelType;
 
 public:
   cRecording();
@@ -83,6 +84,7 @@ public:
   int LastPlayedPosition(void) const { return m_lastPlayedPosition; }
   bool IsRecording(void) {return m_isRecording; }
   int ChannelID(void) const { return m_channelID; }
+  PVR_RECORDING_CHANNEL_TYPE GetChannelType(void) const;
 
   /**
    * \brief Filename of this recording with full path (at server side)

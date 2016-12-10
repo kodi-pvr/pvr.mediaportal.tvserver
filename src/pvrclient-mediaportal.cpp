@@ -49,19 +49,19 @@ int g_iTVServerXBMCBuild = 0;
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.134"
-#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  134
+#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
+#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  136
 
 /************************************************************/
 /** Class interface */
 
-cPVRClientMediaPortal::cPVRClientMediaPortal()
+cPVRClientMediaPortal::cPVRClientMediaPortal() :
+  m_state(PVR_CONNECTION_STATE_UNKNOWN)
 {
   m_iCurrentChannel        = -1;
   m_bCurrentChannelIsRadio = false;
   m_iCurrentCard           = -1;
   m_tcpclient              = new MPTV::Socket(MPTV::af_unspec, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
-  m_bConnected             = false;
   m_bStop                  = true;
   m_bTimeShiftStarted      = false;
   m_BackendUTCoffset       = 0;
@@ -72,13 +72,15 @@ cPVRClientMediaPortal::cPVRClientMediaPortal()
   m_signalStateCounter     = 0;
   m_iSignal                = 0;
   m_iSNR                   = 0;
+
+  /* Generate the recording life time strings */
+  Timer::lifetimeValues = new cLifeTimeValues();
 }
 
 cPVRClientMediaPortal::~cPVRClientMediaPortal()
 {
   XBMC->Log(LOG_DEBUG, "->~cPVRClientMediaPortal()");
-  if (m_bConnected)
-    Disconnect();
+  Disconnect();
   SAFE_DELETE(Timer::lifetimeValues);
   SAFE_DELETE(m_tcpclient);
   SAFE_DELETE(m_genretable);
@@ -92,8 +94,10 @@ string cPVRClientMediaPortal::SendCommand(string command)
   {
     if ( !m_tcpclient->is_valid() )
     {
+      SetConnectionState(PVR_CONNECTION_STATE_DISCONNECTED);
+
       // Connection lost, try to reconnect
-      if ( Connect() == ADDON_STATUS_OK )
+      if (TryConnect() == ADDON_STATUS_OK)
       {
         // Resend the command
         if (!m_tcpclient->send(command))
@@ -104,59 +108,35 @@ string cPVRClientMediaPortal::SendCommand(string command)
       }
       else
       {
-        XBMC->Log(LOG_ERROR, "SendCommand2: reconnect failed.");
+        XBMC->Log(LOG_ERROR, "SendCommand: reconnect failed.");
         return "";
-      }
-    }
-  }
-
-  string line;
-
-  if ( !m_tcpclient->ReadLine( line ) )
-  {
-    XBMC->Log(LOG_ERROR, "SendCommand - Failed.");
-  }
-  return line;
-}
-
-bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
-{
-  P8PLATFORM::CLockObject critsec(m_mutex);
-
-  if ( !m_tcpclient->send(command) )
-  {
-    if ( !m_tcpclient->is_valid() )
-    {
-      XBMC->Log(LOG_ERROR, "SendCommand2: connection lost, attempt to reconnect...");
-      // Connection lost, try to reconnect
-      if ( Connect() == ADDON_STATUS_OK )
-      {
-        // Resend the command
-        if (!m_tcpclient->send(command))
-        {
-          XBMC->Log(LOG_ERROR, "SendCommand2('%s') failed.", command.c_str());
-          return false;
-        }
-      }
-      else
-      {
-        XBMC->Log(LOG_ERROR, "SendCommand2: reconnect failed.");
-        return false;
       }
     }
   }
 
   string result;
 
-  if (!m_tcpclient->ReadLine(result))
+  if ( !m_tcpclient->ReadLine( result ) )
   {
-    XBMC->Log(LOG_ERROR, "SendCommand2 - Failed.");
-    return false;
+    XBMC->Log(LOG_ERROR, "SendCommand - Failed.");
+    return "";
   }
 
   if (result.find("[ERROR]:") != std::string::npos)
   {
-    XBMC->Log(LOG_ERROR, "TVServerXBMC error: %s", result.c_str());
+    XBMC->Log(LOG_ERROR, "TVServerKodi error: %s", result.c_str());
+  }
+
+  return result;
+}
+
+
+bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
+{
+  string result = SendCommand(command);
+
+  if (result.empty())
+  {
     return false;
   }
 
@@ -165,23 +145,53 @@ bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
   return true;
 }
 
-ADDON_STATUS cPVRClientMediaPortal::Connect()
+ADDON_STATUS cPVRClientMediaPortal::TryConnect()
 {
-  string result;
-
   /* Open Connection to MediaPortal Backend TV Server via the XBMC TV Server plugin */
   XBMC->Log(LOG_INFO, "Mediaportal pvr addon " PVRCLIENT_MEDIAPORTAL_VERSION_STRING " connecting to %s:%i", g_szHostname.c_str(), g_iPort);
+
+  PVR_CONNECTION_STATE result = Connect();
+  
+  switch (result)
+  {
+    case PVR_CONNECTION_STATE_ACCESS_DENIED:
+    case PVR_CONNECTION_STATE_UNKNOWN:
+    case PVR_CONNECTION_STATE_SERVER_MISMATCH:
+    case PVR_CONNECTION_STATE_VERSION_MISMATCH:
+      return ADDON_STATUS_PERMANENT_FAILURE;
+    case PVR_CONNECTION_STATE_DISCONNECTED:
+    case PVR_CONNECTION_STATE_SERVER_UNREACHABLE:
+      XBMC->Log(LOG_ERROR, "Could not connect to MediaPortal TV Server backend.");
+      // Start background thread for connecting to the backend
+      if (!IsRunning())
+      {
+        XBMC->Log(LOG_INFO, "Waiting for a connection in the background.");
+        CreateThread();
+      }
+      return ADDON_STATUS_LOST_CONNECTION;
+  }
+
+  return ADDON_STATUS_OK;
+}
+
+PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
+{
+  P8PLATFORM::CLockObject critsec(m_connectionMutex);
+
+  string result;
 
   if (!m_tcpclient->create())
   {
     XBMC->Log(LOG_ERROR, "Could not connect create socket");
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    return PVR_CONNECTION_STATE_UNKNOWN;
   }
+  SetConnectionState(PVR_CONNECTION_STATE_CONNECTING);
 
   if (!m_tcpclient->connect(g_szHostname, (unsigned short) g_iPort))
   {
-    XBMC->Log(LOG_ERROR, "Could not connect to MediaPortal TV Server backend");
-    return ADDON_STATUS_LOST_CONNECTION;
+    SetConnectionState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
+    return PVR_CONNECTION_STATE_SERVER_UNREACHABLE;
   }
 
   m_tcpclient->set_non_blocking(1);
@@ -190,12 +200,16 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   result = SendCommand("PVRclientXBMC:0-1\n");
 
   if (result.length() == 0)
-    return ADDON_STATUS_UNKNOWN;
+  {
+    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    return PVR_CONNECTION_STATE_UNKNOWN;
+  }
 
   if(result.find("Unexpected protocol") != std::string::npos)
   {
     XBMC->Log(LOG_ERROR, "TVServer does not accept protocol: PVRclientXBMC:0-1");
-    return ADDON_STATUS_UNKNOWN;
+    SetConnectionState(PVR_CONNECTION_STATE_SERVER_MISMATCH);
+    return PVR_CONNECTION_STATE_SERVER_MISMATCH;
   }
 
   vector<string> fields;
@@ -207,7 +221,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerXBMC version is too old. Please upgrade to '%s' or higher!", TVSERVERXBMC_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30051), TVSERVERXBMC_MIN_VERSION_STRING);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
   // Ok, this TVServerXBMC version answers with a version string
@@ -215,7 +230,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   if( count < 4 )
   {
     XBMC->Log(LOG_ERROR, "Could not parse the TVServerXBMC version string '%s'", fields[1].c_str());
-    return ADDON_STATUS_UNKNOWN;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
   // Check for the minimal requirement: 1.1.0.70
@@ -223,7 +239,8 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerXBMC version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30050), fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
-    return ADDON_STATUS_PERMANENT_FAILURE;
+    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
   else
   {
@@ -241,19 +258,16 @@ ADDON_STATUS cPVRClientMediaPortal::Connect()
   snprintf(buffer, 512, "%s:%i", g_szHostname.c_str(), g_iPort);
   m_ConnectionString = buffer;
 
-  m_bConnected = true;
+  SetConnectionState(PVR_CONNECTION_STATE_CONNECTED);
 
   /* Load additional settings */
   LoadGenreTable();
   LoadCardSettings();
 
-  /* Generate the recording life time strings */
-  Timer::lifetimeValues = new cLifeTimeValues();
-
   /* The pvr addon cannot access XBMC's current locale settings, so just use the system default */
   setlocale(LC_ALL, "");
 
-  return ADDON_STATUS_OK;
+  return PVR_CONNECTION_STATE_CONNECTED;
 }
 
 void cPVRClientMediaPortal::Disconnect()
@@ -261,6 +275,11 @@ void cPVRClientMediaPortal::Disconnect()
   string result;
 
   XBMC->Log(LOG_INFO, "Disconnect");
+
+  if (IsRunning())
+  {
+    StopThread(1000);
+  }
 
   if (m_tcpclient->is_valid() && m_bTimeShiftStarted)
   {
@@ -281,7 +300,7 @@ void cPVRClientMediaPortal::Disconnect()
 
   m_tcpclient->close();
 
-  m_bConnected = false;
+  SetConnectionState(PVR_CONNECTION_STATE_DISCONNECTED);
 }
 
 /* IsUp()
@@ -291,20 +310,48 @@ void cPVRClientMediaPortal::Disconnect()
  */
 bool cPVRClientMediaPortal::IsUp()
 {
-  if(!m_tcpclient->is_valid())
+  if (m_state == PVR_CONNECTION_STATE_CONNECTED)
   {
-    if( Connect() != ADDON_STATUS_OK )
-    {
-      XBMC->Log(LOG_DEBUG, "Backend not connected!");
-      return false;
-    }
+      return true;
   }
-  return true;
+  else
+  {
+    return false;
+  }
 }
 
-void* cPVRClientMediaPortal::Process(void*)
+void* cPVRClientMediaPortal::Process(void)
 {
-  XBMC->Log(LOG_DEBUG, "->Process() Not yet implemented");
+  XBMC->Log(LOG_DEBUG, "Background thread started.");
+
+  bool keepWaiting = true;
+
+  while (!IsStopped() && keepWaiting)
+  {
+    PVR_CONNECTION_STATE result = Connect();
+    
+    switch (result)
+    {
+    case PVR_CONNECTION_STATE_ACCESS_DENIED:
+    case PVR_CONNECTION_STATE_UNKNOWN:
+    case PVR_CONNECTION_STATE_SERVER_MISMATCH:
+    case PVR_CONNECTION_STATE_VERSION_MISMATCH:
+      keepWaiting = false;
+    case PVR_CONNECTION_STATE_CONNECTED:
+      keepWaiting = false;
+    default:
+      break;
+    }
+
+    if (keepWaiting)
+    {
+      // Wait for 1 minute before re-trying
+      usleep(60000000);
+    }
+  }
+
+  XBMC->Log(LOG_DEBUG, "Background thread finished.");
+
   return NULL;
 }
 
@@ -985,9 +1032,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iEpisodeNumber = recording.GetEpisodeNumber();
       tag.iSeriesNumber  = recording.GetSeriesNumber();
       tag.iEpgEventId    = EPG_TAG_INVALID_UID;
-
-      /* TODO: PVR API 5.1.0: Implement this */
-      tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+      tag.channelType    = recording.GetChannelType();
 
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
@@ -1282,6 +1327,9 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size
   int maxsize = *size; // the size of the types[] array when this functon is called
   int& count = *size;  // the amount of filled items in the types[] array
   count = 0;
+
+  if (Timer::lifetimeValues == NULL)
+    return PVR_ERROR_FAILED;
 
   if (count > maxsize)
     return PVR_ERROR_NO_ERROR;
@@ -1971,7 +2019,7 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 // These URLs are stored in the field PVR_RECORDINGINFO_OLD.stream_url
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
-  XBMC->Log(LOG_NOTICE, "OpenRecordedStream (id=%s)", recording.strRecordingId);
+  XBMC->Log(LOG_NOTICE, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
 
   m_bTimeShiftStarted = false;
 
@@ -1980,7 +2028,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   if (g_eStreamingMethod == ffmpeg)
   {
-    XBMC->Log(LOG_ERROR, "Addon is in 'ffmpeg' mode. XBMC should play the RTSP url directly. Please reset your XBMC PVR database!");
+    XBMC->Log(LOG_ERROR, "Addon is in 'ffmpeg' mode. Kodi should play the RTSP url directly. Please reset your Kodi PVR database!");
     return false;
   }
 
@@ -1997,46 +2045,63 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
     snprintf(command, 256, "GetRecordingInfo:%s|True\n", recording.strRecordingId);
   result = SendCommand(command);
 
-  if(result.length() > 0)
+  if (result.empty())
   {
-    cRecording myrecording;
-    if (myrecording.ParseLine(result))
-    {
-      XBMC->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
+    XBMC->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command);
+    return false;
+  }
 
-      if (!g_bUseRTSP)
+  cRecording myrecording;
+  if (!myrecording.ParseLine(result))
+  {
+    XBMC->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command, result.c_str());
+    return false;
+  }
+
+  XBMC->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
+  if (!g_bUseRTSP)
+  {
+    recfile  = myrecording.FilePath();
+    if (recfile.length() == 0)
+    {
+      XBMC->Log(LOG_ERROR, "Backend returned an empty recording filename for recording id %s.", recording.strRecordingId);
+      recfile = myrecording.Stream();
+      if (recfile.length() > 0)
       {
-        recfile  = myrecording.FilePath();
-      }
-      else
-      {
-        recfile = myrecording.Stream();
+        XBMC->Log(LOG_NOTICE, "Trying to use the recording RTSP stream URL name instead.");
       }
     }
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer", command);
+    recfile = myrecording.Stream();
+    if (recfile.length() == 0)
+    {
+      XBMC->Log(LOG_ERROR, "Backend returned an empty RTSP stream URL for recording id %s.", recording.strRecordingId);
+      recfile = myrecording.FilePath();
+      if (recfile.length() > 0)
+      {
+        XBMC->Log(LOG_NOTICE, "Trying to use the filename instead.");
+      }
+    }
   }
 
-  if (recfile.length() > 0)
+  if (recfile.empty())
   {
-    m_tsreader = new CTsReader();
-    m_tsreader->SetCardSettings(&m_cCards);
-    if ( m_tsreader->Open(recfile.c_str()) != S_OK )
-      return false;
-    else
-      return true;
-  }
-  else
-  {
-    XBMC->Log(LOG_ERROR, "Recording playback not possible. Backend returned empty filename or stream URL for recording id %s", recording.strRecordingId );
+    XBMC->Log(LOG_ERROR, "Recording playback not possible. Backend returned an empty filename and no RTSP stream URL for recording id %s", recording.strRecordingId);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30052));
     // Tell XBMC to re-read the list with recordings to remove deleted/non-existing recordings as a result of backend auto-deletion.
     PVR->TriggerRecordingUpdate();
+    return false;
   }
 
-  return false;
+  // We have a recording file name or RTSP url, time to open it...
+  m_tsreader = new CTsReader();
+  m_tsreader->SetCardSettings(&m_cCards);
+  if ( m_tsreader->Open(recfile.c_str()) != S_OK )
+    return false;
+
+  return true;
 }
 
 void cPVRClientMediaPortal::CloseRecordedStream(void)
@@ -2182,5 +2247,17 @@ void cPVRClientMediaPortal::LoadCardSettings()
   if ( SendCommand2("GetCardSettings\n", lines) )
   {
     m_cCards.ParseLines(lines);
+  }
+}
+
+void cPVRClientMediaPortal::SetConnectionState(PVR_CONNECTION_STATE newState)
+{
+  if (newState != m_state)
+  {
+    XBMC->Log(LOG_DEBUG, "Connection state change (%d -> %d)", m_state, newState);
+    m_state = newState;
+
+    /* Notify connection state change (callback!) */
+    PVR->ConnectionStateChange(GetConnectionString(), m_state, NULL);
   }
 }
