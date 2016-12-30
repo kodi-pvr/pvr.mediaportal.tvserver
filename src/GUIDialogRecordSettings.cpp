@@ -26,6 +26,7 @@
 #include "timers.h"
 #include "utils.h"
 #include "DateTime.h"
+#include "timers.h"
 
 /* Dialog item identifiers */
 #define BUTTON_OK                       1
@@ -135,11 +136,45 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinChannels->SetValue(CGUIDialogRecordSettings::ThisChannel);
   m_spinChannels->SetVisible(false);
 
+
   // Populate Keep spin control
-  for (int i = 0; i < 4; i++)
-  { // show localized recording options
-    m_spinKeep->AddLabel(XBMC->GetLocalizedString(30130 + i), i);
-  }
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30130), -MPTV_KEEP_UNTIL_SPACE_NEEDED);
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30131), -MPTV_KEEP_UNTIL_WATCHED);
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30133), -MPTV_KEEP_ALWAYS);
+
+  // MediaPortal Until date replacements:
+  const char* strWeeks = XBMC->GetLocalizedString(30137); // %d weeks
+  const char* strMonths = XBMC->GetLocalizedString(30139); // %d months
+  const size_t cKeepStringLength = 255;
+  char strKeepString[cKeepStringLength];
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30134), MPTV_KEEP_ONE_WEEK);
+  snprintf(strKeepString, cKeepStringLength, strWeeks, 2);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_TWO_WEEKS);
+  snprintf(strKeepString, cKeepStringLength, strWeeks, 3);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_THREE_WEEKS);
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30138), MPTV_KEEP_ONE_MONTH);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 2);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_TWO_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 3);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_THREE_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 4);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_FOUR_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 5);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_FIVE_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 6);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_SIX_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 7);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_SEVEN_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 8);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_EIGHT_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 9);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_NINE_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 10);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_TEN_MONTHS);
+  snprintf(strKeepString, cKeepStringLength, strMonths, 11);
+  m_spinKeep->AddLabel(strKeepString, MPTV_KEEP_ELEVEN_MONTHS);
+  m_spinKeep->AddLabel(XBMC->GetLocalizedString(30140), MPTV_KEEP_ONE_YEAR);
+
   // Set the default values
   m_spinKeep->SetValue(TvDatabase::Always);
 
@@ -356,7 +391,7 @@ void CGUIDialogRecordSettings::UpdateTimerSettings(void)
       }
   }
 
-  m_timer.SetKeepMethod((TvDatabase::KeepMethodType)  m_spinKeep->GetValue());
+  m_timer.SetKeepMethod(m_spinKeep->GetValue());
   m_timer.SetPreRecordInterval(m_spinPreRecord->GetValue());
   m_timer.SetPostRecordInterval(m_spinPostRecord->GetValue());
 }
