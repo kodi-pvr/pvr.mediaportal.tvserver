@@ -1,3 +1,12 @@
+v2.4.13
+- Revert a code cleanup action. This should fix the addon start behavior when one has no radio channels.
+
+v2.4.12
+- Updated language files from Transifex
+
+v2.4.11
+- Updated language files from Transifex
+
 v2.4.10
 - Add support for asynchronous connect. The addon will now regularly try to connect to the backend if it is not connected already.
 - Added support for the recording channelType property to distinguish between radio and tv recordings (requires TVServerKodi v1.15.0.136 or above)
