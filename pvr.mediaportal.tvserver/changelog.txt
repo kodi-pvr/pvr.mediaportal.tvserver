@@ -1,3 +1,9 @@
+v2.4.14
+- Fixed: #44 Active recordings not playable (multi-line description fields were not accepted)
+  Requires at least TVServerKodi v1.15.0.137 (MediaPortal 1) or v1.13.100.137
+- Fixed: skin fixes for the old series recording settings dialog
+- Fixed: setting the lifetime of a recording using the old series recording dialog did not work anymore
+
 v2.4.13
 - Revert a code cleanup action. This should fix the addon start behavior when one has no radio channels.
 
