@@ -224,21 +224,22 @@ class cTimer
     std::string AddScheduleCommand();
     std::string UpdateScheduleCommand();
     void SetScheduleRecordingType(TvDatabase::ScheduleRecordingType schedType);
-    void SetKeepMethod(TvDatabase::KeepMethodType keepmethod);
     void SetPreRecordInterval(int minutes);
     void SetPostRecordInterval(int minutes);
 
     void SetGenreTable(CGenreTable* genretable);
 
-  private:
-    int SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype);
-
+    void SetKeepMethod(TvDatabase::KeepMethodType keepmethod);
     /**
-     * @brief Convert a XBMC Lifetime value to MediaPortals keepMethod+keepDate settings
-     * @param lifetime the XBMC lifetime value (in days) (following the VDR syntax)
+     * @brief Convert a Kodi Lifetime value to MediaPortals keepMethod+keepDate settings
+     * @param lifetime the Kodi lifetime value (in days) (following the VDR syntax)
      * Should be called after setting m_starttime !!
      */
     void SetKeepMethod(int lifetime);
+
+  private:
+    int SchedRecType2RepeatFlags(TvDatabase::ScheduleRecordingType schedtype);
+
     int GetLifetime(void);
     int XBMC2MepoPriority(int xbmcprio);
     int Mepo2XBMCPriority(int mepoprio);

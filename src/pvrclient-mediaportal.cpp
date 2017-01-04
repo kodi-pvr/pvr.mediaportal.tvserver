@@ -49,8 +49,8 @@ int g_iTVServerXBMCBuild = 0;
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
-#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  136
+#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.137"
+#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  137
 
 /************************************************************/
 /** Class interface */
@@ -1328,7 +1328,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIME
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 256, "GetScheduleInfo:%u\n", timernumber);
+  snprintf(command, 256, "GetScheduleInfo:%u:True\n", timernumber);
 
   result = SendCommand(command);
 
@@ -1336,6 +1336,9 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIME
     return PVR_ERROR_SERVER_ERROR;
 
   cTimer timer;
+
+  uri::decode(result);
+
   if( timer.ParseLine(result.c_str()) == false )
   {
     XBMC->Log(LOG_DEBUG, "GetTimerInfo(%i) parsing server response failed. Response: %s", timernumber, result.c_str());
@@ -2064,9 +2067,9 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   //if(g_bUseRecordingsDir)
   if(!g_bUseRTSP)
-    snprintf(command, 256, "GetRecordingInfo:%s|False\n", recording.strRecordingId);
+    snprintf(command, 256, "GetRecordingInfo:%s|False|True\n", recording.strRecordingId);
   else
-    snprintf(command, 256, "GetRecordingInfo:%s|True\n", recording.strRecordingId);
+    snprintf(command, 256, "GetRecordingInfo:%s|True|True\n", recording.strRecordingId);
   result = SendCommand(command);
 
   if (result.empty())
@@ -2076,6 +2079,9 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
   }
 
   cRecording myrecording;
+
+  uri::decode(result);
+
   if (!myrecording.ParseLine(result))
   {
     XBMC->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command, result.c_str());
