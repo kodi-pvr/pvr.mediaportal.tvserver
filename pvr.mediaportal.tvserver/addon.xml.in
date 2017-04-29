@@ -6,7 +6,7 @@
   provider-name="Marcel Groothuis">
   <requires>
     <c-pluff version="0.1"/>
-    <import addon="xbmc.pvr" version="5.2.1"/>
+    <import addon="xbmc.pvr" version="5.2.2"/>
     <import addon="kodi.guilib" version="5.10.0"/>
   </requires>
   <extension
