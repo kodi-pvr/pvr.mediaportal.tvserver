@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.mediaportal.tvserver"
-  version="3.0.2"
+  version="3.0.3"
   name="MediaPortal PVR Client"
   provider-name="Marcel Groothuis">
   <requires>
     <c-pluff version="0.1"/>
-    <import addon="xbmc.pvr" version="5.2.2"/>
-    <import addon="kodi.guilib" version="5.10.0"/>
+    <import addon="kodi.global.main" version="@ADDON_GLOBAL_VERSION_MAIN@"/>
+    <import addon="kodi.global.gui" version="@ADDON_GLOBAL_VERSION_GUI@"/>
+    <import addon="kodi.instance.pvr" version="@ADDON_INSTANCE_VERSION_PVR@"/>
   </requires>
   <extension
     point="xbmc.pvrclient"
