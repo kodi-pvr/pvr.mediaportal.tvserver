@@ -43,9 +43,6 @@ using namespace MPTV;
 /* Globals */
 int g_iTVServerXBMCBuild = 0;
 
-/* Include the PVR addon version (CMake generated from addon.xml) */
-#include "addon_version.h"
-
 /* TVServerXBMC plugin supported versions */
 #define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERXBMC_MIN_VERSION_BUILD          107
@@ -148,7 +145,7 @@ bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
 ADDON_STATUS cPVRClientMediaPortal::TryConnect()
 {
   /* Open Connection to MediaPortal Backend TV Server via the XBMC TV Server plugin */
-  XBMC->Log(LOG_INFO, "Mediaportal pvr addon " PVRCLIENT_MEDIAPORTAL_VERSION_STRING " connecting to %s:%i", g_szHostname.c_str(), g_iPort);
+  XBMC->Log(LOG_INFO, "Mediaportal pvr addon " STR(MPTV_VERSION) " connecting to %s:%i", g_szHostname.c_str(), g_iPort);
 
   PVR_CONNECTION_STATE result = Connect();
   

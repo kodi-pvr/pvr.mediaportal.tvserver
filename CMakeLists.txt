@@ -11,14 +11,6 @@ find_package(kodiplatform REQUIRED)
 find_package(p8-platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
-# Grab the addon version info from the addon.xml file
-FILE(READ ${PROJECT_NAME}/addon.xml.in MPTV_ADDONXML)
-STRING(REGEX MATCH "<addon[^>]*version.?=.?.[0-9\\.]+" MPTV_VERSION_STRING ${MPTV_ADDONXML})
-STRING(REGEX REPLACE ".*version=.([0-9\\.]+).*" "\\1" MPTV_VERSION ${MPTV_VERSION_STRING})
-
-# Generate an addon_version.h header with the version information
-configure_file(src/addon_version.h.in addon_version.h)
-
 set(LIVE555_INCLUDE_DIR
   src/lib/live555/liveMedia/include
   src/lib/live555/BasicUsageEnvironment/include
@@ -67,8 +59,7 @@ if(WIN32)
 endif(WIN32)
 
 # Header files
-set(MPTV_HEADERS addon_version.h
-                 src/Cards.h
+set(MPTV_HEADERS src/Cards.h
                  src/channels.h
                  src/client.h
                  src/DateTime.h
@@ -236,7 +227,7 @@ SET(LIVE555_HEADERS
 source_group("Header Files\\lib\\live555" FILES ${LIVE555_HEADERS})
 
 # Make sure that CMake adds all files to the MSVC project
-list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${RESOURCE_FILES} ${LIVE555_SOURCES} ${LIVE555_HEADERS})
+list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${LIVE555_SOURCES} ${LIVE555_HEADERS})
 
 set(DEPLIBS ${p8-platform_LIBRARIES}
             ${TINYXML_LIBRARIES})
