@@ -660,7 +660,7 @@ cLifeTimeValues::cLifeTimeValues()
 void cLifeTimeValues::SetLifeTimeValues(PVR_TIMER_TYPE& timertype)
 {
   timertype.iLifetimesSize = m_lifetimeValues.size();
-  timertype.iLifetimesDefault = -MPTV_KEEP_ALWAYS; //Negative = special types, positive values is days
+  timertype.iLifetimesDefault = -MPTV_KEEP_UNTIL_SPACE_NEEDED; //Negative = special types, positive values is days
 
   int i = 0;
   std::vector<std::pair<int, std::string>>::iterator it;
