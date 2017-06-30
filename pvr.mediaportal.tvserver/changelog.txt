@@ -1,5 +1,20 @@
-v3.0.2
+v3.0.6
 - Set genre of recorded shows to custom string
+
+v3.0.5
+- Remove of never used addon interface function
+
+v3.0.4
+- Update Debian package control
+- PVR addon callback way changes
+
+v3.0.3
+- Removed old no more needed version functions
+
+v3.0.2
+- set dependency versions automatic during build
+- removed never used kodi to addon functions
+- build system cleanup and fixes
 
 v3.0.1
 - Add support for asynchronous connect. The addon will now regularly try to connect to the backend if it is not connected already.

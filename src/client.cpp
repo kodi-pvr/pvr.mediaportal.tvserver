@@ -160,19 +160,6 @@ ADDON_STATUS ADDON_GetStatus()
   return m_curStatus;
 }
 
-//-- HasSettings --------------------------------------------------------------
-// Report "true", yes this AddOn have settings
-//-----------------------------------------------------------------------------
-bool ADDON_HasSettings()
-{
-  return true;
-}
-
-unsigned int ADDON_GetSettings(ADDON_StructSetting*** UNUSED(sSet))
-{
-  return 0;
-}
-
 void ADDON_ReadSettings(void)
 {
   /* Read setting "host" from settings.xml */
@@ -445,16 +432,6 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   return ADDON_STATUS_OK;
 }
 
-void ADDON_Stop()
-{
-  ADDON_Destroy();
-}
-
-void ADDON_FreeSettings()
-{
-
-}
-
 /***********************************************************
  * PVR Client AddOn specific public library functions
  ***********************************************************/
@@ -473,28 +450,6 @@ void OnPowerSavingActivated()
 
 void OnPowerSavingDeactivated()
 {
-}
-
-const char* GetPVRAPIVersion(void)
-{
-  static const char *strApiVersion = XBMC_PVR_API_VERSION;
-  return strApiVersion;
-}
-
-const char* GetMininumPVRAPIVersion(void)
-{
-  static const char *strMinApiVersion = XBMC_PVR_MIN_API_VERSION;
-  return strMinApiVersion;
-}
-
-const char* GetGUIAPIVersion(void)
-{
-  return KODI_GUILIB_API_VERSION;
-}
-
-const char* GetMininumGUIAPIVersion(void)
-{
-  return KODI_GUILIB_MIN_API_VERSION;
 }
 
 //-- GetAddonCapabilities -----------------------------------------------------
