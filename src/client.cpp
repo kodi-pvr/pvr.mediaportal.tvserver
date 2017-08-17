@@ -867,14 +867,6 @@ long long LengthRecordedStream(void)
     return g_client->LengthRecordedStream();
 }
 
-const char * GetLiveStreamURL(const PVR_CHANNEL &channel)
-{
-  if (!g_client)
-    return "";
-  else
-    return g_client->GetLiveStreamURL(channel);
-}
-
 bool CanPauseStream(void)
 {
   if (g_client)
@@ -897,6 +889,32 @@ bool CanSeekStream(void)
   return false;
 }
 
+PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
+{
+  if ((!channel) || (!properties) || (!iPropertiesCount) || (!g_client))
+  {
+    return PVR_ERROR_FAILED;
+  }
+
+  if (*iPropertiesCount < 1)
+    return PVR_ERROR_INVALID_PARAMETERS;
+
+  return g_client->GetChannelStreamProperties(channel, properties, iPropertiesCount);
+}
+
+PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
+{
+  if ((!recording) || (!properties) || (!iPropertiesCount) || (!g_client))
+  {
+    return PVR_ERROR_FAILED;
+  }
+
+  if (*iPropertiesCount < 1)
+    return PVR_ERROR_INVALID_PARAMETERS;
+
+  return g_client->GetRecordingStreamProperties(recording, properties, iPropertiesCount);
+}
+
 /** UNUSED API FUNCTIONS */
 PVR_ERROR MoveChannel(const PVR_CHANNEL& UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 DemuxPacket* DemuxRead(void) { return NULL; }
@@ -917,4 +935,5 @@ PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 } //end extern "C"

@@ -1,3 +1,7 @@
+v3.2.0
+- Updated to PVR addon API v5.6.0
+- Removed GetLiveStreamURL functionality.
+
 v3.1.0
 - Updated to PVR addon API v5.3.0
 

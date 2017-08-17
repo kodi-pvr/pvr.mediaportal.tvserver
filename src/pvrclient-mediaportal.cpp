@@ -754,8 +754,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
       if(channel.IsWebstream())
       {
-        XBMC->Log(LOG_DEBUG, "Channel '%s' has a webstream: %s", channel.Name(), channel.URL());
-        PVR_STRCPY(tag.strStreamURL, channel.URL());
+        XBMC->Log(LOG_DEBUG, "Channel '%s' has a webstream: %s. TODO fixme.", channel.Name(), channel.URL());
         PVR_STRCLR(tag.strInputFormat);
       }
       else
@@ -764,7 +763,6 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
         {
           // TSReader
           //Use OpenLiveStream to read from the timeshift .ts file or an rtsp stream
-          PVR_STRCLR(tag.strStreamURL);
           if (!bRadio)
             PVR_STRCPY(tag.strInputFormat, "video/mp2t");
           else
@@ -773,11 +771,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
         else
         {
           //Use GetLiveStreamURL to fetch an rtsp stream
-          if(bRadio)
-            stream.Format("pvr://stream/radio/%i.ts", tag.iUniqueId);
-          else
-            stream.Format("pvr://stream/tv/%i.ts", tag.iUniqueId);
-          PVR_STRCPY(tag.strStreamURL, stream.c_str());
+          XBMC->Log(LOG_DEBUG, "Channel '%s' has a rtsp stream: %s. TODO fixme.", channel.Name(), channel.URL());
           PVR_STRCLR(tag.strInputFormat);
         }
       }
@@ -1068,23 +1062,10 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         }
       }
 
-#ifdef TARGET_WINDOWS
-      if ((g_bUseRTSP == false) && (recording.IsRecording() == false) && (OS::CFile::Exists(recording.FilePath())))
-      {
-        // Direct access. Bypass the PVR addon completely (both ffmpeg and TSReader mode; Windows only)
-        PVR_STRCPY(tag.strStreamURL, recordingUri.c_str());
-      }
-      else
-#endif
-      if (g_eStreamingMethod==TSReader)
-      {
-        // Use ReadRecordedStream
-        PVR_STRCLR(tag.strStreamURL);
-      }
-      else
+      if (g_eStreamingMethod!=TSReader)
       {
         // Use rtsp url and XBMC's internal FFMPeg playback
-        PVR_STRCPY(tag.strStreamURL, recording.Stream());
+        XBMC->Log(LOG_DEBUG, "Recording '%s' has a rtsp url '%s'. TODO Fix me. ", recording.Title(), recording.Stream());
       }
 
       PVR->TransferRecordingEntry(handle, &tag);
@@ -2180,25 +2161,30 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
   return m_tsreader->GetFileSize();
 }
 
-/*
- * \brief Request the stream URL for live tv/live radio.
- * The MediaPortal TV Server will try to open the requested channel for
- * time-shifting and when successful it will start an rtsp:// stream for this
- * channel and return the URL for this stream.
- */
-const char* cPVRClientMediaPortal::GetLiveStreamURL(const PVR_CHANNEL &channelinfo)
+PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  if (!OpenLiveStream(channelinfo))
+  /* TODO: implement me */
+  *iPropertiesCount = 0;
+  return PVR_ERROR_NO_ERROR;  
+}
+
+PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
+{
+  if (!m_PlaybackURL.empty())
   {
-    XBMC->Log(LOG_ERROR, "GetLiveStreamURL for uid=%i returned no URL", channelinfo.iUniqueId);
-    return "";
+    XBMC->Log(LOG_NOTICE, "GetChannelStreamProperties for uid=%i is '%s'", channel->iUniqueId, m_PlaybackURL.c_str());
+    PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
+    PVR_STRCPY(properties[0].strValue, m_PlaybackURL.c_str());
+    *iPropertiesCount = 1;
   }
   else
   {
-    XBMC->Log(LOG_NOTICE, "GetLiveStreamURL for uid=%i is '%s'", channelinfo.iUniqueId, m_PlaybackURL.c_str());
-    return m_PlaybackURL.c_str();
+    XBMC->Log(LOG_ERROR, "GetChannelStreamProperties for uid=%i returned no URL", channel->iUniqueId);
+    *iPropertiesCount = 0;
   }
-}
+  
+  return PVR_ERROR_NO_ERROR;
+} 
 
 void cPVRClientMediaPortal::PauseStream(bool UNUSED(bPaused))
 {
