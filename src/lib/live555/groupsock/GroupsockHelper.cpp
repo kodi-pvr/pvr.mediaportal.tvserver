@@ -232,7 +232,7 @@ int setupStreamSocket(UsageEnvironment& env,
 static int blockUntilReadable(UsageEnvironment& env,
 			      int socket, struct timeval* timeout) {
   int result = -1;
-  bool keepTrying = true;
+  bool keepTrying = false;
   do {
     fd_set rd_set;
     FD_ZERO(&rd_set);
@@ -248,6 +248,7 @@ static int blockUntilReadable(UsageEnvironment& env,
       int err = env.getErrno();
       if (err == EINTR || err == EAGAIN || err == EWOULDBLOCK)
       {
+        keepTrying = true;
         continue;
       }
       else

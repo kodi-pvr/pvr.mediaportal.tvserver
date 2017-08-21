@@ -91,7 +91,7 @@ public:
   int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize);
   bool SwitchChannel(const PVR_CHANNEL &channel);
   PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
-  const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
+  PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
   long long SeekLiveStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthLiveStream(void);
   long long PositionLiveStream(void);
@@ -106,6 +106,7 @@ public:
   long long SeekRecordedStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthRecordedStream(void);
   long long PositionRecordedStream(void);
+  PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
 
 protected:
   MPTV::Socket           *m_tcpclient;
@@ -131,7 +132,7 @@ private:
   std::string             m_PlaybackURL;
   std::string             m_BackendName;
   std::string             m_BackendVersion;
-  time_t                  m_BackendUTCoffset;
+  int                     m_BackendUTCoffset;
   time_t                  m_BackendTime;
   CCards                  m_cCards;
   CGenreTable*            m_genretable;
