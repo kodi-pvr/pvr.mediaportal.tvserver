@@ -2173,13 +2173,25 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
 
 PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  if (g_eStreamingMethod == ffmpeg && !m_PlaybackURL.empty())
+  if (g_eStreamingMethod == ffmpeg)
   {
-    XBMC->Log(LOG_NOTICE, "GetChannelStreamProperties for uid=%i is '%s'", channel->iUniqueId, m_PlaybackURL.c_str());
-    PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
-    PVR_STRCPY(properties[0].strValue, m_PlaybackURL.c_str());
-    *iPropertiesCount = 1;
-    return PVR_ERROR_NO_ERROR;
+    // GetChannelStreamProperties is called before OpenLiveStream by Kodi, so we should already open the stream here...
+    // The actual call to OpenLiveStream will return immediately since we've already tuned the correct channel here.
+    if (m_bTimeShiftStarted == true)
+    {
+      //CloseLiveStream();
+    }
+    if (OpenLiveStream(*channel) == true)
+    {
+      if (!m_PlaybackURL.empty())
+      {
+        XBMC->Log(LOG_NOTICE, "GetChannelStreamProperties for uid=%i is '%s'", channel->iUniqueId, m_PlaybackURL.c_str());
+        PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
+        PVR_STRCPY(properties[0].strValue, m_PlaybackURL.c_str());
+        *iPropertiesCount = 1;
+        return PVR_ERROR_NO_ERROR;
+      }
+    }
   }
   else if (g_eStreamingMethod == TSReader)
   {
