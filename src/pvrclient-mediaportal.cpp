@@ -334,8 +334,10 @@ void* cPVRClientMediaPortal::Process(void)
     case PVR_CONNECTION_STATE_SERVER_MISMATCH:
     case PVR_CONNECTION_STATE_VERSION_MISMATCH:
       keepWaiting = false;
+      break;
     case PVR_CONNECTION_STATE_CONNECTED:
       keepWaiting = false;
+      break;
     default:
       break;
     }
@@ -1859,6 +1861,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
     m_bTimeShiftStarted = false;
     m_iCurrentChannel = -1;
     m_iCurrentCard = -1;
+    m_PlaybackURL.clear();
 
     m_signalStateCounter = 0;
   }
@@ -2170,19 +2173,25 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
 
 PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  if (!m_PlaybackURL.empty())
+  if (g_eStreamingMethod == ffmpeg && !m_PlaybackURL.empty())
   {
     XBMC->Log(LOG_NOTICE, "GetChannelStreamProperties for uid=%i is '%s'", channel->iUniqueId, m_PlaybackURL.c_str());
     PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
     PVR_STRCPY(properties[0].strValue, m_PlaybackURL.c_str());
     *iPropertiesCount = 1;
+    return PVR_ERROR_NO_ERROR;
+  }
+  else if (g_eStreamingMethod == TSReader)
+  {
+    XBMC->Log(LOG_DEBUG, "GetChannelStreamProperties: no properties set for uid=%i because TSReader is active", channel->iUniqueId);
   }
   else
   {
     XBMC->Log(LOG_ERROR, "GetChannelStreamProperties for uid=%i returned no URL", channel->iUniqueId);
-    *iPropertiesCount = 0;
   }
-  
+
+  *iPropertiesCount = 0;
+
   return PVR_ERROR_NO_ERROR;
 } 
 
