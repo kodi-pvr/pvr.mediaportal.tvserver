@@ -129,15 +129,21 @@ namespace MPTV
 
             if (nBytesToRead)
             {
-                // then read raw data from the buffer
-                m_reader->Read(buffer, nBytesToRead, (unsigned long*)&dwReadBytes);
+              // then read raw data from the buffer
+              if (SUCCEEDED(m_reader->Read(buffer, nBytesToRead, (unsigned long*)&dwReadBytes)))
+              {
                 if (dwReadBytes > 0)
                 {
-                    // yes, then process the raw data
-                    //result=true;
-                    OnRawData(buffer, (int)dwReadBytes);
-                    m_LastDataFromRtsp = GetTickCount();
+                  // yes, then process the raw data
+                  //result=true;
+                  OnRawData(buffer, (int)dwReadBytes);
+                  m_LastDataFromRtsp = GetTickCount();
                 }
+              }
+              else
+              {
+                XBMC->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
+              }
             }
             else
             {
