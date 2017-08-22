@@ -26,6 +26,7 @@
 #include "timers.h"
 #include "utils.h"
 #include "DateTime.h"
+#include "p8-platform/util/StringUtils.h"
 
 /* Dialog item identifiers */
 #define BUTTON_OK                       1
@@ -144,8 +145,8 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinKeep->SetValue(TvDatabase::Always);
 
   // Populate PreRecord spin control
-  CStdString marginStart;
-  marginStart.Format("%d (%s)", m_timerinfo.iMarginStart, XBMC->GetLocalizedString(30136));
+  std::string marginStart;
+  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.iMarginStart, XBMC->GetLocalizedString(30136));
   m_spinPreRecord->AddLabel(XBMC->GetLocalizedString(30135), -1);
   m_spinPreRecord->AddLabel(marginStart.c_str(), m_timerinfo.iMarginStart); //value from XBMC
   m_spinPreRecord->SetValue(m_timerinfo.iMarginStart);  // Set the default value
@@ -157,8 +158,8 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinPreRecord->AddLabel("15", 15);
 
   // Populate PostRecord spin control
-  CStdString marginEnd;
-  marginEnd.Format("%d (%s)", m_timerinfo.iMarginEnd, XBMC->GetLocalizedString(30136));
+  std::string marginEnd;
+  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.iMarginEnd, XBMC->GetLocalizedString(30136));
   m_spinPostRecord->AddLabel(XBMC->GetLocalizedString(30135), -1);
   m_spinPostRecord->AddLabel(marginEnd.c_str(), m_timerinfo.iMarginEnd); //value from XBMC
   m_spinPostRecord->SetValue(m_timerinfo.iMarginEnd);   // Set the default value

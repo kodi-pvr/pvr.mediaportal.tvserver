@@ -166,7 +166,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
   BufferItem* item = new BufferItem();
   item->nOffset = 0;
   item->nDataLength = lDataLength;
-  item->data = new byte[lDataLength];
+  item->data = new unsigned char[lDataLength];
   memcpy(item->data, pbData, lDataLength);
   bool sleep = false;
   {

@@ -17,6 +17,7 @@
  *
  */
 
+#include <algorithm>
 #include "client.h"
 #include "GenreTable.h"
 #include "tinyxml.h"

@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "TSDebug.h"
 #include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/StringUtils.h"
 #ifdef LIVE555
 #include "MemoryReader.h"
 #include "MepoRTSPClient.h"
@@ -77,7 +78,7 @@ namespace MPTV
 
     std::string CTsReader::TranslatePath(const char*  pszFileName)
     {
-        CStdString sFileName = pszFileName;
+        std::string sFileName = pszFileName;
 #if defined (TARGET_WINDOWS)
         // Can we access the given file already?
         if (OS::CFile::Exists(pszFileName))
@@ -101,7 +102,7 @@ namespace MPTV
             {
                 if (!tscard.TimeshiftFolderUNC.empty())
                 {
-                    sFileName.Replace(tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
+                    StringUtils::Replace(sFileName, tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
                     bFound = true;
                 }
                 else
@@ -126,7 +127,7 @@ namespace MPTV
                         if (!it->RecordingFolderUNC.empty())
                         {
                             // Remove the original base path and replace it with the given path
-                            sFileName.Replace(it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
+                            StringUtils::Replace(sFileName, it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
                             bFound = true;
                             break;
                         }
@@ -380,14 +381,14 @@ namespace MPTV
 
     void CTsReader::SetDirectory(string& directory)
     {
-        CStdString tmp = directory;
+        std::string tmp = directory;
 
 #ifdef TARGET_WINDOWS
         if (tmp.find("smb://") != string::npos)
         {
-            // Convert XBMC smb share name back to a real windows network share...
-            tmp.Replace("smb://", "\\\\");
-            tmp.Replace("/", "\\");
+          // Convert XBMC smb share name back to a real windows network share...
+          StringUtils::Replace(tmp, "smb://", "\\\\");
+          StringUtils::Replace(tmp, "/", "\\");
         }
 #else
         //TODO: do something useful...

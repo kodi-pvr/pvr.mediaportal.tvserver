@@ -19,16 +19,16 @@
 
 #include "../FileUtils.h"
 #include "p8-platform/os.h"
+#include "p8-platform/windows/CharsetConverter.h"
 #include <string>
-#include "p8-platform/util/StdString.h"
 #include "../utils.h"
 
 namespace OS
 {
   bool CFile::Exists(const std::string& strFileName, long* errCode)
   {
-    CStdString strWinFile = ToWindowsPath(strFileName);
-    CStdStringW strWFile = UTF8Util::ConvertUTF8ToUTF16(strWinFile.c_str());
+    std::string strWinFile = ToWindowsPath(strFileName);
+    std::wstring strWFile = p8::windows::ToW(strWinFile.c_str());
     DWORD dwAttr = GetFileAttributesW(strWFile.c_str());
 
     if(dwAttr != 0xffffffff)

@@ -23,7 +23,6 @@
 #include "p8-platform/util/util.h"
 
 #ifdef TARGET_WINDOWS
-#include "p8-platform/util/StdString.h"
 #include "windows/WindowsUtils.h"
 #endif
 
@@ -58,13 +57,4 @@ std::string ToWindowsPath(const std::string& strFileName);
 #  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
 #else
 #  define UNUSED(x)  /* x */
-#endif
-
-
-#if defined(TARGET_WINDOWS)
-namespace UTF8Util
-{
-  CStdStringW ConvertUTF8ToUTF16(const char* pszTextUTF8);
-  CStdStringA ConvertUTF16ToUTF8(const WCHAR * pszTextUTF16);
-}
 #endif

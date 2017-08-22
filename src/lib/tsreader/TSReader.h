@@ -30,7 +30,6 @@
 
 #include "client.h"
 #include "FileReader.h"
-#include "p8-platform/util/StdString.h"
 #include "DeMultiplexer.h"
 #include "Cards.h"
 #ifdef LIVE555
@@ -90,7 +89,7 @@ namespace MPTV
         bool            m_bRecording;
         bool            m_bLiveTv;
         bool            m_bIsRTSP;
-        CStdString      m_fileName;
+        std::string     m_fileName;
         FileReader*     m_fileReader;
         FileReader*     m_fileDuration;
         CDeMultiplexer  m_demultiplexer;

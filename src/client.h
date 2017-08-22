@@ -24,7 +24,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "p8-platform/util/StdString.h"
 #include "libXBMC_addon.h"
 #include "libXBMC_pvr.h"
 #include "libKODI_guilib.h"
@@ -67,8 +66,8 @@ extern bool             g_bReadGenre;
 extern bool             g_bEnableOldSeriesDlg;
 extern bool             g_bFastChannelSwitch;
 extern bool             g_bUseRTSP;           ///< Use RTSP streaming when using the tsreader
-extern CStdString       g_szTVGroup;
-extern CStdString       g_szRadioGroup;
+extern std::string      g_szTVGroup;
+extern std::string      g_szRadioGroup;
 extern std::string      g_szSMBusername;
 extern std::string      g_szSMBpassword;
 extern eStreamingMethod g_eStreamingMethod;
