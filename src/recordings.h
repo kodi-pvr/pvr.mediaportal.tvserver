@@ -134,6 +134,7 @@ public:
   int GenreType(void) const { return m_genre_type; }
   int GenreSubType(void) const { return m_genre_subtype; }
   void SetGenreTable(CGenreTable* genremap);
+  const char* GetGenre(void) const { return m_genre.c_str(); }
 
   /**
    * \brief Returns the series number as an integer value. Returns -1 when this field is empty.
