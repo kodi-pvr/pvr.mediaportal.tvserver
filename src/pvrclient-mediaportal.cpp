@@ -1909,33 +1909,6 @@ bool cPVRClientMediaPortal::IsRealTimeStream(void)
   return m_bTimeShiftStarted;
 }
 
-bool cPVRClientMediaPortal::SwitchChannel(const PVR_CHANNEL &channel)
-{
-  if (((int)channel.iUniqueId) == m_iCurrentChannel)
-    return true;
-
-  if (g_eStreamingMethod == TSReader)
-  {
-    XBMC->Log(LOG_NOTICE, "SwitchChannel(uid=%i) tsreader: open a new live stream", channel.iUniqueId);
-
-    if (!g_bFastChannelSwitch)
-    {
-      // Close existing live stream before opening a new one.
-      // This is slower, but it helps XBMC playback when the streams change types (e.g. SD->HD)
-      XBMC->Log(LOG_DEBUG, "Fast channel switching is disabled. Closing the existing live stream first");
-      CloseLiveStream();
-    }
-
-    return OpenLiveStream(channel);
-  }
-  else
-  {
-    XBMC->Log(LOG_DEBUG, "SwitchChannel(uid=%i) ffmpeg rtsp: nothing to be done here... GetLiveSteamURL() should fetch a new rtsp url from the backend.", channel.iUniqueId);
-    return false;
-  }
-}
-
-
 PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   if (g_iTVServerXBMCBuild < 108 || (m_iCurrentChannel == -1))
@@ -2166,7 +2139,11 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  /* TODO: implement me */
+  if (g_eStreamingMethod == ffmpeg)
+  {
+    /* TODO: implement me */
+    return PVR_ERROR_NO_ERROR;
+  }
   *iPropertiesCount = 0;
   return PVR_ERROR_NO_ERROR;  
 }
