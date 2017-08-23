@@ -544,7 +544,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
           {
             broadcast.iUniqueBroadcastId  = epg.UniqueId();
             broadcast.strTitle            = epg.Title();
-            broadcast.iChannelNumber      = channel.iChannelNumber;
+            broadcast.iUniqueChannelId    = channel.iUniqueId;
             broadcast.startTime           = epg.StartTime();
             broadcast.endTime             = epg.EndTime();
             broadcast.strPlotOutline      = epg.PlotOutline();
