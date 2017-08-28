@@ -17,6 +17,7 @@
  *
  */
 
+#include <p8-platform/util/StringUtils.h>
 #include "client.h"
 #include "xbmc_pvr_dll.h"
 #include "pvrclient-mediaportal.h"
@@ -39,8 +40,8 @@ bool             g_bHandleMessages      = DEFAULT_HANDLE_MSG;            ///< Se
 bool             g_bResolveRTSPHostname = DEFAULT_RESOLVE_RTSP_HOSTNAME; ///< Resolve the server hostname in the rtsp URLs to an IP at the TV Server side (default: false)
 bool             g_bReadGenre           = DEFAULT_READ_GENRE;            ///< Read the genre strings from MediaPortal and translate them into XBMC DVB genre id's (only English)
 bool             g_bEnableOldSeriesDlg  = false;                         ///< Show the old pre-Jarvis series recording dialog
-CStdString       g_szTVGroup            = DEFAULT_TVGROUP;               ///< Import only TV channels from this TV Server TV group
-CStdString       g_szRadioGroup         = DEFAULT_RADIOGROUP;            ///< Import only radio channels from this TV Server radio group
+std::string      g_szTVGroup            = DEFAULT_TVGROUP;               ///< Import only TV channels from this TV Server TV group
+std::string      g_szRadioGroup         = DEFAULT_RADIOGROUP;            ///< Import only radio channels from this TV Server radio group
 std::string      g_szSMBusername        = DEFAULT_SMBUSERNAME;           ///< Windows user account used to access share
 std::string      g_szSMBpassword        = DEFAULT_SMBPASSWORD;           ///< Windows user password used to access share
                                                                          ///< Leave empty to use current user when running on Windows
@@ -223,7 +224,7 @@ void ADDON_ReadSettings(void)
     XBMC->Log(LOG_ERROR, "Couldn't get 'tvgroup' setting, falling back to '' as default");
   } else {
     g_szTVGroup = buffer;
-    g_szTVGroup.Replace(";","|");
+    StringUtils::Replace(g_szTVGroup,";","|");
   }
 
   if (!XBMC->GetSetting("radiogroup", &buffer))
@@ -232,7 +233,7 @@ void ADDON_ReadSettings(void)
     XBMC->Log(LOG_ERROR, "Couldn't get 'radiogroup' setting, falling back to '' as default");
   } else {
     g_szRadioGroup = buffer;
-    g_szRadioGroup.Replace(";","|");
+    StringUtils::Replace(g_szRadioGroup,";","|");
   }
 
   if (!XBMC->GetSetting("streamingmethod", &g_eStreamingMethod))
@@ -802,14 +803,6 @@ bool IsRealTimeStream(void)
   return g_client->IsRealTimeStream();
 }
 
-bool SwitchChannel(const PVR_CHANNEL &channelinfo)
-{
-  if (!g_client)
-    return false;
-  else
-    return g_client->SwitchChannel(channelinfo);
-}
-
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   if (!g_client)
@@ -929,7 +922,7 @@ time_t GetPlayingTime() { return 0; }
 time_t GetBufferTimeStart() { return 0; }
 time_t GetBufferTimeEnd() { return 0; }
 bool IsTimeshifting(void) { return false; }
-PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR UndeleteRecording(const PVR_RECORDING& UNUSED(recording)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }

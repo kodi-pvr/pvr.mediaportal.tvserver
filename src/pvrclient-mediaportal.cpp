@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/StringUtils.h"
 
 #include "client.h"
 #include "timers.h"
@@ -61,6 +62,7 @@ cPVRClientMediaPortal::cPVRClientMediaPortal() :
   m_tcpclient              = new MPTV::Socket(MPTV::af_unspec, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
   m_bStop                  = true;
   m_bTimeShiftStarted      = false;
+  m_bSkipCloseLiveStream   = false;
   m_BackendUTCoffset       = 0;
   m_BackendTime            = 0;
   m_tsreader               = NULL;
@@ -603,11 +605,11 @@ int cPVRClientMediaPortal::GetNumChannels(void)
 PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   vector<string>  lines;
-  CStdString      command;
+  std::string     command;
   const char *    baseCommand;
   PVR_CHANNEL     tag;
-  CStdString      stream;
-  CStdString      groups;
+  std::string     stream;
+  std::string     groups;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
@@ -629,7 +631,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
     {
       XBMC->Log(LOG_DEBUG, "GetChannels(radio) for radio group(s): '%s'", g_szRadioGroup.c_str());
       groups = uri::encode(uri::PATH_TRAITS, g_szRadioGroup);
-      groups.Replace("%7C","|");
+      StringUtils::Replace(groups, "%7C","|");
     }
   }
   else
@@ -643,14 +645,14 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
     {
       XBMC->Log(LOG_DEBUG, "GetChannels(tv) for TV group(s): '%s'", g_szTVGroup.c_str());
       groups = uri::encode(uri::PATH_TRAITS, g_szTVGroup);
-      groups.Replace("%7C","|");
+      StringUtils::Replace(groups, "%7C","|");
     }
   }
 
   if (groups.empty())
-    command.Format("%s\n", baseCommand);
+    command = StringUtils::Format("%s\n", baseCommand);
   else
-    command.Format("%s:%s\n", baseCommand, groups.c_str());
+    command = StringUtils::Format("%s:%s\n", baseCommand, groups.c_str());
 
   if( !SendCommand2(command, lines) )
     return PVR_ERROR_SERVER_ERROR;
@@ -879,7 +881,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
 {
   //TODO: code below is similar to GetChannels code. Refactor and combine...
   vector<string>           lines;
-  CStdString               command;
+  std::string              command;
   PVR_CHANNEL_GROUP_MEMBER tag;
 
   if (!IsUp())
@@ -890,7 +892,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
     if (g_bRadioEnabled)
     {
       XBMC->Log(LOG_DEBUG, "GetChannelGroupMembers: for radio group '%s'", group.strGroupName);
-      command.Format("ListRadioChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
+      command = StringUtils::Format("ListRadioChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
     }
     else
     {
@@ -901,7 +903,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
   else
   {
     XBMC->Log(LOG_DEBUG, "GetChannelGroupMembers: for tv group '%s'", group.strGroupName);
-    command.Format("ListTVChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
+    command = StringUtils::Format("ListTVChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
   }
 
   if (!SendCommand2(command, lines))
@@ -995,9 +997,9 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
 
     XBMC->Log(LOG_DEBUG, "RECORDING: %s", data.c_str() );
 
-    CStdString strRecordingId;
-    CStdString strDirectory;
-    CStdString strEpisodeName;
+    std::string strRecordingId;
+    std::string strDirectory;
+    std::string strEpisodeName;
     cRecording recording;
 
     recording.SetCardSettings(&m_cCards);
@@ -1005,7 +1007,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
 
     if (recording.ParseLine(data))
     {
-      strRecordingId.Format("%i", recording.Index());
+      strRecordingId = StringUtils::Format("%i", recording.Index());
       strEpisodeName = recording.EpisodeName();
 
       PVR_STRCPY(tag.strRecordingId, strRecordingId.c_str());
@@ -1020,6 +1022,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       tag.iLifetime      = recording.Lifetime();
       tag.iGenreType     = recording.GenreType();
       tag.iGenreSubType  = recording.GenreSubType();
+      PVR_STRCPY(tag.strGenreDescription, recording.GetGenre());
       tag.iPlayCount     = recording.TimesWatched();
       tag.iLastPlayedPosition = recording.LastPlayedPosition();
       tag.iEpisodeNumber = recording.GetEpisodeNumber();
@@ -1030,10 +1033,9 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
       {
-        strDirectory.Replace("\\", " - "); // XBMC supports only 1 sublevel below Recordings, so flatten the MediaPortal directory structure
+        StringUtils::Replace(strDirectory, "\\", " - "); // XBMC supports only 1 sublevel below Recordings, so flatten the MediaPortal directory structure
         PVR_STRCPY(tag.strDirectory, strDirectory.c_str()); // used in XBMC as directory structure below "Recordings"
-
-        if ((strDirectory.Equals(tag.strTitle)) && (strEpisodeName.length() > 0))
+        if ((StringUtils::EqualsNoCase(strDirectory, tag.strTitle)) && (strEpisodeName.length() > 0))
         {
           strEpisodeName = recording.Title();
           strEpisodeName+= " - ";
@@ -1051,8 +1053,8 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       if (g_bUseRTSP == false)
       {
         /* Recording thumbnail */
-        CStdString strThumbnailName(recordingUri);
-        strThumbnailName.Replace(".ts", ".jpg");
+        std::string strThumbnailName(recordingUri);
+        StringUtils::Replace(strThumbnailName, ".ts", ".jpg");
 
         if (XBMC->FileExists(strThumbnailName.c_str(), false))
         {
@@ -1575,6 +1577,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   {
     m_iCurrentChannel = -1;
     m_bTimeShiftStarted = false;
+    m_bSkipCloseLiveStream = false; //initialization
     m_signalStateCounter = 0;
     XBMC->Log(LOG_ERROR, "Open Live stream failed. No connection to backend.");
     return false;
@@ -1589,6 +1592,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   m_iCurrentChannel = -1; // make sure that it is not a valid channel nr in case it will fail lateron
   m_signalStateCounter = 0;
   m_bTimeShiftStarted = false;
+  m_bSkipCloseLiveStream = false; //initialization
 
   // Start the timeshift
   // Use the optimized TimeshiftChannel call (don't stop a running timeshift)
@@ -1849,7 +1853,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
   if (!IsUp())
     return;
 
-  if (m_bTimeShiftStarted)
+  if (m_bTimeShiftStarted && !m_bSkipCloseLiveStream)
   {
     if (g_eStreamingMethod == TSReader && m_tsreader)
     {
@@ -1864,10 +1868,6 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
     m_PlaybackURL.clear();
 
     m_signalStateCounter = 0;
-  }
-  else
-  {
-    XBMC->Log(LOG_DEBUG, "CloseLiveStream: Nothing to do.");
   }
 }
 
@@ -1908,33 +1908,6 @@ bool cPVRClientMediaPortal::IsRealTimeStream(void)
 {
   return m_bTimeShiftStarted;
 }
-
-bool cPVRClientMediaPortal::SwitchChannel(const PVR_CHANNEL &channel)
-{
-  if (((int)channel.iUniqueId) == m_iCurrentChannel)
-    return true;
-
-  if (g_eStreamingMethod == TSReader)
-  {
-    XBMC->Log(LOG_NOTICE, "SwitchChannel(uid=%i) tsreader: open a new live stream", channel.iUniqueId);
-
-    if (!g_bFastChannelSwitch)
-    {
-      // Close existing live stream before opening a new one.
-      // This is slower, but it helps XBMC playback when the streams change types (e.g. SD->HD)
-      XBMC->Log(LOG_DEBUG, "Fast channel switching is disabled. Closing the existing live stream first");
-      CloseLiveStream();
-    }
-
-    return OpenLiveStream(channel);
-  }
-  else
-  {
-    XBMC->Log(LOG_DEBUG, "SwitchChannel(uid=%i) ffmpeg rtsp: nothing to be done here... GetLiveSteamURL() should fetch a new rtsp url from the backend.", channel.iUniqueId);
-    return false;
-  }
-}
-
 
 PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
@@ -2166,7 +2139,11 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  /* TODO: implement me */
+  if (g_eStreamingMethod == ffmpeg)
+  {
+    /* TODO: implement me */
+    return PVR_ERROR_NO_ERROR;
+  }
   *iPropertiesCount = 0;
   return PVR_ERROR_NO_ERROR;  
 }
@@ -2195,7 +2172,11 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
   }
   else if (g_eStreamingMethod == TSReader)
   {
-    XBMC->Log(LOG_DEBUG, "GetChannelStreamProperties: no properties set for uid=%i because TSReader is active", channel->iUniqueId);
+    if ((m_bTimeShiftStarted == true) && (g_bFastChannelSwitch = true))
+    {
+      // This ignores the next CloseLiveStream call from Kodi to speedup channel switching
+      m_bSkipCloseLiveStream = true;
+    }
   }
   else
   {

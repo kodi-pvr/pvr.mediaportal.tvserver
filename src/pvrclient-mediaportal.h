@@ -89,7 +89,6 @@ public:
   bool OpenLiveStream(const PVR_CHANNEL &channel);
   void CloseLiveStream();
   int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize);
-  bool SwitchChannel(const PVR_CHANNEL &channel);
   PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
   PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
   long long SeekLiveStream(long long iPosition, int iWhence = SEEK_SET);
@@ -128,6 +127,7 @@ private:
   PVR_CONNECTION_STATE    m_state;
   bool                    m_bStop;
   bool                    m_bTimeShiftStarted;
+  bool                    m_bSkipCloseLiveStream;
   std::string             m_ConnectionString;
   std::string             m_PlaybackURL;
   std::string             m_BackendName;

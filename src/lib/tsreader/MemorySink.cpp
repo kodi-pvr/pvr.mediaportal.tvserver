@@ -44,8 +44,8 @@ CMemorySink::CMemorySink(UsageEnvironment& env, CMemoryBuffer& buffer, size_t bu
   fBufferSize(bufferSize),
   m_buffer(buffer)
 {
-  fBuffer = new byte[bufferSize];
-  m_pSubmitBuffer = new byte[SUBMIT_BUF_SIZE];
+  fBuffer = new unsigned char[bufferSize];
+  m_pSubmitBuffer = new unsigned char[SUBMIT_BUF_SIZE];
   m_iSubmitBufferPos = 0;
   m_bReEntrant = false;
 }

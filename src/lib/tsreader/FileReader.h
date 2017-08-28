@@ -33,8 +33,8 @@
  *  http://forums.dvbowners.com/
  */
 
-#include "p8-platform/os.h"
-#include "p8-platform/util/StdString.h"
+#include "p8-platform/os.h" // for __stat
+#include <string>
 
 namespace MPTV
 {
@@ -60,8 +60,8 @@ namespace MPTV
         virtual int HasData(){ return 0; };
 
     protected:
-        void*      m_hFile;               // Handle to file for streaming
-        CStdString m_fileName;           // The filename where we read from
-        int64_t    m_fileSize;
+        void*       m_hFile;               // Handle to file for streaming
+        std::string m_fileName;           // The filename where we read from
+        int64_t     m_fileSize;
     };
 }
