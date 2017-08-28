@@ -33,6 +33,7 @@
  *  http://forums.dvbowners.com/
  */
 
+#include "p8-platform/os.h" // for __stat
 #include <string>
 
 namespace MPTV
