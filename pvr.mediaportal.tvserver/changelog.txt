@@ -1,6 +1,8 @@
 v3.3.2
 - Code cleanup: remove legacy PVR API functions and CStdString
 - Set genre of recorded shows to custom string (Credits: Timothy Massing)
+- Re-implement fast channel switching logic in a different way after the removal of the SwitchChannel function
+- PVR API v5.3.0: Add PVR_TIMER_TYPE_SUPPORTS_ANY_CHANNEL tag to the "Every time on every channel" record option
 
 v3.3.1
 - Translation update from Transifex
