@@ -62,6 +62,7 @@ cPVRClientMediaPortal::cPVRClientMediaPortal() :
   m_tcpclient              = new MPTV::Socket(MPTV::af_unspec, MPTV::pf_inet, MPTV::sock_stream, MPTV::tcp);
   m_bStop                  = true;
   m_bTimeShiftStarted      = false;
+  m_bSkipCloseLiveStream   = false;
   m_BackendUTCoffset       = 0;
   m_BackendTime            = 0;
   m_tsreader               = NULL;
@@ -1576,6 +1577,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   {
     m_iCurrentChannel = -1;
     m_bTimeShiftStarted = false;
+    m_bSkipCloseLiveStream = false; //initialization
     m_signalStateCounter = 0;
     XBMC->Log(LOG_ERROR, "Open Live stream failed. No connection to backend.");
     return false;
@@ -1590,6 +1592,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   m_iCurrentChannel = -1; // make sure that it is not a valid channel nr in case it will fail lateron
   m_signalStateCounter = 0;
   m_bTimeShiftStarted = false;
+  m_bSkipCloseLiveStream = false; //initialization
 
   // Start the timeshift
   // Use the optimized TimeshiftChannel call (don't stop a running timeshift)
@@ -1850,7 +1853,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
   if (!IsUp())
     return;
 
-  if (m_bTimeShiftStarted)
+  if (m_bTimeShiftStarted && !m_bSkipCloseLiveStream)
   {
     if (g_eStreamingMethod == TSReader && m_tsreader)
     {
@@ -1865,10 +1868,6 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
     m_PlaybackURL.clear();
 
     m_signalStateCounter = 0;
-  }
-  else
-  {
-    XBMC->Log(LOG_DEBUG, "CloseLiveStream: Nothing to do.");
   }
 }
 
@@ -2173,7 +2172,11 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
   }
   else if (g_eStreamingMethod == TSReader)
   {
-    XBMC->Log(LOG_DEBUG, "GetChannelStreamProperties: no properties set for uid=%i because TSReader is active", channel->iUniqueId);
+    if ((m_bTimeShiftStarted == true) && (g_bFastChannelSwitch = true))
+    {
+      // This ignores the next CloseLiveStream call from Kodi to speedup channel switching
+      m_bSkipCloseLiveStream = true;
+    }
   }
   else
   {

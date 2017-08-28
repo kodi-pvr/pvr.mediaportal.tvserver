@@ -127,6 +127,7 @@ private:
   PVR_CONNECTION_STATE    m_state;
   bool                    m_bStop;
   bool                    m_bTimeShiftStarted;
+  bool                    m_bSkipCloseLiveStream;
   std::string             m_ConnectionString;
   std::string             m_PlaybackURL;
   std::string             m_BackendName;
