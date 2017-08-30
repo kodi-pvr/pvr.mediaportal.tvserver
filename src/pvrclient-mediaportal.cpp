@@ -20,6 +20,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <stdlib.h>
+#include <clocale>
 
 #include "p8-platform/util/timeutils.h"
 #include "p8-platform/util/StringUtils.h"
