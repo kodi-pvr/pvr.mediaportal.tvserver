@@ -169,6 +169,9 @@ ADDON_STATUS cPVRClientMediaPortal::TryConnect()
         CreateThread();
       }
       return ADDON_STATUS_LOST_CONNECTION;
+    case PVR_CONNECTION_STATE_CONNECTING:
+    case PVR_CONNECTION_STATE_CONNECTED:
+      break;
   }
 
   return ADDON_STATUS_OK;
