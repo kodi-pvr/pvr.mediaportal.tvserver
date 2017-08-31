@@ -1,3 +1,6 @@
+v3.3.3
+- MacOSX compile fix
+
 v3.3.2
 - Code cleanup: remove legacy PVR API functions and CStdString
 - Set genre of recorded shows to custom string (Credits: Timothy Massing)
