@@ -42,6 +42,10 @@
 #define READ_SIZE (1316*30)
 #define INITIAL_READ_SIZE (READ_SIZE * 1024)
 
+#ifdef TARGET_WINDOWS_STORE
+#define GetTickCount GetTickCount64
+#endif
+
 using namespace ADDON;
 
 namespace MPTV

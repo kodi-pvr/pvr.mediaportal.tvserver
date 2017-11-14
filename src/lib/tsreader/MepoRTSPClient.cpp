@@ -24,6 +24,10 @@
 #include "client.h"
 #include "utils.h"
 
+#ifdef TARGET_WINDOWS_STORE
+#define GetTickCount GetTickCount64
+#endif
+
 using namespace ADDON;
 
 CRTSPClient::CRTSPClient()

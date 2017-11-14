@@ -41,6 +41,10 @@
 #endif
 #include "FileUtils.h"
 
+#ifdef TARGET_WINDOWS_STORE
+#define GetTickCount GetTickCount64
+#endif
+
 using namespace std;
 using namespace ADDON;
 
@@ -166,6 +170,7 @@ namespace MPTV
                 break;
             case ERROR_ACCESS_DENIED:
             {
+#ifdef TARGET_WINDOWS_DESKTOP
                 char strUserName[256];
                 DWORD lLength = 256;
 
@@ -174,6 +179,7 @@ namespace MPTV
                     XBMC->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
                 }
                 else
+#endif
                 {
                     XBMC->Log(LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
                 }
