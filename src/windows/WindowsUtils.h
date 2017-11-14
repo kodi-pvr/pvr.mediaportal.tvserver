@@ -36,7 +36,14 @@ namespace OS
     WindowsServer2003R2 = 34,
     Windows7 = 40,
     WindowsServer2008 = 41,
-    WindowsServer2008R2 = 42
+    WindowsServer2008R2 = 42,
+    Windows8 = 50,
+    WindowsServer2012 = 51,
+    Windows8_1 = 60,
+    WindowsServer2012R2 = 61,
+    Windows10 = 100,
+    WindowsServer2016 = 101,
+    WindowsStore = 255
   } WindowsVersion;
 
   WindowsVersion Version();

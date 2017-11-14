@@ -28,6 +28,9 @@ namespace OS
 
   WindowsVersion Version()
   {
+#ifdef TARGET_WINDOWS_STORE
+    return WindowsStore;
+#else
     OSVERSIONINFOEX osvi;
     SYSTEM_INFO si;
     BOOL bOsVersionInfoEx;
@@ -106,10 +109,12 @@ namespace OS
     }
 
     return Unknown;
+#endif // TARGET_WINDOWS_STORE
   }
 
   bool GetEnvironmentVariable(const char* strVarName, std::string& strResult)
   {
+#ifdef TARGET_WINDOWS_DESKTOP
     char strBuffer[4096];
     DWORD dwRet;
 
@@ -126,5 +131,8 @@ namespace OS
     }
     strResult = strBuffer;
     return true;
+#else
+    return false;
+#endif // TARGET_WINDOWS_DESKTOP
   }
 }
