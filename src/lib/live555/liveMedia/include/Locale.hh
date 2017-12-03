@@ -43,9 +43,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #ifndef LOCALE_NOT_USED
 #include <locale.h>
-#ifndef XLOCALE_NOT_USED
-#include <xlocale.h> // because, on some systems, <locale.h> doesn't include <xlocale.h>; this makes sure that we get both
-#endif
 #endif
 
 
