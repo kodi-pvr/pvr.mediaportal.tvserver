@@ -779,14 +779,6 @@ long long SeekLiveStream(long long iPosition, int iWhence)
     return g_client->SeekLiveStream(iPosition, iWhence);
 }
 
-long long PositionLiveStream(void)
-{
-  if (!g_client)
-    return -1;
-  else
-    return g_client->PositionLiveStream();
-}
-
 long long LengthLiveStream(void)
 {
   if (!g_client)
@@ -842,14 +834,6 @@ long long SeekRecordedStream(long long iPosition, int iWhence)
     return -1;
   else
     return g_client->SeekRecordedStream(iPosition, iWhence);
-}
-
-long long PositionRecordedStream(void)
-{
-  if (!g_client)
-    return -1;
-  else
-    return g_client->PositionRecordedStream();
 }
 
 long long LengthRecordedStream(void)
@@ -909,7 +893,6 @@ PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED
 }
 
 /** UNUSED API FUNCTIONS */
-PVR_ERROR MoveChannel(const PVR_CHANNEL& UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 DemuxPacket* DemuxRead(void) { return NULL; }
 void DemuxAbort(void) {}
 void DemuxReset(void) {}
@@ -918,9 +901,6 @@ void DemuxFlush(void) {}
 PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY[], int*) { return PVR_ERROR_NOT_IMPLEMENTED; };
 bool SeekTime(double,bool,double*) { return false; }
 void SetSpeed(int) {};
-time_t GetPlayingTime() { return 0; }
-time_t GetBufferTimeStart() { return 0; }
-time_t GetBufferTimeEnd() { return 0; }
 bool IsTimeshifting(void) { return false; }
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& UNUSED(recording)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
