@@ -672,19 +672,8 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
     strThumbPath = strProgramData + "\\Team MediaPortal\\MediaPortal\\Thumbs\\";
   else
   {
-    if (OS::Version() >= OS::WindowsVista)
-    {
-      /* Windows Vista/7/Server 2008 */
-      strThumbPath = "C:\\ProgramData\\Team MediaPortal\\MediaPortal\\Thumbs\\";
-    }
-    else
-    {
-      /* Windows XP */
-      if (OS::GetEnvironmentVariable("ALLUSERSPROFILE", strProgramData) == true)
-        strThumbPath = strProgramData + "\\Application Data\\Team MediaPortal\\MediaPortal\\thumbs\\";
-      else
-        strThumbPath = "C:\\Documents and Settings\\All Users\\Application Data\\Team MediaPortal\\MediaPortal\\thumbs\\";
-    }
+    /* Windows Vista and above */
+    strThumbPath = "C:\\ProgramData\\Team MediaPortal\\MediaPortal\\Thumbs\\";
   }
 
   if (bRadio)
