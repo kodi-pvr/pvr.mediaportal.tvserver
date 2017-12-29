@@ -661,13 +661,12 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
   if( !SendCommand2(command, lines) )
     return PVR_ERROR_SERVER_ERROR;
 
-#ifdef TARGET_WINDOWS
+#ifdef TARGET_WINDOWS_DESKTOP
   bool bCheckForThumbs = false;
   /* Check if we can find the MediaPortal channel logo folders on this machine */
   std::string strThumbPath;
   std::string strProgramData;
 
-#ifdef TARGET_WINDOWS_DESKTOP
   if (OS::GetEnvironmentVariable("PROGRAMDATA", strProgramData) == true)
     strThumbPath = strProgramData + "\\Team MediaPortal\\MediaPortal\\Thumbs\\";
   else
@@ -683,7 +682,6 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
   bCheckForThumbs = OS::CFile::Exists(strThumbPath);
 #endif // TARGET_WINDOWS_DESKTOP
-#endif // TARGET_WINDOWS
 
   memset(&tag, 0, sizeof(PVR_CHANNEL));
 
