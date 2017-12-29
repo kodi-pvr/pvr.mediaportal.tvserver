@@ -24,10 +24,6 @@
 #include "client.h"
 #include "utils.h"
 
-#ifdef TARGET_WINDOWS_STORE
-#define GetTickCount GetTickCount64
-#endif
-
 using namespace ADDON;
 
 CRTSPClient::CRTSPClient()
@@ -532,12 +528,12 @@ long CRTSPClient::Duration()
 void CRTSPClient::FillBuffer(unsigned long byteCount)
 {
   XBMC->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d\n", byteCount);
-  unsigned long tickCount = GetTickCount();
+  unsigned long long tickCount = GetTickCount64();
 
   while ( IsRunning() && m_buffer->Size() < byteCount)
   {
     usleep(5000);
-    if (GetTickCount() - tickCount > 3000)
+    if (GetTickCount64() - tickCount > 3000)
       break;
   }
   XBMC->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d/%d\n", byteCount, m_buffer->Size() );

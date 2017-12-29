@@ -42,10 +42,6 @@
 #define READ_SIZE (1316*30)
 #define INITIAL_READ_SIZE (READ_SIZE * 1024)
 
-#ifdef TARGET_WINDOWS_STORE
-#define GetTickCount GetTickCount64
-#endif
-
 using namespace ADDON;
 
 namespace MPTV
@@ -83,9 +79,9 @@ namespace MPTV
         m_bEndOfFile = false;
         m_iPatVersion = -1;
         m_ReqPatVersion = -1;
-        unsigned long m_Time = GetTickCount();
+        unsigned long long m_Time = GetTickCount64();
 
-        while ((GetTickCount() - m_Time) < 5000 && m_bGotNewChannel == false)
+        while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
             int BytesRead = ReadFromFile();
             if (0 == BytesRead)
@@ -141,7 +137,7 @@ namespace MPTV
                   // yes, then process the raw data
                   //result=true;
                   OnRawData(buffer, (int)dwReadBytes);
-                  m_LastDataFromRtsp = GetTickCount();
+                  m_LastDataFromRtsp = GetTickCount64();
                 }
               }
               else
@@ -153,11 +149,11 @@ namespace MPTV
             {
                 if (!m_filter.IsTimeShifting())
                 {
-                    XBMC->Log(LOG_DEBUG, "%s: endoffile... %d", __FUNCTION__, GetTickCount() - m_LastDataFromRtsp);
+                    XBMC->Log(LOG_DEBUG, "%s: endoffile... %llu", __FUNCTION__, GetTickCount64() - m_LastDataFromRtsp);
                     //set EOF flag and return
-                    if (GetTickCount() - m_LastDataFromRtsp > 2000 && m_filter.State() != State_Paused) // A bit crappy, but no better idea...
+                    if (GetTickCount64() - m_LastDataFromRtsp > 2000 && m_filter.State() != State_Paused) // A bit crappy, but no better idea...
                     {
-                        XBMC->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__, GetTickCount() - m_LastDataFromRtsp);
+                        XBMC->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
                         m_bEndOfFile = true;
                         return 0;
                     }
@@ -226,9 +222,9 @@ namespace MPTV
             if (m_ReqPatVersion == -1)
             {                                     // Now, unless channel change, 
                 m_ReqPatVersion = m_iPatVersion;    // Initialize Pat Request.
-                m_WaitNewPatTmo = GetTickCount();   // Now, unless channel change request,timeout will be always true. 
+                m_WaitNewPatTmo = GetTickCount64();   // Now, unless channel change request,timeout will be always true. 
             }
-            if (GetTickCount() < (unsigned long)m_WaitNewPatTmo)
+            if (GetTickCount64() < m_WaitNewPatTmo)
             {
                 // Timeout not reached.
                 return;
@@ -243,14 +239,14 @@ namespace MPTV
         m_ReqPatVersion++;
         m_ReqPatVersion &= 0x0F;
         XBMC->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
-        m_WaitNewPatTmo = GetTickCount() + 10000;
+        m_WaitNewPatTmo = GetTickCount64() + 10000;
 
         unsigned long dwBytesProcessed = 0;
-        unsigned long m_Time = GetTickCount();
+        unsigned long long m_Time = GetTickCount64();
 
         m_bGotNewChannel = false;
 
-        while ((GetTickCount() - m_Time) < 5000 && m_bGotNewChannel == false)
+        while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
             int BytesRead = ReadFromFile();
             if (0 == BytesRead)

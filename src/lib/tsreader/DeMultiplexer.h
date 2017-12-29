@@ -58,7 +58,7 @@ namespace MPTV
         int ReadFromFile();
 
     private:
-        unsigned long m_LastDataFromRtsp;
+        unsigned long long m_LastDataFromRtsp;
         bool m_bEndOfFile;
         P8PLATFORM::CMutex m_sectionRead;
         FileReader* m_reader;
@@ -67,7 +67,7 @@ namespace MPTV
 
         int m_iPatVersion;
         int m_ReqPatVersion;
-        int m_WaitNewPatTmo;
+        unsigned long long m_WaitNewPatTmo;
         int m_receivedPackets;
 
         bool m_bStarting;

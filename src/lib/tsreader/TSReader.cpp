@@ -41,10 +41,6 @@
 #endif
 #include "FileUtils.h"
 
-#ifdef TARGET_WINDOWS_STORE
-#define GetTickCount GetTickCount64
-#endif
-
 using namespace std;
 using namespace ADDON;
 
@@ -418,7 +414,7 @@ namespace MPTV
 
         if (m_State == State_Running)
         {
-            m_lastPause = GetTickCount();
+            m_lastPause = GetTickCount64();
 #ifdef LIVE555
             // Are we using rtsp?
             if (m_bIsRTSP)
