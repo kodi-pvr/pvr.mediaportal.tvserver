@@ -174,7 +174,7 @@ namespace MPTV
                 char strUserName[256];
                 DWORD lLength = 256;
 
-                if (GetUserName(strUserName, &lLength))
+                if (GetUserNameA(strUserName, &lLength))
                 {
                     XBMC->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
                 }

@@ -118,7 +118,7 @@ namespace OS
     char strBuffer[4096];
     DWORD dwRet;
 
-    dwRet = ::GetEnvironmentVariable(strVarName, strBuffer, 4096);
+    dwRet = ::GetEnvironmentVariableA(strVarName, strBuffer, 4096);
 
     if(0 == dwRet)
     {
