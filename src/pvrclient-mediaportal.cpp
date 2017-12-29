@@ -1888,15 +1888,6 @@ long long cPVRClientMediaPortal::LengthLiveStream(void)
   return m_tsreader->GetFileSize();
 }
 
-long long cPVRClientMediaPortal::PositionLiveStream(void)
-{
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
-  {
-    return -1;
-  }
-  return m_tsreader->GetFilePointer();
-}
-
 bool cPVRClientMediaPortal::IsRealTimeStream(void)
 {
   return m_bTimeShiftStarted;
@@ -2110,15 +2101,6 @@ long long cPVRClientMediaPortal::SeekRecordedStream(long long iPosition, int iWh
   XBMC->Log(LOG_DEBUG,"SeekRec: iWhence %i pos %i", iWhence, iPosition);
 
   return m_tsreader->SetFilePointer(iPosition, iWhence);
-}
-
-long long cPVRClientMediaPortal::PositionRecordedStream(void)
-{
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
-  {
-    return -1;
-  }
-  return m_tsreader->GetFilePointer();
 }
 
 long long  cPVRClientMediaPortal::LengthRecordedStream(void)
