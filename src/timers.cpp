@@ -76,7 +76,7 @@ cTimer::cTimer(const PVR_TIMER& timerinfo):
   if (!m_active)
   {
     // Don't know when it was cancelled, so assume that it was canceled now...
-    // backend (TVServerXBMC) will only update the canceled date time when
+    // backend (TVServerKodi) will only update the canceled date time when
     // this schedule was just canceled
     m_canceled = CDateTime::Now();
   }
@@ -254,12 +254,12 @@ bool cTimer::ParseLine(const char *s)
     // field 8 = isdone (finished)
     // field 9 = ismanual
     // field 10 = directory
-    // field 11 = keepmethod (0=until space needed, 1=until watched, 2=until keepdate, 3=forever) (TVServerXBMC build >= 100)
-    // field 12 = keepdate (2000-01-01 00:00:00 = infinite)  (TVServerXBMC build >= 100)
-    // field 13 = preRecordInterval  (TVServerXBMC build >= 100)
-    // field 14 = postRecordInterval (TVServerXBMC build >= 100)
-    // field 15 = canceled (TVServerXBMC build >= 100)
-    // field 16 = series (True/False) (TVServerXBMC build >= 100)
+    // field 11 = keepmethod (0=until space needed, 1=until watched, 2=until keepdate, 3=forever) (TVServerKodi build >= 100)
+    // field 12 = keepdate (2000-01-01 00:00:00 = infinite)  (TVServerKodi build >= 100)
+    // field 13 = preRecordInterval  (TVServerKodi build >= 100)
+    // field 14 = postRecordInterval (TVServerKodi build >= 100)
+    // field 15 = canceled (TVServerKodi build >= 100)
+    // field 16 = series (True/False) (TVServerKodi build >= 100)
     // field 17 = isrecording (True/False)
     // field 18 = program id (EPG)
     // field 19 = parent schedule id (TVServerKodi build >= 130)
@@ -285,7 +285,7 @@ bool cTimer::ParseLine(const char *s)
     
     if(schedulefields.size() >= 18)
     {
-      //TVServerXBMC build >= 100
+      //TVServerKodi build >= 100
       m_keepmethod = (TvDatabase::KeepMethodType) atoi(schedulefields[11].c_str());
       if ( m_keepDate.SetFromDateTime(schedulefields[12]) == false )
         return false;

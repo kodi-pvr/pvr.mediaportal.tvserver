@@ -112,7 +112,7 @@ void CGenreTable::GenreToTypes(string& strGenre, int& genreType, int& genreSubTy
   // The xmltv plugin from the MediaPortal TV Server can return genre
   // strings in local language (depending on the external TV guide source).
   // The only way to solve this at the XMBC side is to transfer the
-  // genre string to XBMC or to let this plugin (or the TVServerXBMC
+  // genre string to XBMC or to let this plugin (or the TVServerKodi
   // plugin) translate it into XBMC compatible (numbered) genre types
   string m_genre = strGenre;
 

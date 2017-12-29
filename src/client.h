@@ -79,7 +79,7 @@ extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;
 extern CHelper_libKODI_guilib       *GUI;
 
-extern int              g_iTVServerXBMCBuild;
+extern int              g_iTVServerKodiBuild;
 
 /*!
  * @brief PVR macros for string exchange

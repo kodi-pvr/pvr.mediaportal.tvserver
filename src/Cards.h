@@ -54,7 +54,7 @@ class CCards: public std::vector<Card>
   public:
 
     /**
-     * \brief Parse the multi-line string response from the TVServerXBMC plugin command "GetCardSettings"
+     * \brief Parse the multi-line string response from the TVServerKodi plugin command "GetCardSettings"
      * The data is stored in "struct Card" item.
      * 
      * \param lines Vector with response lines

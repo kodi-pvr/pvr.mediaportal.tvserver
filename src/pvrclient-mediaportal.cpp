@@ -43,13 +43,13 @@ using namespace ADDON;
 using namespace MPTV;
 
 /* Globals */
-int g_iTVServerXBMCBuild = 0;
+int g_iTVServerKodiBuild = 0;
 
-/* TVServerXBMC plugin supported versions */
-#define TVSERVERXBMC_MIN_VERSION_STRING         "1.1.7.107"
-#define TVSERVERXBMC_MIN_VERSION_BUILD          107
-#define TVSERVERXBMC_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
-#define TVSERVERXBMC_RECOMMENDED_VERSION_BUILD  136
+/* TVServerKodi plugin supported versions */
+#define TVSERVERKODI_MIN_VERSION_STRING         "1.1.7.107"
+#define TVSERVERKODI_MIN_VERSION_BUILD          107
+#define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
+#define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  136
 
 /************************************************************/
 /** Class interface */
@@ -218,41 +218,41 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   vector<string> fields;
   int major = 0, minor = 0, revision = 0;
 
-  // Check the version of the TVServerXBMC plugin:
+  // Check the version of the TVServerKodi plugin:
   Tokenize(result, fields, "|");
   if(fields.size() < 2)
   {
-    XBMC->Log(LOG_ERROR, "Your TVServerXBMC version is too old. Please upgrade to '%s' or higher!", TVSERVERXBMC_MIN_VERSION_STRING);
-    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30051), TVSERVERXBMC_MIN_VERSION_STRING);
+    XBMC->Log(LOG_ERROR, "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!", TVSERVERKODI_MIN_VERSION_STRING);
+    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30051), TVSERVERKODI_MIN_VERSION_STRING);
     SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
-  // Ok, this TVServerXBMC version answers with a version string
-  int count = sscanf(fields[1].c_str(), "%5d.%5d.%5d.%5d", &major, &minor, &revision, &g_iTVServerXBMCBuild);
+  // Ok, this TVServerKodi version answers with a version string
+  int count = sscanf(fields[1].c_str(), "%5d.%5d.%5d.%5d", &major, &minor, &revision, &g_iTVServerKodiBuild);
   if( count < 4 )
   {
-    XBMC->Log(LOG_ERROR, "Could not parse the TVServerXBMC version string '%s'", fields[1].c_str());
+    XBMC->Log(LOG_ERROR, "Could not parse the TVServerKodi version string '%s'", fields[1].c_str());
     SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
   // Check for the minimal requirement: 1.1.0.70
-  if( g_iTVServerXBMCBuild < TVSERVERXBMC_MIN_VERSION_BUILD ) //major < 1 || minor < 1 || revision < 0 || build < 70
+  if( g_iTVServerKodiBuild < TVSERVERKODI_MIN_VERSION_BUILD ) //major < 1 || minor < 1 || revision < 0 || build < 70
   {
-    XBMC->Log(LOG_ERROR, "Your TVServerXBMC version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
-    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30050), fields[1].c_str(), TVSERVERXBMC_MIN_VERSION_STRING);
+    XBMC->Log(LOG_ERROR, "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
+    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30050), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
   else
   {
-    XBMC->Log(LOG_INFO, "Your TVServerXBMC version is '%s'", fields[1].c_str());
+    XBMC->Log(LOG_INFO, "Your TVServerKodi version is '%s'", fields[1].c_str());
         
     // Advice to upgrade:
-    if( g_iTVServerXBMCBuild < TVSERVERXBMC_RECOMMENDED_VERSION_BUILD )
+    if( g_iTVServerKodiBuild < TVSERVERKODI_RECOMMENDED_VERSION_BUILD )
     {
-      XBMC->Log(LOG_INFO, "It is adviced to upgrade your TVServerXBMC version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERXBMC_RECOMMENDED_VERSION_STRING);
+      XBMC->Log(LOG_INFO, "It is adviced to upgrade your TVServerKodi version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_RECOMMENDED_VERSION_STRING);
     }
   }
 
@@ -1130,7 +1130,7 @@ PVR_ERROR cPVRClientMediaPortal::RenameRecording(const PVR_RECORDING &recording)
 
 PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const PVR_RECORDING &recording, int count)
 {
-  if ( g_iTVServerXBMCBuild < 117 )
+  if ( g_iTVServerKodiBuild < 117 )
     return PVR_ERROR_NOT_IMPLEMENTED;
 
   if (!IsUp())
@@ -1157,7 +1157,7 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const PVR_RECORDING &reco
 
 PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORDING &recording, int lastplayedposition)
 {
-  if ( g_iTVServerXBMCBuild < 121 )
+  if ( g_iTVServerKodiBuild < 121 )
     return PVR_ERROR_NOT_IMPLEMENTED;
 
   if (!IsUp())
@@ -1184,7 +1184,7 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORD
 
 int cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const PVR_RECORDING &recording)
 {
-  if ( g_iTVServerXBMCBuild < 121 )
+  if ( g_iTVServerKodiBuild < 121 )
     return PVR_ERROR_NOT_IMPLEMENTED;
 
   if (!IsUp())
@@ -1595,7 +1595,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   if (result.find("ERROR") != std::string::npos || result.length() == 0)
   {
     XBMC->Log(LOG_ERROR, "Could not start the timeshift for channel uid=%i. Reason: %s", channelinfo.iUniqueId, result.c_str());
-    if (g_iTVServerXBMCBuild>=109)
+    if (g_iTVServerKodiBuild>=109)
     {
       Tokenize(result, timeshiftfields, "|");
       //[0] = string error message
@@ -1664,9 +1664,9 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     //[0] = rtsp url
     //[1] = original (unresolved) rtsp url
     //[2] = timeshift buffer filename
-    //[3] = card id (TVServerXBMC build >= 106)
-    //[4] = tsbuffer pos (TVServerXBMC build >= 110)
-    //[5] = tsbuffer file nr (TVServerXBMC build >= 110)
+    //[3] = card id (TVServerKodi build >= 106)
+    //[4] = tsbuffer pos (TVServerKodi build >= 110)
+    //[5] = tsbuffer file nr (TVServerKodi build >= 110)
 
     m_PlaybackURL = timeshiftfields[0];
     if (g_eStreamingMethod == TSReader)
@@ -1710,7 +1710,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         {
           m_tsreader->SetCardId(atoi(timeshiftfields[3].c_str()));
 
-          if ((g_iTVServerXBMCBuild >=110) && (timeshiftfields.size()>=6))
+          if ((g_iTVServerKodiBuild >=110) && (timeshiftfields.size()>=6))
             bReturn = m_tsreader->OnZap(timeshiftfields[2].c_str(), atoll(timeshiftfields[4].c_str()), atol(timeshiftfields[5].c_str()));
           else
             bReturn = m_tsreader->OnZap(timeshiftfields[2].c_str(), -1, -1);
@@ -1904,7 +1904,7 @@ bool cPVRClientMediaPortal::IsRealTimeStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
-  if (g_iTVServerXBMCBuild < 108 || (m_iCurrentChannel == -1))
+  if (g_iTVServerKodiBuild < 108 || (m_iCurrentChannel == -1))
   {
     // Not yet supported or playing webstream
     return PVR_ERROR_NO_ERROR;
@@ -1962,7 +1962,7 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 /** Record stream handling */
 // MediaPortal recordings are also rtsp streams. Main difference here with
 // respect to the live tv streams is that the URLs for the recordings
-// can be requested on beforehand (done in the TVserverXBMC plugin).
+// can be requested on beforehand (done in the TVServerKodi plugin).
 // These URLs are stored in the field PVR_RECORDINGINFO_OLD.stream_url
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
@@ -1981,7 +1981,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   std::string recfile = "";
 
-  // TVServerXBMC v1.1.0.90 or higher
+  // TVServerKodi v1.1.0.90 or higher
   string         result;
   char           command[256];
 

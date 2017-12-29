@@ -32,7 +32,7 @@ using namespace ADDON;
  * and exported to the other source files.
  */
 std::string      g_szHostname           = DEFAULT_HOST;                  ///< The Host name or IP of the MediaPortal TV Server
-int              g_iPort                = DEFAULT_PORT;                  ///< The TVServerXBMC listening port (default: 9596)
+int              g_iPort                = DEFAULT_PORT;                  ///< The TVServerKodi listening port (default: 9596)
 int              g_iConnectTimeout      = DEFAULT_TIMEOUT;               ///< The Socket connection timeout
 int              g_iSleepOnRTSPurl      = DEFAULT_SLEEP_RTSP_URL;        ///< An optional delay between tuning a channel and opening the corresponding RTSP stream in XBMC (default: 0)
 bool             g_bOnlyFTA             = DEFAULT_FTA_ONLY;              ///< Send only Free-To-Air Channels inside Channel list to XBMC
@@ -506,8 +506,8 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
   pCapabilities->bHandlesInputStream         = true;
   pCapabilities->bHandlesDemuxing            = false;
   pCapabilities->bSupportsChannelScan        = false;
-  pCapabilities->bSupportsRecordingPlayCount = (g_iTVServerXBMCBuild < 117) ? false : true;
-  pCapabilities->bSupportsLastPlayedPosition = (g_iTVServerXBMCBuild < 121) ? false : true;
+  pCapabilities->bSupportsRecordingPlayCount = (g_iTVServerKodiBuild < 117) ? false : true;
+  pCapabilities->bSupportsLastPlayedPosition = (g_iTVServerKodiBuild < 121) ? false : true;
   pCapabilities->bSupportsRecordingsRename = true;
   pCapabilities->bSupportsRecordingsLifetimeChange = false;
   pCapabilities->bSupportsDescrambleInfo = false;

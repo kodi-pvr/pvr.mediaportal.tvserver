@@ -107,7 +107,7 @@ namespace MPTV
                 }
                 else
                 {
-                    XBMC->Log(LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerXBMC settings!", tscard.IdCard, tscard.Name.c_str());
+                    XBMC->Log(LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerKodi settings!", tscard.IdCard, tscard.Name.c_str());
                 }
             }
         }
@@ -144,7 +144,7 @@ namespace MPTV
         }
         else
         {
-            XBMC->Log(LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerXBMC settings!", pszFileName);
+            XBMC->Log(LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerKodi settings!", pszFileName);
             if (!XBMC->FileExists(pszFileName, false))
             {
                 XBMC->Log(LOG_ERROR, "Cannot access '%s'", pszFileName);
