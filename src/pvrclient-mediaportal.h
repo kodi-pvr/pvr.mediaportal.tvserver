@@ -35,6 +35,7 @@ namespace MPTV
 {
     class CTsReader;
 }
+class cRecording;
 
 class cPVRClientMediaPortal: public P8PLATFORM::PreventCopy, public P8PLATFORM::CThread
 {
@@ -104,6 +105,7 @@ public:
   long long SeekRecordedStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthRecordedStream(void);
   PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
+  PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES* stream_times);
 
 protected:
   MPTV::Socket           *m_tcpclient;
@@ -113,11 +115,10 @@ private:
   void* Process(void);
   PVR_CONNECTION_STATE Connect(bool updateConnectionState = true);
 
-
-  bool GetChannel(unsigned int number, PVR_CHANNEL &channeldata);
   void LoadGenreTable(void);
   void LoadCardSettings(void);
   void SetConnectionState(PVR_CONNECTION_STATE newState);
+  cRecording* GetRecordingInfo(const PVR_RECORDING& recording);
   const char* GetConnectionStateString(PVR_CONNECTION_STATE state) const;
 
   int                     m_iCurrentChannel;
@@ -144,9 +145,12 @@ private:
   int                     m_iSignal;
   int                     m_iSNR;
 
+  cRecording*             m_lastSelectedRecording;
+
   void Close();
 
   //Used for TV Server communication:
-  std::string SendCommand(std::string command);
+  std::string SendCommand(const char* command);
+  std::string SendCommand(const std::string& command);
   bool SendCommand2(std::string command, std::vector<std::string>& lines);
 };

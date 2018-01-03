@@ -72,6 +72,7 @@ cPVRClientMediaPortal::cPVRClientMediaPortal() :
   m_signalStateCounter     = 0;
   m_iSignal                = 0;
   m_iSNR                   = 0;
+  m_lastSelectedRecording  = NULL;
 
   /* Generate the recording life time strings */
   Timer::lifetimeValues = new cLifeTimeValues();
@@ -84,9 +85,16 @@ cPVRClientMediaPortal::~cPVRClientMediaPortal()
   SAFE_DELETE(Timer::lifetimeValues);
   SAFE_DELETE(m_tcpclient);
   SAFE_DELETE(m_genretable);
+  SAFE_DELETE(m_lastSelectedRecording);
 }
 
-string cPVRClientMediaPortal::SendCommand(string command)
+string cPVRClientMediaPortal::SendCommand(const char* command)
+{
+  std::string cmd(command);
+  return SendCommand(cmd);
+}
+
+string cPVRClientMediaPortal::SendCommand(const string& command)
 {
   P8PLATFORM::CLockObject critsec(m_mutex);
 
@@ -1986,7 +1994,7 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 // MediaPortal recordings are also rtsp streams. Main difference here with
 // respect to the live tv streams is that the URLs for the recordings
 // can be requested on beforehand (done in the TVServerKodi plugin).
-// These URLs are stored in the field PVR_RECORDINGINFO_OLD.stream_url
+
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
   KODI->Log(LOG_NOTICE, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
@@ -2004,6 +2012,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   std::string recfile = "";
 
+#if 0
   // TVServerKodi v1.1.0.90 or higher
   string         result;
   char           command[256];
@@ -2029,14 +2038,22 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
   }
 
   KODI->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
+#endif
+  cRecording* myrecording = GetRecordingInfo(recording);
+
+  if (!myrecording)
+  {
+    return false;
+  }
+
   if (!g_bUseRTSP)
   {
-    recfile  = myrecording.FilePath();
-    if (recfile.length() == 0)
+    recfile  = myrecording->FilePath();
+    if (recfile.empty())
     {
       KODI->Log(LOG_ERROR, "Backend returned an empty recording filename for recording id %s.", recording.strRecordingId);
-      recfile = myrecording.Stream();
-      if (recfile.length() > 0)
+      recfile = myrecording->Stream();
+      if (!recfile.empty())
       {
         KODI->Log(LOG_NOTICE, "Trying to use the recording RTSP stream URL name instead.");
       }
@@ -2044,12 +2061,12 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
   }
   else
   {
-    recfile = myrecording.Stream();
-    if (recfile.length() == 0)
+    recfile = myrecording->Stream();
+    if (recfile.empty())
     {
       KODI->Log(LOG_ERROR, "Backend returned an empty RTSP stream URL for recording id %s.", recording.strRecordingId);
-      recfile = myrecording.FilePath();
-      if (recfile.length() > 0)
+      recfile = myrecording->FilePath();
+      if (!recfile.empty())
       {
         KODI->Log(LOG_NOTICE, "Trying to use the filename instead.");
       }
@@ -2129,8 +2146,10 @@ long long cPVRClientMediaPortal::SeekRecordedStream(long long iPosition, int iWh
   {
     return -1;
   }
-
-  KODI->Log(LOG_DEBUG,"SeekRec: iWhence %i pos %i", iWhence, iPosition);
+#ifdef _DEBUG
+  KODI->Log(LOG_DEBUG, "SeekRec: Current pos %lli", m_tsreader->GetFilePointer());
+#endif
+  KODI->Log(LOG_DEBUG,"SeekRec: iWhence %i pos %lli", iWhence, iPosition);
 
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
@@ -2146,15 +2165,29 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-//  if (*iPropertiesCount < 1)
-//    return PVR_ERROR_INVALID_PARAMETERS;
+  *iPropertiesCount = 0;
+
+  cRecording* myrecording = GetRecordingInfo(*recording);
+
+  if (!myrecording)
+    return PVR_ERROR_NO_ERROR;
 
   if (g_eStreamingMethod == ffmpeg)
   {
-    /* TODO: implement me */
-    return PVR_ERROR_NO_ERROR;
+    PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
+    PVR_STRCPY(properties[0].strValue, myrecording->Stream());
+    *iPropertiesCount = 1;
   }
-  *iPropertiesCount = 0;
+  else if (!g_bUseRTSP)
+  {
+#if 0
+    // Direct file playback by Kodi (without involving the addon)
+    PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
+    PVR_STRCPY(properties[0].strValue, myrecording->FilePath());
+    *iPropertiesCount = 1;
+#endif
+  }
+
   return PVR_ERROR_NO_ERROR;  
 }
 
@@ -2286,3 +2319,60 @@ const char* cPVRClientMediaPortal::GetConnectionStateString(PVR_CONNECTION_STATE
     return "Unknown state";
   }
 }
+
+cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & recording)
+{
+  // Is this the same recording as the previous one?
+  if (m_lastSelectedRecording)
+  {
+    int recId = atoi(recording.strRecordingId);
+    if (m_lastSelectedRecording->Index() == recId)
+    {
+      return m_lastSelectedRecording;
+    }
+    SAFE_DELETE(m_lastSelectedRecording);
+  }
+
+  if (!IsUp())
+    return nullptr;
+
+  string result;
+  string command;
+
+  command = StringUtils::Format("GetRecordingInfo:%s|%s\n", recording.strRecordingId, (g_bUseRTSP ? "True" : "False"));
+  result = SendCommand(command);
+
+  if (result.empty())
+  {
+    KODI->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command.c_str());
+    return nullptr;
+  }
+
+  m_lastSelectedRecording = new cRecording();
+  if (!m_lastSelectedRecording->ParseLine(result))
+  {
+    KODI->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command.c_str(), result.c_str());
+    return nullptr;
+  }
+  KODI->Log(LOG_NOTICE, "RECORDING: %s", result.c_str());
+  return m_lastSelectedRecording;
+}
+
+PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
+{
+  if (!m_bTimeShiftStarted && m_lastSelectedRecording)
+  {
+    // Recording playback
+    // Warning: documentation in xbmc_pvr_types.h is wrong. pts values are not in seconds.
+    stream_times->startTime = 0; // seconds
+    stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
+    stream_times->ptsBegin = 0;  // useconds
+    stream_times->ptsEnd = ((int64_t) m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
+    return PVR_ERROR_NO_ERROR;
+  }
+  // TODO: implement me for live tv
+  *stream_times = { 0 };
+
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
+

@@ -43,7 +43,7 @@ private:
   std::string m_originalurl;
   MPTV::CDateTime m_startTime;
   MPTV::CDateTime m_endTime;
-  int m_duration;
+  int m_duration;                  ///< Duration of the recording in seconds
   std::string m_title;             ///< Title of this event
   std::string m_description;       ///< Description of this event
   std::string m_episodeName;       ///< Short description of this event (typically the episode name in case of a series)
