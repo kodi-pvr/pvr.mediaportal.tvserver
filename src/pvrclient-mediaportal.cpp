@@ -962,8 +962,15 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
     if( channel.Parse(data) )
     {
       tag.iChannelUniqueId = channel.UID();
-      tag.iChannelNumber = channel.ExternalID();
-      // tag.iSubChannelNumber = ...; TODO: Addon API 5.8.0
+      if (channel.MajorChannelNr() == -1)
+      {
+        tag.iChannelNumber = channel.ExternalID();
+      }
+      else
+      {
+        tag.iChannelNumber = channel.MajorChannelNr();
+        tag.iSubChannelNumber = channel.MinorChannelNr();
+      }
       PVR_STRCPY(tag.strGroupName, group.strGroupName);
 
 
