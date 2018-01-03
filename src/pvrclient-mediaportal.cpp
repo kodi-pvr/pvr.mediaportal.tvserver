@@ -2165,6 +2165,8 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
+  // GetRecordingStreamProperties is called before OpenRecordedStream
+  // If we return a stream URL here, Kodi will use its internal player to open the stream and bypass the PVR addon
   *iPropertiesCount = 0;
 
   cRecording* myrecording = GetRecordingInfo(*recording);
@@ -2178,14 +2180,27 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
     PVR_STRCPY(properties[0].strValue, myrecording->Stream());
     *iPropertiesCount = 1;
   }
+#ifdef TARGET_WINDOWS_DESKTOP
   else if (!g_bUseRTSP)
   {
-#if 0
+    if (myrecording->IsRecording() == false)
+    {
+      std::string recordingUri(ToKodiPath(myrecording->FilePath()));
+
+      // Direct file playback by Kodi (without involving the addon)
+      PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
+      PVR_STRCPY(properties[0].strValue, recordingUri.c_str());
+      *iPropertiesCount = 1;
+    }
+  }
+#endif
+  else if (g_eStreamingMethod == ffmpeg)
+  {
+    // Use rtsp url and Kodi's internal FFMPeg playback
     // Direct file playback by Kodi (without involving the addon)
     PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
-    PVR_STRCPY(properties[0].strValue, myrecording->FilePath());
+    PVR_STRCPY(properties[0].strValue, myrecording->Stream());
     *iPropertiesCount = 1;
-#endif
   }
 
   return PVR_ERROR_NO_ERROR;  
@@ -2339,7 +2354,7 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & record
   string result;
   string command;
 
-  command = StringUtils::Format("GetRecordingInfo:%s|%s\n", recording.strRecordingId, (g_bUseRTSP ? "True" : "False"));
+  command = StringUtils::Format("GetRecordingInfo:%s|%s\n", recording.strRecordingId, ((g_bUseRTSP || g_eStreamingMethod == ffmpeg) ? "True" : "False"));
   result = SendCommand(command);
 
   if (result.empty())
