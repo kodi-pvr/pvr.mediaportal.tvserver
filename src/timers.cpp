@@ -662,6 +662,28 @@ void cLifeTimeValues::SetLifeTimeValues(PVR_TIMER_TYPE& timertype)
   timertype.iLifetimesSize = m_lifetimeValues.size();
   timertype.iLifetimesDefault = -MPTV_KEEP_ALWAYS; //Negative = special types, positive values is days
 
+  //select default keep method
+  switch (g_KeepMethodType)
+  {
+    case TvDatabase::UntilSpaceNeeded: //until space needed
+      timertype.iLifetimesDefault = -MPTV_KEEP_UNTIL_SPACE_NEEDED; //Negative = special types, positive values is days
+      break;
+
+    case TvDatabase::UntilWatched: //until watched
+      timertype.iLifetimesDefault = -MPTV_KEEP_UNTIL_WATCHED; //Negative = special types, positive values is days
+      break;
+
+    case TvDatabase::TillDate: //until keepdate
+      //use defaultrecordinglifetime value from settings.xml
+      timertype.iLifetimesDefault = g_DefaultRecordingLifeTime;
+      break;
+
+    case TvDatabase::Always: //forever
+    default:
+      break;
+  }
+
+
   int i = 0;
   std::vector<std::pair<int, std::string>>::iterator it;
   for (it = m_lifetimeValues.begin(); ((it != m_lifetimeValues.end()) && (i < PVR_ADDON_TIMERTYPE_VALUES_ARRAY_SIZE)); ++it, ++i)

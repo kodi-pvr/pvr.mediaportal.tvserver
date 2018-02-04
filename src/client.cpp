@@ -22,6 +22,7 @@
 #include "xbmc_pvr_dll.h"
 #include "pvrclient-mediaportal.h"
 #include "utils.h"
+#include "timers.h"
 
 using namespace std;
 using namespace ADDON;
@@ -45,9 +46,11 @@ std::string      g_szRadioGroup         = DEFAULT_RADIOGROUP;            ///< Im
 std::string      g_szSMBusername        = DEFAULT_SMBUSERNAME;           ///< Windows user account used to access share
 std::string      g_szSMBpassword        = DEFAULT_SMBPASSWORD;           ///< Windows user password used to access share
                                                                          ///< Leave empty to use current user when running on Windows
-eStreamingMethod g_eStreamingMethod     = TSReader;
-bool             g_bFastChannelSwitch   = true;                          ///< Don't stop an existing timeshift on a channel switch
-bool             g_bUseRTSP             = false;                         ///< Use RTSP streaming when using the tsreader
+eStreamingMethod            g_eStreamingMethod          = TSReader;
+TvDatabase::KeepMethodType  g_KeepMethodType            = TvDatabase::Always;
+int                         g_DefaultRecordingLifeTime  = 100;           ///< The default days which are configured in kodi
+bool                        g_bFastChannelSwitch        = true;          ///< Don't stop an existing timeshift on a channel switch
+bool                        g_bUseRTSP                  = false;         ///< Use RTSP streaming when using the tsreader
 
 /* Client member variables */
 ADDON_STATUS            m_curStatus    = ADDON_STATUS_UNKNOWN;
@@ -267,6 +270,22 @@ void ADDON_ReadSettings(void)
     g_bEnableOldSeriesDlg = false;
   }
 
+  /* Read setting "keepmethodtype" from settings.xml */
+  if (!XBMC->GetSetting("keepmethodtype", &g_KeepMethodType))
+  {
+    /* If setting is unknown fallback to defaults */
+    XBMC->Log(LOG_ERROR, "Couldn't get 'keepmethodtype' setting, falling back to 'Always' as default");
+    g_KeepMethodType = TvDatabase::Always;
+  }
+
+  /* Read setting "defaultrecordinglifetime" from settings.xml */
+  if (!XBMC->GetSetting("defaultrecordinglifetime", &g_DefaultRecordingLifeTime))
+  {
+    /* If setting is unknown fallback to defaults */
+    XBMC->Log(LOG_ERROR, "Couldn't get 'defaultrecordinglifetime' setting, falling back to '100' as default");
+    g_DefaultRecordingLifeTime = 100;
+  }
+
   /* Read setting "sleeponrtspurl" from settings.xml */
   if (!XBMC->GetSetting("sleeponrtspurl", &g_iSleepOnRTSPurl))
   {
@@ -320,6 +339,7 @@ void ADDON_ReadSettings(void)
   XBMC->Log(LOG_DEBUG, "settings: resolvertsphostname=%i", (int) g_bResolveRTSPHostname);
   XBMC->Log(LOG_DEBUG, "settings: fastchannelswitch=%i", (int) g_bFastChannelSwitch);
   XBMC->Log(LOG_DEBUG, "settings: smb user='%s', pass=%s", g_szSMBusername.c_str(), (g_szSMBpassword.length() > 0 ? "<set>" : "<empty>"));
+  XBMC->Log(LOG_DEBUG, "settings: keepmethodtype=%i, defaultrecordinglifetime=%i", (int)g_KeepMethodType, (int)g_DefaultRecordingLifeTime);
 }
 
 //-- SetSetting ---------------------------------------------------------------
@@ -393,6 +413,22 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   {
     XBMC->Log(LOG_INFO, "Changed setting 'enableoldseriesdlg' from %u to %u", g_bEnableOldSeriesDlg, *(bool*)settingValue);
     g_bEnableOldSeriesDlg = *(bool*)settingValue;
+  }
+  else if (str == "keepmethodtype")
+  {
+    if (g_KeepMethodType != *(TvDatabase::KeepMethodType*)settingValue)
+    {
+      XBMC->Log(LOG_INFO, "Changed setting 'keepmethodtype' from %u to %u", g_KeepMethodType, *(int*)settingValue);
+      g_KeepMethodType = *(TvDatabase::KeepMethodType*)settingValue;
+    }
+  }
+  else if (str == "defaultrecordinglifetime")
+  {
+    if (g_DefaultRecordingLifeTime != *(int*)settingValue)
+    {
+      XBMC->Log(LOG_INFO, "Changed setting 'defaultrecordinglifetime' from %u to %u", g_DefaultRecordingLifeTime, *(int*)settingValue);
+      g_DefaultRecordingLifeTime = *(int*)settingValue;
+    }
   }
   else if (str == "sleeponrtspurl")
   {

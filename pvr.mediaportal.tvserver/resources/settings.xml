@@ -16,7 +16,9 @@
     <setting id="tvgroup" type="text" label="30006" default="" />
     <setting id="radiogroup" type="text" label="30007" default="" />
     <setting id="readgenre" type="bool" label="30009" default="false" />
-	<setting id="enableoldseriesdlg" type="bool" label="30011" default="false" />
+    <setting id="enableoldseriesdlg" type="bool" label="30011" default="false" />
+    <setting id="keepmethodtype" type="enum" label="30012" lvalues="30130|30131|30132|30133" default="3" />
+    <setting id="defaultlifetime" type="slider" label="30132" option="int" range="1,1,365" default="100" visible="eq(-1,2)" />
   </category>
 
   <!-- TSReader/ffmpeg -->

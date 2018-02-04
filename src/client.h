@@ -27,6 +27,7 @@
 #include "libXBMC_addon.h"
 #include "libXBMC_pvr.h"
 #include "libKODI_guilib.h"
+#include "timers.h"
 
 enum eStreamingMethod
 {
@@ -71,6 +72,8 @@ extern std::string      g_szRadioGroup;
 extern std::string      g_szSMBusername;
 extern std::string      g_szSMBpassword;
 extern eStreamingMethod g_eStreamingMethod;
+extern TvDatabase::KeepMethodType  g_KeepMethodType;
+extern int                         g_DefaultRecordingLifeTime;
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;
