@@ -1,3 +1,6 @@
+v3.4.4
+- Updated to PVR addon API v5.9.0
+
 v3.4.1
 - New addon setting for the keep method & default lifetime of recordings
 
