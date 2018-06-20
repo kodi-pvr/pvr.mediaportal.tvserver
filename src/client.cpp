@@ -909,9 +909,6 @@ PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE
     return PVR_ERROR_FAILED;
   }
 
-  if (*iPropertiesCount < 1)
-    return PVR_ERROR_INVALID_PARAMETERS;
-
   return g_client->GetChannelStreamProperties(channel, properties, iPropertiesCount);
 }
 
@@ -921,9 +918,6 @@ PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED
   {
     return PVR_ERROR_FAILED;
   }
-
-  if (*iPropertiesCount < 1)
-    return PVR_ERROR_INVALID_PARAMETERS;
 
   return g_client->GetRecordingStreamProperties(recording, properties, iPropertiesCount);
 }

@@ -2145,6 +2145,9 @@ long long  cPVRClientMediaPortal::LengthRecordedStream(void)
 
 PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
+//  if (*iPropertiesCount < 1)
+//    return PVR_ERROR_INVALID_PARAMETERS;
+
   if (g_eStreamingMethod == ffmpeg)
   {
     /* TODO: implement me */
@@ -2166,12 +2169,17 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
     }
     if (OpenLiveStream(*channel) == true)
     {
+      if (*iPropertiesCount < 2)
+        return PVR_ERROR_INVALID_PARAMETERS;
+
       if (!m_PlaybackURL.empty())
       {
         XBMC->Log(LOG_NOTICE, "GetChannelStreamProperties for uid=%i is '%s'", channel->iUniqueId, m_PlaybackURL.c_str());
         PVR_STRCPY(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL);
         PVR_STRCPY(properties[0].strValue, m_PlaybackURL.c_str());
-        *iPropertiesCount = 1;
+        PVR_STRCPY(properties[1].strName, PVR_STREAM_PROPERTY_ISREALTIMESTREAM);
+        PVR_STRCPY(properties[1].strValue, "true");
+        *iPropertiesCount = 2;
         return PVR_ERROR_NO_ERROR;
       }
     }
