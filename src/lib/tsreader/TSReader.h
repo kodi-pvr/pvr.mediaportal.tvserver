@@ -57,6 +57,11 @@ namespace MPTV
         int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
         int64_t GetFileSize();
         int64_t GetFilePointer();
+
+        time_t GetStartTime();
+        int64_t GetPtsBegin();
+        int64_t GetPtsEnd();
+
         bool OnZap(const char* pszFileName, int64_t timeShiftBufferPos, long timeshiftBufferID);
 
         /**
@@ -102,6 +107,8 @@ namespace MPTV
         std::string     m_basePath;         ///< The base path shared by all timeshift buffers (to be determined from the Card settings)
         TsReaderState   m_State;            ///< The current state of the TsReader
         unsigned long long m_lastPause;        ///< Last time instance at which the playback was paused
+        unsigned long long m_startTickCount;   ///< Start tick count of the time shift buffer
+        time_t          m_startTime;           ///< Start time of the time shift buffer in UTC
         int             m_WaitForSeekToEof;
     };
 }

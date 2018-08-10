@@ -2386,7 +2386,11 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & record
   string result;
   string command;
 
-  command = StringUtils::Format("GetRecordingInfo:%s|%s\n", recording.strRecordingId, ((g_bUseRTSP || g_eStreamingMethod == ffmpeg) ? "True" : "False"));
+  command = StringUtils::Format("GetRecordingInfo:%s|%s|False|%s\n", 
+    recording.strRecordingId, 
+    ((g_bUseRTSP || g_eStreamingMethod == ffmpeg) ? "True" : "False"),
+    g_bResolveRTSPHostname ? "True" : "False"
+  );
   result = SendCommand(command);
 
   if (result.empty())
@@ -2417,7 +2421,14 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
     stream_times->ptsEnd = ((int64_t) m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
     return PVR_ERROR_NO_ERROR;
   }
-  // TODO: implement me for live tv
+  else if (m_bTimeShiftStarted)
+  {
+    stream_times->startTime = m_tsreader->GetStartTime();
+    stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
+    stream_times->ptsBegin = m_tsreader->GetPtsBegin();  // useconds
+    stream_times->ptsEnd = m_tsreader->GetPtsEnd();
+    return PVR_ERROR_NO_ERROR;
+  }
   *stream_times = { 0 };
 
   return PVR_ERROR_NOT_IMPLEMENTED;
