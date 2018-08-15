@@ -23,6 +23,7 @@
 #include "MemorySink.h"
 #include "client.h"
 #include "utils.h"
+#include "os-dependent.h"
 
 using namespace ADDON;
 
