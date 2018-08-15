@@ -1,3 +1,6 @@
+v2.4.21
+- Fixed: allow building with glibc 2.26 or newer
+
 v2.4.14
 - Fixed: #44 Active recordings not playable (multi-line description fields were not accepted)
   Requires at least TVServerKodi v1.15.0.137 (MediaPortal 1) or v1.13.100.137
