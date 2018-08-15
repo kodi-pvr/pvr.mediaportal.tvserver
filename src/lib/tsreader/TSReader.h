@@ -1,7 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ namespace MPTV
         int             m_cardId;           ///< Card id for the current Card used for this timeshift buffer
         std::string     m_basePath;         ///< The base path shared by all timeshift buffers (to be determined from the Card settings)
         TsReaderState   m_State;            ///< The current state of the TsReader
-        unsigned long   m_lastPause;        ///< Last time instance at which the playback was paused
+        unsigned long long m_lastPause;        ///< Last time instance at which the playback was paused
         int             m_WaitForSeekToEof;
     };
 }

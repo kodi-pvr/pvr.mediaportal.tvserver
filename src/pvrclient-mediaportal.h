@@ -1,7 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ namespace MPTV
 {
     class CTsReader;
 }
+class cRecording;
 
 class cPVRClientMediaPortal: public P8PLATFORM::PreventCopy, public P8PLATFORM::CThread
 {
@@ -93,7 +94,6 @@ public:
   PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
   long long SeekLiveStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthLiveStream(void);
-  long long PositionLiveStream(void);
   bool CanPauseAndSeek(void);
   void PauseStream(bool bPaused);
   bool IsRealTimeStream(void);
@@ -104,8 +104,8 @@ public:
   int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize);
   long long SeekRecordedStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthRecordedStream(void);
-  long long PositionRecordedStream(void);
   PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
+  PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES* stream_times);
 
 protected:
   MPTV::Socket           *m_tcpclient;
@@ -113,13 +113,13 @@ protected:
 private:
   /* TVServerKodi Listening Thread */
   void* Process(void);
-  PVR_CONNECTION_STATE Connect();
+  PVR_CONNECTION_STATE Connect(bool updateConnectionState = true);
 
-
-  bool GetChannel(unsigned int number, PVR_CHANNEL &channeldata);
   void LoadGenreTable(void);
   void LoadCardSettings(void);
   void SetConnectionState(PVR_CONNECTION_STATE newState);
+  cRecording* GetRecordingInfo(const PVR_RECORDING& recording);
+  const char* GetConnectionStateString(PVR_CONNECTION_STATE state) const;
 
   int                     m_iCurrentChannel;
   int                     m_iCurrentCard;
@@ -145,9 +145,12 @@ private:
   int                     m_iSignal;
   int                     m_iSNR;
 
+  cRecording*             m_lastSelectedRecording;
+
   void Close();
 
   //Used for TV Server communication:
-  std::string SendCommand(std::string command);
+  std::string SendCommand(const char* command);
+  std::string SendCommand(const std::string& command);
   bool SendCommand2(std::string command, std::vector<std::string>& lines);
 };

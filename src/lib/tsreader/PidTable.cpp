@@ -21,7 +21,7 @@
  */
 
 #include "PidTable.h"
-#include "client.h" //XBMC->Log
+#include "client.h" //KODI->Log
 #include "utils.h"
 
 using namespace ADDON;
@@ -66,7 +66,7 @@ namespace MPTV
 
     void CPidTable::Reset()
     {
-        //XBMC->Log(LOG_DEBUG, "Pid table reset");
+        //KODI->Log(LOG_DEBUG, "Pid table reset");
         PcrPid = 0;
         PmtPid = 0;
         ServiceId = -1;
@@ -93,7 +93,7 @@ namespace MPTV
 
     void CPidTable::Copy(const CPidTable &pids)
     {
-        //XBMC->Log(LOG_DEBUG, "Pid table copy");
+        //KODI->Log(LOG_DEBUG, "Pid table copy");
         ServiceId = pids.ServiceId;
 
         PcrPid = pids.PcrPid;
@@ -126,13 +126,13 @@ namespace MPTV
 
     void CPidTable::LogPIDs()
     {
-        XBMC->Log(LOG_DEBUG, " pcr      pid: %4x ", PcrPid);
-        XBMC->Log(LOG_DEBUG, " pmt      pid: %4x ", PmtPid);
+        KODI->Log(LOG_DEBUG, " pcr      pid: %4x ", PcrPid);
+        KODI->Log(LOG_DEBUG, " pmt      pid: %4x ", PmtPid);
 
         // Log all video streams (Blu-ray can have multiple video streams)
         for (unsigned int i(0); i < videoPids.size(); i++)
         {
-            XBMC->Log(LOG_DEBUG, " video    pid: %4x type: %s",
+            KODI->Log(LOG_DEBUG, " video    pid: %4x type: %s",
                 videoPids[i].Pid,
                 StreamFormatAsString(videoPids[i].VideoServiceType));
         }
@@ -140,7 +140,7 @@ namespace MPTV
         // Log all audio streams
         for (unsigned int i(0); i < audioPids.size(); i++)
         {
-            XBMC->Log(LOG_DEBUG, " audio    pid: %4x language: %3s type: %s",
+            KODI->Log(LOG_DEBUG, " audio    pid: %4x language: %3s type: %s",
                 audioPids[i].Pid,
                 audioPids[i].Lang,
                 StreamFormatAsString(audioPids[i].AudioServiceType));
@@ -149,7 +149,7 @@ namespace MPTV
         // Log all subtitle streams
         for (unsigned int i(0); i < subtitlePids.size(); i++)
         {
-            XBMC->Log(LOG_DEBUG, " Subtitle pid: %4x language: %3s type: %s",
+            KODI->Log(LOG_DEBUG, " Subtitle pid: %4x language: %3s type: %s",
                 subtitlePids[i].Pid,
                 subtitlePids[i].Lang,
                 StreamFormatAsString(subtitlePids[i].SubtitleServiceType));

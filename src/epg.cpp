@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ bool cEpg::ParseLine(string& data)
 
     if( epgfields.size() >= 5 )
     {
-      //XBMC->Log(LOG_DEBUG, "%s: %s", epgfields[0].c_str(), epgfields[2].c_str());
+      //KODI->Log(LOG_DEBUG, "%s: %s", epgfields[0].c_str(), epgfields[2].c_str());
       // field 0 = start date + time
       // field 1 = end   date + time
       // field 2 = title
@@ -88,13 +88,13 @@ bool cEpg::ParseLine(string& data)
 
       if( m_startTime.SetFromDateTime(epgfields[0]) == false )
       {
-        XBMC->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert start time '%s' into date+time", epgfields[0].c_str());
+        KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert start time '%s' into date+time", epgfields[0].c_str());
         return false;
       }
 
       if( m_endTime.SetFromDateTime(epgfields[1]) == false )
       {
-        XBMC->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert end time '%s' into date+time", epgfields[1].c_str());
+        KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert end time '%s' into date+time", epgfields[1].c_str());
         return false;
       }
 
@@ -107,7 +107,7 @@ bool cEpg::ParseLine(string& data)
 
       if( epgfields.size() >= 15 )
       {
-        // Since TVServerXBMC v1.x.x.104
+        // Since TVServerKodi v1.x.x.104
         m_uid = (unsigned int) cKodiEpgIndexOffset + atol(epgfields[5].c_str());
         m_seriesNumber = atoi(epgfields[7].c_str());
         m_episodeNumber = atoi(epgfields[8].c_str());
@@ -119,7 +119,7 @@ bool cEpg::ParseLine(string& data)
         //originalAirDate
         if( m_originalAirDate.SetFromDateTime(epgfields[11]) == false )
         {
-          XBMC->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert original air date '%s' into date+time", epgfields[11].c_str());
+          KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert original air date '%s' into date+time", epgfields[11].c_str());
           return false;
         }
       }
@@ -129,7 +129,7 @@ bool cEpg::ParseLine(string& data)
   }
   catch(std::exception &e)
   {
-    XBMC->Log(LOG_ERROR, "Exception '%s' during parse EPG data string.", e.what());
+    KODI->Log(LOG_ERROR, "Exception '%s' during parse EPG data string.", e.what());
   }
 
   return false;

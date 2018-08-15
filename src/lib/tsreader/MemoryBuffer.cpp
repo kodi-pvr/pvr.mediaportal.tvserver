@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
       return 0;
   }
 
-  // XBMC->Log(LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
+  // KODI->Log(LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
   size_t bytesWritten = 0;
 	P8PLATFORM::CLockObject BufferLock(m_BufferLock);
 
@@ -116,14 +116,14 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
   {
     if (m_Array.empty())
     {
-      XBMC->Log(LOG_DEBUG, "memorybuffer: read:empty buffer\n");
+      KODI->Log(LOG_DEBUG, "memorybuffer: read:empty buffer\n");
       return 0;
     }
     BufferItem *item = m_Array.at(0);
 
     if (NULL == item)
     {
-      XBMC->Log(LOG_DEBUG, "memorybuffer: item==NULL\n");
+      KODI->Log(LOG_DEBUG, "memorybuffer: item==NULL\n");
       return 0;
     }
 
@@ -139,7 +139,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
 
     if (NULL == item->data)
     {
-      XBMC->Log(LOG_DEBUG, "memorybuffer: item->data==NULL\n");
+      KODI->Log(LOG_DEBUG, "memorybuffer: item->data==NULL\n");
       return 0;
     }
 
@@ -174,11 +174,11 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
     m_Array.push_back(item);
     m_BytesInBuffer += lDataLength;
 
-    //XBMC->Log(LOG_DEBUG, "add..%d/%d",lDataLength,m_BytesInBuffer);
+    //KODI->Log(LOG_DEBUG, "add..%d/%d",lDataLength,m_BytesInBuffer);
     while (m_BytesInBuffer > MAX_MEMORY_BUFFER_SIZE)
     {
       sleep = true;
-      XBMC->Log(LOG_DEBUG, "memorybuffer:put full buffer (%d)", (unsigned long) m_BytesInBuffer);
+      KODI->Log(LOG_DEBUG, "memorybuffer:put full buffer (%d)", (unsigned long) m_BytesInBuffer);
       BufferItem *item2 = m_Array.at(0);
       size_t copyLength = item2->nDataLength - item2->nOffset;
 

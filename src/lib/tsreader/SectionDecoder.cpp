@@ -20,7 +20,7 @@
  *
  */
 #include "os-dependent.h"
-#include "client.h" //XBMC->Log
+#include "client.h" //KODI->Log
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -190,7 +190,7 @@ namespace MPTV
                     if (m_section.section_length == 0)
                     {
                         if (m_bLog)
-                            XBMC->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket got a section with section length: 0 on pid: 0x%X tableid: 0x%X bufferpos: %d start: %d - Discarding whole packet.", header.Pid, m_section.Data[0], m_section.BufferPos, start);
+                            KODI->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket got a section with section length: 0 on pid: 0x%X tableid: 0x%X bufferpos: %d start: %d - Discarding whole packet.", header.Pid, m_section.Data[0], m_section.BufferPos, start);
                         m_section.Reset();
                         return;
                     }
@@ -233,7 +233,7 @@ namespace MPTV
                 pointer_field = 0;
                 if (numloops > 100)
                 {
-                    XBMC->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket Entered infinite loop. pid: %X start: %d BufferPos: %d SectionLength: %d - Discarding section and moving to next packet",
+                    KODI->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket Entered infinite loop. pid: %X start: %d BufferPos: %d SectionLength: %d - Discarding section and moving to next packet",
                         header.Pid, start, m_section.BufferPos, m_section.section_length);
                     m_section.Reset();
                     return;
@@ -242,7 +242,7 @@ namespace MPTV
         }
         catch (...)
         {
-            XBMC->Log(LOG_DEBUG, "exception in CSectionDecoder::OnTsPacket");
+            KODI->Log(LOG_DEBUG, "exception in CSectionDecoder::OnTsPacket");
         }
     }
 

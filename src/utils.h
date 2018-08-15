@@ -1,7 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ const char* booltostring(const bool b);
  */
 std::string ToThumbFileName(const char* strChannelName);
 
-std::string ToXBMCPath(const std::string& strFileName);
+std::string ToKodiPath(const std::string& strFileName);
 std::string ToWindowsPath(const std::string& strFileName);
 
 /**

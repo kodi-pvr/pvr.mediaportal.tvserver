@@ -113,16 +113,16 @@ bool CGUIDialogRecordSettings::OnInit()
   // Populate Frequency spin control
   for (int i = 0; i < 5; i++)
   { // show localized recording options
-    m_spinFrequency->AddLabel(XBMC->GetLocalizedString(30110 + i), i);
+    m_spinFrequency->AddLabel(KODI->GetLocalizedString(30110 + i), i);
   }
   // set the default value
   m_spinFrequency->SetValue(CGUIDialogRecordSettings::Once);
 
   // Populate Airtime spin control
-  string strThisTime = XBMC->GetLocalizedString(30120);
+  string strThisTime = KODI->GetLocalizedString(30120);
   strThisTime += "(" + m_startTime + ")";
   m_spinAirtime->AddLabel(strThisTime.c_str(), CGUIDialogRecordSettings::ThisTime);
-  m_spinAirtime->AddLabel(XBMC->GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
+  m_spinAirtime->AddLabel(KODI->GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
   // Set the default values
   m_spinAirtime->SetValue(CGUIDialogRecordSettings::ThisTime);
   m_spinAirtime->SetVisible(false);
@@ -130,7 +130,7 @@ bool CGUIDialogRecordSettings::OnInit()
   // Populate Channels spin control
   for (int i = 0; i < 2; i++)
   { // show localized recording options
-    m_spinChannels->AddLabel(XBMC->GetLocalizedString(30125 + i), i);
+    m_spinChannels->AddLabel(KODI->GetLocalizedString(30125 + i), i);
   }
   // Set the default values
   m_spinChannels->SetValue(CGUIDialogRecordSettings::ThisChannel);
@@ -139,15 +139,15 @@ bool CGUIDialogRecordSettings::OnInit()
   // Populate Keep spin control
   for (int i = 0; i < 4; i++)
   { // show localized recording options
-    m_spinKeep->AddLabel(XBMC->GetLocalizedString(30130 + i), i);
+    m_spinKeep->AddLabel(KODI->GetLocalizedString(30130 + i), i);
   }
   // Set the default values
   m_spinKeep->SetValue(TvDatabase::Always);
 
   // Populate PreRecord spin control
   std::string marginStart;
-  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.iMarginStart, XBMC->GetLocalizedString(30136));
-  m_spinPreRecord->AddLabel(XBMC->GetLocalizedString(30135), -1);
+  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.iMarginStart, KODI->GetLocalizedString(30136));
+  m_spinPreRecord->AddLabel(KODI->GetLocalizedString(30135), -1);
   m_spinPreRecord->AddLabel(marginStart.c_str(), m_timerinfo.iMarginStart); //value from XBMC
   m_spinPreRecord->SetValue(m_timerinfo.iMarginStart);  // Set the default value
   m_spinPreRecord->AddLabel("0", 0);
@@ -159,8 +159,8 @@ bool CGUIDialogRecordSettings::OnInit()
 
   // Populate PostRecord spin control
   std::string marginEnd;
-  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.iMarginEnd, XBMC->GetLocalizedString(30136));
-  m_spinPostRecord->AddLabel(XBMC->GetLocalizedString(30135), -1);
+  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.iMarginEnd, KODI->GetLocalizedString(30136));
+  m_spinPostRecord->AddLabel(KODI->GetLocalizedString(30135), -1);
   m_spinPostRecord->AddLabel(marginEnd.c_str(), m_timerinfo.iMarginEnd); //value from XBMC
   m_spinPostRecord->SetValue(m_timerinfo.iMarginEnd);   // Set the default value
   m_spinPostRecord->AddLabel("0", 0);
@@ -315,7 +315,7 @@ bool CGUIDialogRecordSettings::OnFocus(int controlId)
  */
 bool CGUIDialogRecordSettings::OnAction(int actionId)
 {
-  //XBMC->Log(ADDON::LOG_DEBUG, "%s: action = %i\n", __FUNCTION__, actionId);
+  //KODI->Log(ADDON::LOG_DEBUG, "%s: action = %i\n", __FUNCTION__, actionId);
   if (actionId == ADDON_ACTION_CLOSE_DIALOG || actionId == ADDON_ACTION_PREVIOUS_MENU || actionId == 92 /* Back */)
     return OnClick(BUTTON_CANCEL);
   else

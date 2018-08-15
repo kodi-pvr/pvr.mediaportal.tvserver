@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -92,13 +92,13 @@ bool cRecording::ParseLine(const std::string& data)
 
     if ( m_startTime.SetFromDateTime(fields[1]) == false )
     {
-      XBMC->Log(LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
+      KODI->Log(LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
       return false;
     }
 
     if ( m_endTime.SetFromDateTime(fields[2]) == false )
     {
-      XBMC->Log(LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
+      KODI->Log(LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
       return false;
     }
 
@@ -139,7 +139,7 @@ bool cRecording::ParseLine(const std::string& data)
     }
 
 
-    if (fields.size() >= 10) // Since TVServerXBMC 1.0.8.0
+    if (fields.size() >= 10) // Since TVServerKodi 1.0.8.0
     {
       m_originalurl = fields[9];
     }
@@ -148,7 +148,7 @@ bool cRecording::ParseLine(const std::string& data)
       m_originalurl = fields[6];
     }
 
-    if (fields.size() >= 16) // Since TVServerXBMC 1.1.x.105
+    if (fields.size() >= 16) // Since TVServerKodi 1.1.x.105
     {
       m_keepUntil = atoi( fields[10].c_str() );
       m_episodeName = fields[11];
@@ -158,7 +158,7 @@ bool cRecording::ParseLine(const std::string& data)
       m_scheduleID = atoi( fields[15].c_str() );
     }
 
-    if (fields.size() >= 19) // Since TVServerXBMC 1.2.x.111
+    if (fields.size() >= 19) // Since TVServerKodi 1.2.x.111
     {
       m_genre = fields[16];
       m_channelID = atoi( fields[17].c_str() );
@@ -166,10 +166,10 @@ bool cRecording::ParseLine(const std::string& data)
 
       if (m_genretable) m_genretable->GenreToTypes(m_genre, m_genre_type, m_genre_subtype);
 
-      if (fields.size() >= 20) // Since TVServerXBMC 1.2.x.117
+      if (fields.size() >= 20) // Since TVServerKodi 1.2.x.117
       {
         m_timesWatched = atoi( fields[19].c_str() );
-        if (fields.size() >= 21) // Since TVServerXBMC 1.2.x.121
+        if (fields.size() >= 21) // Since TVServerKodi 1.2.x.121
         {
           m_lastPlayedPosition = atoi( fields[20].c_str() );
           if (fields.size() >= 22) // Since TVServerKodi 1.15.136
@@ -188,7 +188,7 @@ bool cRecording::ParseLine(const std::string& data)
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
+    KODI->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
     return false;
   }
 }

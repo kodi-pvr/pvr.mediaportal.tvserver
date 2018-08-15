@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ bool CCards::ParseLines(vector<string>& lines)
 {
   if (lines.empty())
   {
-    XBMC->Log(LOG_DEBUG, "No card settings found.");
+    KODI->Log(LOG_DEBUG, "No card settings found.");
     return false;
   }
 
@@ -89,17 +89,17 @@ bool CCards::ParseLines(vector<string>& lines)
       card.NetProvider = atoi(fields[15].c_str());
       card.StopGraph = stringtobool(fields[16]);
 
-      if (fields.size() >= 19) // since TVServerXBMC build 115
+      if (fields.size() >= 19) // since TVServerKodi build 115
       {
         card.RecordingFolderUNC = fields[17];
         card.TimeshiftFolderUNC = fields[18];
         if (card.RecordingFolderUNC.empty())
         {
-          XBMC->Log(LOG_NOTICE, "Warning: no recording share defined in the TVServerXBMC settings for card '%s'", card.Name.c_str());
+          KODI->Log(LOG_NOTICE, "Warning: no recording share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
         if (card.TimeshiftFolderUNC.empty())
         {
-          XBMC->Log(LOG_NOTICE, "Warning: no timeshift share defined in the TVServerXBMC settings for card '%s'", card.Name.c_str());
+          KODI->Log(LOG_NOTICE, "Warning: no timeshift share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
       }
       else

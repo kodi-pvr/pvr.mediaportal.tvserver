@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,11 +30,11 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
   TiXmlDocument xmlDoc;
   if (!xmlDoc.LoadFile(filename))
   {
-    XBMC->Log(LOG_ERROR, "Unable to load %s: %s at line %d", filename.c_str(), xmlDoc.ErrorDesc(), xmlDoc.ErrorRow());
+    KODI->Log(LOG_ERROR, "Unable to load %s: %s at line %d", filename.c_str(), xmlDoc.ErrorDesc(), xmlDoc.ErrorRow());
     return false;
   }
 
-  XBMC->Log(LOG_NOTICE, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
+  KODI->Log(LOG_NOTICE, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
 
   TiXmlHandle hDoc(&xmlDoc);
   TiXmlElement* pElem;
@@ -48,7 +48,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
   // should always have a valid root but handle gracefully if it does
   if (!pElem)
   {
-    XBMC->Log(LOG_ERROR, "Could not find <genrestrings> element");
+    KODI->Log(LOG_ERROR, "Could not find <genrestrings> element");
     return false;
   }
 
@@ -63,7 +63,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
 
   if (!pGenreNode)
   {
-    XBMC->Log(LOG_ERROR, "Could not find <genre> element");
+    KODI->Log(LOG_ERROR, "Could not find <genre> element");
     return false;
   }
 
@@ -98,7 +98,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
 
       if (genre.type > 0)
       {
-        XBMC->Log(LOG_DEBUG, "Genre '%s' => 0x%x, 0x%x", sGenreString, genre.type, genre.subtype);
+        KODI->Log(LOG_DEBUG, "Genre '%s' => 0x%x, 0x%x", sGenreString, genre.type, genre.subtype);
         m_genremap.insert(std::pair<std::string, genre_t>(sGenreString, genre));
       }
     }
@@ -112,7 +112,7 @@ void CGenreTable::GenreToTypes(string& strGenre, int& genreType, int& genreSubTy
   // The xmltv plugin from the MediaPortal TV Server can return genre
   // strings in local language (depending on the external TV guide source).
   // The only way to solve this at the XMBC side is to transfer the
-  // genre string to XBMC or to let this plugin (or the TVServerXBMC
+  // genre string to XBMC or to let this plugin (or the TVServerKodi
   // plugin) translate it into XBMC compatible (numbered) genre types
   string m_genre = strGenre;
 
@@ -130,7 +130,7 @@ void CGenreTable::GenreToTypes(string& strGenre, int& genreType, int& genreSubTy
     }
     else
     {
-      XBMC->Log(LOG_DEBUG, "EPG: No mapping of '%s' to genre type/subtype found.", strGenre.c_str());
+      KODI->Log(LOG_DEBUG, "EPG: No mapping of '%s' to genre type/subtype found.", strGenre.c_str());
       genreType     = EPG_GENRE_USE_STRING;
       genreSubType  = 0;
     }

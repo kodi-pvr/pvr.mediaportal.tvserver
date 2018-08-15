@@ -1,7 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -75,11 +75,11 @@ extern eStreamingMethod g_eStreamingMethod;
 extern TvDatabase::KeepMethodType  g_KeepMethodType;
 extern int                         g_DefaultRecordingLifeTime;
 
-extern ADDON::CHelper_libXBMC_addon *XBMC;
+extern ADDON::CHelper_libXBMC_addon *KODI;
 extern CHelper_libXBMC_pvr          *PVR;
 extern CHelper_libKODI_guilib       *GUI;
 
-extern int              g_iTVServerXBMCBuild;
+extern int              g_iTVServerKodiBuild;
 
 /*!
  * @brief PVR macros for string exchange

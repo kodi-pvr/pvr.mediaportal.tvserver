@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,14 +32,14 @@ using namespace ADDON;
  * and exported to the other source files.
  */
 std::string      g_szHostname           = DEFAULT_HOST;                  ///< The Host name or IP of the MediaPortal TV Server
-int              g_iPort                = DEFAULT_PORT;                  ///< The TVServerXBMC listening port (default: 9596)
+int              g_iPort                = DEFAULT_PORT;                  ///< The TVServerKodi listening port (default: 9596)
 int              g_iConnectTimeout      = DEFAULT_TIMEOUT;               ///< The Socket connection timeout
-int              g_iSleepOnRTSPurl      = DEFAULT_SLEEP_RTSP_URL;        ///< An optional delay between tuning a channel and opening the corresponding RTSP stream in XBMC (default: 0)
-bool             g_bOnlyFTA             = DEFAULT_FTA_ONLY;              ///< Send only Free-To-Air Channels inside Channel list to XBMC
-bool             g_bRadioEnabled        = DEFAULT_RADIO;                 ///< Send also Radio channels list to XBMC
-bool             g_bHandleMessages      = DEFAULT_HANDLE_MSG;            ///< Send VDR's OSD status messages to XBMC OSD
+int              g_iSleepOnRTSPurl      = DEFAULT_SLEEP_RTSP_URL;        ///< An optional delay between tuning a channel and opening the corresponding RTSP stream in Kodi (default: 0)
+bool             g_bOnlyFTA             = DEFAULT_FTA_ONLY;              ///< Send only Free-To-Air Channels inside Channel list to Kodi
+bool             g_bRadioEnabled        = DEFAULT_RADIO;                 ///< Send also Radio channels list to Kodi
+bool             g_bHandleMessages      = DEFAULT_HANDLE_MSG;            ///< Send VDR's OSD status messages to Kodi OSD
 bool             g_bResolveRTSPHostname = DEFAULT_RESOLVE_RTSP_HOSTNAME; ///< Resolve the server hostname in the rtsp URLs to an IP at the TV Server side (default: false)
-bool             g_bReadGenre           = DEFAULT_READ_GENRE;            ///< Read the genre strings from MediaPortal and translate them into XBMC DVB genre id's (only English)
+bool             g_bReadGenre           = DEFAULT_READ_GENRE;            ///< Read the genre strings from MediaPortal and translate them into Kodi DVB genre id's (only English)
 bool             g_bEnableOldSeriesDlg  = false;                         ///< Show the old pre-Jarvis series recording dialog
 std::string      g_szTVGroup            = DEFAULT_TVGROUP;               ///< Import only TV channels from this TV Server TV group
 std::string      g_szRadioGroup         = DEFAULT_RADIOGROUP;            ///< Import only radio channels from this TV Server radio group
@@ -57,7 +57,7 @@ ADDON_STATUS            m_curStatus    = ADDON_STATUS_UNKNOWN;
 cPVRClientMediaPortal  *g_client       = NULL;
 std::string             g_szUserPath   = "";
 std::string             g_szClientPath = "";
-CHelper_libXBMC_addon  *XBMC           = NULL;
+CHelper_libXBMC_addon  *KODI           = NULL;
 CHelper_libXBMC_pvr    *PVR            = NULL;
 CHelper_libKODI_guilib *GUI = NULL;
 
@@ -83,10 +83,10 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   PVR_PROPERTIES* pvrprops = (PVR_PROPERTIES*)props;
 
-  XBMC = new CHelper_libXBMC_addon;
-  if (!XBMC->RegisterMe(hdl))
+  KODI = new CHelper_libXBMC_addon;
+  if (!KODI->RegisterMe(hdl))
   {
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
     return m_curStatus;
   }
@@ -95,7 +95,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!PVR->RegisterMe(hdl))
   {
     SAFE_DELETE(PVR);
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
     return m_curStatus;
   }
@@ -105,12 +105,12 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   {
     SAFE_DELETE(GUI);
     SAFE_DELETE(PVR);
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     m_curStatus = ADDON_STATUS_PERMANENT_FAILURE;
     return m_curStatus;
   }
 
-  XBMC->Log(LOG_INFO, "Creating MediaPortal PVR-Client");
+  KODI->Log(LOG_INFO, "Creating MediaPortal PVR-Client");
 
   m_curStatus    = ADDON_STATUS_UNKNOWN;
   g_szUserPath   = pvrprops->strUserPath;
@@ -118,7 +118,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   ADDON_ReadSettings();
 
-  /* Create connection to MediaPortal XBMC TV client */
+  /* Create connection to MediaPortal Kodi TV client */
   g_client       = new cPVRClientMediaPortal();
 
   m_curStatus = g_client->TryConnect();
@@ -127,7 +127,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     SAFE_DELETE(g_client);
     SAFE_DELETE(GUI);
     SAFE_DELETE(PVR);
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
   }
   else if (m_curStatus == ADDON_STATUS_LOST_CONNECTION)
   {
@@ -147,13 +147,13 @@ void ADDON_Destroy()
   SAFE_DELETE(g_client);
   SAFE_DELETE(GUI);
   SAFE_DELETE(PVR);
-  SAFE_DELETE(XBMC);
+  SAFE_DELETE(KODI);
 
   m_curStatus = ADDON_STATUS_UNKNOWN;
 }
 
 //-- GetStatus ----------------------------------------------------------------
-// Report the current Add-On Status to XBMC
+// Report the current Add-On Status to Kodi
 //-----------------------------------------------------------------------------
 ADDON_STATUS ADDON_GetStatus()
 {
@@ -169,12 +169,12 @@ void ADDON_ReadSettings(void)
   /* Read setting "host" from settings.xml */
   char buffer[1024];
 
-  if (!XBMC)
+  if (!KODI)
     return;
 
   /* Connection settings */
   /***********************/
-  if (XBMC->GetSetting("host", &buffer))
+  if (KODI->GetSetting("host", &buffer))
   {
     g_szHostname = buffer;
     uri::decode(g_szHostname);
@@ -182,23 +182,23 @@ void ADDON_ReadSettings(void)
   else
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'host' setting, falling back to '127.0.0.1' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'host' setting, falling back to '127.0.0.1' as default");
     g_szHostname = DEFAULT_HOST;
   }
 
   /* Read setting "port" from settings.xml */
-  if (!XBMC->GetSetting("port", &g_iPort))
+  if (!KODI->GetSetting("port", &g_iPort))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'port' setting, falling back to '9596' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'port' setting, falling back to '9596' as default");
     g_iPort = DEFAULT_PORT;
   }
 
   /* Read setting "timeout" from settings.xml */
-  if (!XBMC->GetSetting("timeout", &g_iConnectTimeout))
+  if (!KODI->GetSetting("timeout", &g_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'timeout' setting, falling back to %i seconds as default", DEFAULT_TIMEOUT);
+    KODI->Log(LOG_ERROR, "Couldn't get 'timeout' setting, falling back to %i seconds as default", DEFAULT_TIMEOUT);
     g_iConnectTimeout = DEFAULT_TIMEOUT;
   }
 
@@ -206,91 +206,91 @@ void ADDON_ReadSettings(void)
   /***********************/
 
   /* Read setting "ftaonly" from settings.xml */
-  if (!XBMC->GetSetting("ftaonly", &g_bOnlyFTA))
+  if (!KODI->GetSetting("ftaonly", &g_bOnlyFTA))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'ftaonly' setting, falling back to 'false' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'ftaonly' setting, falling back to 'false' as default");
     g_bOnlyFTA = DEFAULT_FTA_ONLY;
   }
 
   /* Read setting "useradio" from settings.xml */
-  if (!XBMC->GetSetting("useradio", &g_bRadioEnabled))
+  if (!KODI->GetSetting("useradio", &g_bRadioEnabled))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'useradio' setting, falling back to 'true' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'useradio' setting, falling back to 'true' as default");
     g_bRadioEnabled = DEFAULT_RADIO;
   }
 
-  if (!XBMC->GetSetting("tvgroup", &buffer))
+  if (!KODI->GetSetting("tvgroup", &buffer))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'tvgroup' setting, falling back to '' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'tvgroup' setting, falling back to '' as default");
   } else {
     g_szTVGroup = buffer;
     StringUtils::Replace(g_szTVGroup,";","|");
   }
 
-  if (!XBMC->GetSetting("radiogroup", &buffer))
+  if (!KODI->GetSetting("radiogroup", &buffer))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'radiogroup' setting, falling back to '' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'radiogroup' setting, falling back to '' as default");
   } else {
     g_szRadioGroup = buffer;
     StringUtils::Replace(g_szRadioGroup,";","|");
   }
 
-  if (!XBMC->GetSetting("streamingmethod", &g_eStreamingMethod))
+  if (!KODI->GetSetting("streamingmethod", &g_eStreamingMethod))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'streamingmethod' setting, falling back to 'tsreader' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'streamingmethod' setting, falling back to 'tsreader' as default");
     g_eStreamingMethod = TSReader;
   }
 
   /* Read setting "resolvertsphostname" from settings.xml */
-  if (!XBMC->GetSetting("resolvertsphostname", &g_bResolveRTSPHostname))
+  if (!KODI->GetSetting("resolvertsphostname", &g_bResolveRTSPHostname))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'resolvertsphostname' setting, falling back to 'true' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'resolvertsphostname' setting, falling back to 'true' as default");
     g_bResolveRTSPHostname = DEFAULT_RESOLVE_RTSP_HOSTNAME;
   }
 
   /* Read setting "readgenre" from settings.xml */
-  if (!XBMC->GetSetting("readgenre", &g_bReadGenre))
+  if (!KODI->GetSetting("readgenre", &g_bReadGenre))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'readgenre' setting, falling back to 'true' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'readgenre' setting, falling back to 'true' as default");
     g_bReadGenre = DEFAULT_READ_GENRE;
   }
 
   /* Read setting "readgenre" from settings.xml */
-  if (!XBMC->GetSetting("enableoldseriesdlg", &g_bEnableOldSeriesDlg))
+  if (!KODI->GetSetting("enableoldseriesdlg", &g_bEnableOldSeriesDlg))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'enableoldseriesdlg' setting, falling back to 'false' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'enableoldseriesdlg' setting, falling back to 'false' as default");
     g_bEnableOldSeriesDlg = false;
   }
 
   /* Read setting "keepmethodtype" from settings.xml */
-  if (!XBMC->GetSetting("keepmethodtype", &g_KeepMethodType))
+  if (!KODI->GetSetting("keepmethodtype", &g_KeepMethodType))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'keepmethodtype' setting, falling back to 'Always' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'keepmethodtype' setting, falling back to 'Always' as default");
     g_KeepMethodType = TvDatabase::Always;
   }
 
   /* Read setting "defaultrecordinglifetime" from settings.xml */
-  if (!XBMC->GetSetting("defaultrecordinglifetime", &g_DefaultRecordingLifeTime))
+  if (!KODI->GetSetting("defaultrecordinglifetime", &g_DefaultRecordingLifeTime))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'defaultrecordinglifetime' setting, falling back to '100' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'defaultrecordinglifetime' setting, falling back to '100' as default");
     g_DefaultRecordingLifeTime = 100;
   }
 
   /* Read setting "sleeponrtspurl" from settings.xml */
-  if (!XBMC->GetSetting("sleeponrtspurl", &g_iSleepOnRTSPurl))
+  if (!KODI->GetSetting("sleeponrtspurl", &g_iSleepOnRTSPurl))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'sleeponrtspurl' setting, falling back to %i seconds as default", DEFAULT_SLEEP_RTSP_URL);
+    KODI->Log(LOG_ERROR, "Couldn't get 'sleeponrtspurl' setting, falling back to %i seconds as default", DEFAULT_SLEEP_RTSP_URL);
     g_iSleepOnRTSPurl = DEFAULT_SLEEP_RTSP_URL;
   }
 
@@ -298,48 +298,48 @@ void ADDON_ReadSettings(void)
   /* TSReader settings */
   /*********************/
   /* Read setting "fastchannelswitch" from settings.xml */
-  if (!XBMC->GetSetting("fastchannelswitch", &g_bFastChannelSwitch))
+  if (!KODI->GetSetting("fastchannelswitch", &g_bFastChannelSwitch))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'fastchannelswitch' setting, falling back to 'false' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'fastchannelswitch' setting, falling back to 'false' as default");
     g_bFastChannelSwitch = false;
   }
 
   /* read setting "user" from settings.xml */
-  if (!XBMC->GetSetting("smbusername", &buffer))
+  if (!KODI->GetSetting("smbusername", &buffer))
   {
-    XBMC->Log(LOG_ERROR, "Couldn't get 'smbusername' setting, falling back to '%s' as default", DEFAULT_SMBUSERNAME);
+    KODI->Log(LOG_ERROR, "Couldn't get 'smbusername' setting, falling back to '%s' as default", DEFAULT_SMBUSERNAME);
     g_szSMBusername = DEFAULT_SMBUSERNAME;
   }
   else
     g_szSMBusername = buffer;
 
   /* read setting "pass" from settings.xml */
-  if (!XBMC->GetSetting("smbpassword", &buffer))
+  if (!KODI->GetSetting("smbpassword", &buffer))
   {
-    XBMC->Log(LOG_ERROR, "Couldn't get 'smbpassword' setting, falling back to '%s' as default", DEFAULT_SMBPASSWORD);
+    KODI->Log(LOG_ERROR, "Couldn't get 'smbpassword' setting, falling back to '%s' as default", DEFAULT_SMBPASSWORD);
     g_szSMBpassword = DEFAULT_SMBPASSWORD;
   }
   else
     g_szSMBpassword = buffer;
 
   /* Read setting "usertsp" from settings.xml */
-  if (!XBMC->GetSetting("usertsp", &g_bUseRTSP))
+  if (!KODI->GetSetting("usertsp", &g_bUseRTSP))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'usertsp' setting, falling back to 'false' as default");
+    KODI->Log(LOG_ERROR, "Couldn't get 'usertsp' setting, falling back to 'false' as default");
     g_bUseRTSP = false;
   }
 
   /* Log the current settings for debugging purposes */
-  XBMC->Log(LOG_DEBUG, "settings: streamingmethod: %s, usertsp=%i", (( g_eStreamingMethod == TSReader) ? "TSReader" : "ffmpeg"), (int) g_bUseRTSP);
-  XBMC->Log(LOG_DEBUG, "settings: host='%s', port=%i, timeout=%i", g_szHostname.c_str(), g_iPort, g_iConnectTimeout);
-  XBMC->Log(LOG_DEBUG, "settings: ftaonly=%i, useradio=%i, tvgroup='%s', radiogroup='%s'", (int) g_bOnlyFTA, (int) g_bRadioEnabled, g_szTVGroup.c_str(), g_szRadioGroup.c_str());
-  XBMC->Log(LOG_DEBUG, "settings: readgenre=%i, enableoldseriesdlg=%i, sleeponrtspurl=%i", (int)g_bReadGenre, (int)g_bEnableOldSeriesDlg, g_iSleepOnRTSPurl);
-  XBMC->Log(LOG_DEBUG, "settings: resolvertsphostname=%i", (int) g_bResolveRTSPHostname);
-  XBMC->Log(LOG_DEBUG, "settings: fastchannelswitch=%i", (int) g_bFastChannelSwitch);
-  XBMC->Log(LOG_DEBUG, "settings: smb user='%s', pass=%s", g_szSMBusername.c_str(), (g_szSMBpassword.length() > 0 ? "<set>" : "<empty>"));
-  XBMC->Log(LOG_DEBUG, "settings: keepmethodtype=%i, defaultrecordinglifetime=%i", (int)g_KeepMethodType, (int)g_DefaultRecordingLifeTime);
+  KODI->Log(LOG_DEBUG, "settings: streamingmethod: %s, usertsp=%i", (( g_eStreamingMethod == TSReader) ? "TSReader" : "ffmpeg"), (int) g_bUseRTSP);
+  KODI->Log(LOG_DEBUG, "settings: host='%s', port=%i, timeout=%i", g_szHostname.c_str(), g_iPort, g_iConnectTimeout);
+  KODI->Log(LOG_DEBUG, "settings: ftaonly=%i, useradio=%i, tvgroup='%s', radiogroup='%s'", (int) g_bOnlyFTA, (int) g_bRadioEnabled, g_szTVGroup.c_str(), g_szRadioGroup.c_str());
+  KODI->Log(LOG_DEBUG, "settings: readgenre=%i, enableoldseriesdlg=%i, sleeponrtspurl=%i", (int)g_bReadGenre, (int)g_bEnableOldSeriesDlg, g_iSleepOnRTSPurl);
+  KODI->Log(LOG_DEBUG, "settings: resolvertsphostname=%i", (int) g_bResolveRTSPHostname);
+  KODI->Log(LOG_DEBUG, "settings: fastchannelswitch=%i", (int) g_bFastChannelSwitch);
+  KODI->Log(LOG_DEBUG, "settings: smb user='%s', pass=%s", g_szSMBusername.c_str(), (g_szSMBpassword.length() > 0 ? "<set>" : "<empty>"));
+  KODI->Log(LOG_DEBUG, "settings: keepmethodtype=%i, defaultrecordinglifetime=%i", (int)g_KeepMethodType, (int)g_DefaultRecordingLifeTime);
 }
 
 //-- SetSetting ---------------------------------------------------------------
@@ -353,13 +353,13 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   // SetSetting can occur when the addon is enabled, but TV support still
   // disabled. In that case the addon is not loaded, so we should not try
   // to change its settings.
-  if (!XBMC)
+  if (!KODI)
     return ADDON_STATUS_OK;
 
   if (str == "host")
   {
     string tmp_sHostname;
-    XBMC->Log(LOG_INFO, "Changed Setting 'host' from %s to %s", g_szHostname.c_str(), (const char*) settingValue);
+    KODI->Log(LOG_INFO, "Changed Setting 'host' from %s to %s", g_szHostname.c_str(), (const char*) settingValue);
     tmp_sHostname = g_szHostname;
     g_szHostname = (const char*) settingValue;
     if (tmp_sHostname != g_szHostname)
@@ -367,7 +367,7 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "port")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*) settingValue);
+    KODI->Log(LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*) settingValue);
     if (g_iPort != *(int*) settingValue)
     {
       g_iPort = *(int*) settingValue;
@@ -376,49 +376,49 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "ftaonly")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'ftaonly' from %u to %u", g_bOnlyFTA, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'ftaonly' from %u to %u", g_bOnlyFTA, *(bool*) settingValue);
     g_bOnlyFTA = *(bool*) settingValue;
   }
   else if (str == "useradio")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'useradio' from %u to %u", g_bRadioEnabled, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'useradio' from %u to %u", g_bRadioEnabled, *(bool*) settingValue);
     g_bRadioEnabled = *(bool*) settingValue;
   }
   else if (str == "timeout")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'timeout' from %u to %u", g_iConnectTimeout, *(int*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'timeout' from %u to %u", g_iConnectTimeout, *(int*) settingValue);
     g_iConnectTimeout = *(int*) settingValue;
   }
   else if (str == "tvgroup")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'tvgroup' from '%s' to '%s'", g_szTVGroup.c_str(), (const char*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'tvgroup' from '%s' to '%s'", g_szTVGroup.c_str(), (const char*) settingValue);
     g_szTVGroup = (const char*) settingValue;
   }
   else if (str == "radiogroup")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'radiogroup' from '%s' to '%s'", g_szRadioGroup.c_str(), (const char*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'radiogroup' from '%s' to '%s'", g_szRadioGroup.c_str(), (const char*) settingValue);
     g_szRadioGroup = (const char*) settingValue;
   }
   else if (str == "resolvertsphostname")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'resolvertsphostname' from %u to %u", g_bResolveRTSPHostname, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'resolvertsphostname' from %u to %u", g_bResolveRTSPHostname, *(bool*) settingValue);
     g_bResolveRTSPHostname = *(bool*) settingValue;
   }
   else if (str == "readgenre")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'readgenre' from %u to %u", g_bReadGenre, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'readgenre' from %u to %u", g_bReadGenre, *(bool*) settingValue);
     g_bReadGenre = *(bool*) settingValue;
   }
   else if (str == "enableoldseriesdlg")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'enableoldseriesdlg' from %u to %u", g_bEnableOldSeriesDlg, *(bool*)settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'enableoldseriesdlg' from %u to %u", g_bEnableOldSeriesDlg, *(bool*)settingValue);
     g_bEnableOldSeriesDlg = *(bool*)settingValue;
   }
   else if (str == "keepmethodtype")
   {
     if (g_KeepMethodType != *(TvDatabase::KeepMethodType*)settingValue)
     {
-      XBMC->Log(LOG_INFO, "Changed setting 'keepmethodtype' from %u to %u", g_KeepMethodType, *(int*)settingValue);
+      KODI->Log(LOG_INFO, "Changed setting 'keepmethodtype' from %u to %u", g_KeepMethodType, *(int*)settingValue);
       g_KeepMethodType = *(TvDatabase::KeepMethodType*)settingValue;
     }
   }
@@ -426,35 +426,35 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   {
     if (g_DefaultRecordingLifeTime != *(int*)settingValue)
     {
-      XBMC->Log(LOG_INFO, "Changed setting 'defaultrecordinglifetime' from %u to %u", g_DefaultRecordingLifeTime, *(int*)settingValue);
+      KODI->Log(LOG_INFO, "Changed setting 'defaultrecordinglifetime' from %u to %u", g_DefaultRecordingLifeTime, *(int*)settingValue);
       g_DefaultRecordingLifeTime = *(int*)settingValue;
     }
   }
   else if (str == "sleeponrtspurl")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'sleeponrtspurl' from %u to %u", g_iSleepOnRTSPurl, *(int*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'sleeponrtspurl' from %u to %u", g_iSleepOnRTSPurl, *(int*) settingValue);
     g_iSleepOnRTSPurl = *(int*) settingValue;
   }
   else if (str == "smbusername")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'smbusername' from '%s' to '%s'", g_szSMBusername.c_str(), (const char*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'smbusername' from '%s' to '%s'", g_szSMBusername.c_str(), (const char*) settingValue);
     g_szSMBusername = (const char*) settingValue;
   }
   else if (str == "smbpassword")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'smbpassword' from '%s' to '%s'", g_szSMBpassword.c_str(), (const char*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'smbpassword' from '%s' to '%s'", g_szSMBpassword.c_str(), (const char*) settingValue);
    g_szSMBpassword = (const char*) settingValue;
   }
   else if (str == "fastchannelswitch")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'fastchannelswitch' from %u to %u", g_bFastChannelSwitch, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'fastchannelswitch' from %u to %u", g_bFastChannelSwitch, *(bool*) settingValue);
     g_bFastChannelSwitch = *(bool*) settingValue;
   }
   else if (str == "streamingmethod")
   {
     if (g_eStreamingMethod != *(eStreamingMethod*) settingValue)
     {
-      XBMC->Log(LOG_INFO, "Changed setting 'streamingmethod' from %u to %u", g_eStreamingMethod, *(int*) settingValue);
+      KODI->Log(LOG_INFO, "Changed setting 'streamingmethod' from %u to %u", g_eStreamingMethod, *(int*) settingValue);
       g_eStreamingMethod = *(eStreamingMethod*) settingValue;
       /* Switching between ffmpeg and tsreader mode requires a restart due to different channel streams */
       return ADDON_STATUS_NEED_RESTART;
@@ -462,7 +462,7 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "usertsp")
   {
-    XBMC->Log(LOG_INFO, "Changed setting 'usertsp' from %u to %u", g_bUseRTSP, *(bool*) settingValue);
+    KODI->Log(LOG_INFO, "Changed setting 'usertsp' from %u to %u", g_bUseRTSP, *(bool*) settingValue);
     g_bUseRTSP = *(bool*) settingValue;
   }
 
@@ -490,11 +490,11 @@ void OnPowerSavingDeactivated()
 }
 
 //-- GetAddonCapabilities -----------------------------------------------------
-// Tell XBMC our requirements
+// Tell Kodi our requirements
 //-----------------------------------------------------------------------------
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
 {
-  XBMC->Log(LOG_DEBUG, "->GetProperties()");
+  KODI->Log(LOG_DEBUG, "->GetProperties()");
 
   pCapabilities->bSupportsEPG                = true;
   pCapabilities->bSupportsRecordings         = true;
@@ -506,8 +506,8 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
   pCapabilities->bHandlesInputStream         = true;
   pCapabilities->bHandlesDemuxing            = false;
   pCapabilities->bSupportsChannelScan        = false;
-  pCapabilities->bSupportsRecordingPlayCount = (g_iTVServerXBMCBuild < 117) ? false : true;
-  pCapabilities->bSupportsLastPlayedPosition = (g_iTVServerXBMCBuild < 121) ? false : true;
+  pCapabilities->bSupportsRecordingPlayCount = (g_iTVServerKodiBuild < 117) ? false : true;
+  pCapabilities->bSupportsLastPlayedPosition = (g_iTVServerKodiBuild < 121) ? false : true;
   pCapabilities->bSupportsRecordingsRename = true;
   pCapabilities->bSupportsRecordingsLifetimeChange = false;
   pCapabilities->bSupportsDescrambleInfo = false;
@@ -922,6 +922,16 @@ PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED
   return g_client->GetRecordingStreamProperties(recording, properties, iPropertiesCount);
 }
 
+PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES* stream_times)
+{
+  if ((!stream_times) || (!g_client))
+  {
+    return PVR_ERROR_INVALID_PARAMETERS;
+  }
+
+  return g_client->GetStreamTimes(stream_times);
+}
+
 /** UNUSED API FUNCTIONS */
 DemuxPacket* DemuxRead(void) { return NULL; }
 void DemuxAbort(void) {}
@@ -937,7 +947,6 @@ PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetEPGTagStreamProperties(const EPG_TAG*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }

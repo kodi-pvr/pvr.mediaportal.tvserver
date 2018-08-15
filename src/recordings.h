@@ -1,7 +1,7 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ private:
   std::string m_originalurl;
   MPTV::CDateTime m_startTime;
   MPTV::CDateTime m_endTime;
-  int m_duration;
+  int m_duration;                  ///< Duration of the recording in seconds
   std::string m_title;             ///< Title of this event
   std::string m_description;       ///< Description of this event
   std::string m_episodeName;       ///< Short description of this event (typically the episode name in case of a series)

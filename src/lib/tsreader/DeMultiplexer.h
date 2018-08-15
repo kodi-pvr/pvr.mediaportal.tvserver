@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2013 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ namespace MPTV
         int ReadFromFile();
 
     private:
-        unsigned long m_LastDataFromRtsp;
+        unsigned long long m_LastDataFromRtsp;
         bool m_bEndOfFile;
         P8PLATFORM::CMutex m_sectionRead;
         FileReader* m_reader;
@@ -67,7 +67,7 @@ namespace MPTV
 
         int m_iPatVersion;
         int m_ReqPatVersion;
-        int m_WaitNewPatTmo;
+        unsigned long long m_WaitNewPatTmo;
         int m_receivedPackets;
 
         bool m_bStarting;
@@ -75,7 +75,7 @@ namespace MPTV
         bool m_bAudioAtEof;
         bool m_bVideoAtEof;
 
-        // XBMC specific
+        // Kodi specific
         bool m_bGotNewChannel;
     };
 }

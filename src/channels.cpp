@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,12 +52,12 @@ bool cChannel::Parse(const std::string& data)
     // 1 = channel external id/number
     // 2 = channel name
     // 3 = isencrypted ("0"/"1")
-    // ListRadioChannels only: (TVServerXBMC >= v1.1.0.100)
+    // ListRadioChannels only: (TVServerKodi >= v1.1.0.100)
     // 4 = iswebstream
     // 5 = webstream url
-    // 6 = visibleinguide (TVServerXBMC >= v1.2.3.120)
-    // 7 = ATSC major channel number (TVServerXBMC >= v1.8.0.126)
-    // 8 = ATSC minor channel number (TVServerXBMC >= v1.8.0.126)
+    // 6 = visibleinguide (TVServerKodi >= v1.2.3.120)
+    // 7 = ATSC major channel number (TVServerKodi >= v1.8.0.126)
+    // 8 = ATSC minor channel number (TVServerKodi >= v1.8.0.126)
 
     uid = atoi(fields[0].c_str());
     external_id = atoi(fields[1].c_str());

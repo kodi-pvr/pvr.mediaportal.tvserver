@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -108,11 +108,11 @@ std::string ToThumbFileName(const char* strChannelName)
   return strThumbName;
 }
 
-std::string ToXBMCPath(const std::string& strFileName)
+std::string ToKodiPath(const std::string& strFileName)
 {
-  std::string strXBMCFileName(strFileName);
+  std::string strKodiFileName(strFileName);
 
-  if (StringUtils::Left(strXBMCFileName, 2) == "\\\\")
+  if (StringUtils::Left(strKodiFileName, 2) == "\\\\")
   {
     std::string SMBPrefix = "smb://";
 
@@ -125,11 +125,11 @@ std::string ToXBMCPath(const std::string& strFileName)
       }
       SMBPrefix += "@";
     }
-    StringUtils::Replace(strXBMCFileName, "\\\\", SMBPrefix.c_str());
-    StringUtils::Replace(strXBMCFileName, '\\', '/');
+    StringUtils::Replace(strKodiFileName, "\\\\", SMBPrefix.c_str());
+    StringUtils::Replace(strKodiFileName, '\\', '/');
   }
 
-  return strXBMCFileName;
+  return strKodiFileName;
 }
 
 std::string ToWindowsPath(const std::string& strFileName)

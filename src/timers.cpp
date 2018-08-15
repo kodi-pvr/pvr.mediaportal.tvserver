@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ cTimer::cTimer(const PVR_TIMER& timerinfo):
   if (!m_active)
   {
     // Don't know when it was cancelled, so assume that it was canceled now...
-    // backend (TVServerXBMC) will only update the canceled date time when
+    // backend (TVServerKodi) will only update the canceled date time when
     // this schedule was just canceled
     m_canceled = CDateTime::Now();
   }
@@ -254,12 +254,12 @@ bool cTimer::ParseLine(const char *s)
     // field 8 = isdone (finished)
     // field 9 = ismanual
     // field 10 = directory
-    // field 11 = keepmethod (0=until space needed, 1=until watched, 2=until keepdate, 3=forever) (TVServerXBMC build >= 100)
-    // field 12 = keepdate (2000-01-01 00:00:00 = infinite)  (TVServerXBMC build >= 100)
-    // field 13 = preRecordInterval  (TVServerXBMC build >= 100)
-    // field 14 = postRecordInterval (TVServerXBMC build >= 100)
-    // field 15 = canceled (TVServerXBMC build >= 100)
-    // field 16 = series (True/False) (TVServerXBMC build >= 100)
+    // field 11 = keepmethod (0=until space needed, 1=until watched, 2=until keepdate, 3=forever) (TVServerKodi build >= 100)
+    // field 12 = keepdate (2000-01-01 00:00:00 = infinite)  (TVServerKodi build >= 100)
+    // field 13 = preRecordInterval  (TVServerKodi build >= 100)
+    // field 14 = postRecordInterval (TVServerKodi build >= 100)
+    // field 15 = canceled (TVServerKodi build >= 100)
+    // field 16 = series (True/False) (TVServerKodi build >= 100)
     // field 17 = isrecording (True/False)
     // field 18 = program id (EPG)
     // field 19 = parent schedule id (TVServerKodi build >= 130)
@@ -285,7 +285,7 @@ bool cTimer::ParseLine(const char *s)
     
     if(schedulefields.size() >= 18)
     {
-      //TVServerXBMC build >= 100
+      //TVServerKodi build >= 100
       m_keepmethod = (TvDatabase::KeepMethodType) atoi(schedulefields[11].c_str());
       if ( m_keepDate.SetFromDateTime(schedulefields[12]) == false )
         return false;
@@ -454,8 +454,8 @@ std::string cTimer::AddScheduleCommand()
 
   m_startTime.GetAsLocalizedTime(startTime);
   m_endTime.GetAsLocalizedTime(endTime);
-  XBMC->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
-  XBMC->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
+  KODI->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
+  KODI->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
 
   snprintf(command, 1023, "AddSchedule:%i|%s|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i\n",
           m_channel,                                                         //Channel number [0]
@@ -480,8 +480,8 @@ std::string cTimer::UpdateScheduleCommand()
 
   m_startTime.GetAsLocalizedTime(startTime);
   m_endTime.GetAsLocalizedTime(endTime);
-  XBMC->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
-  XBMC->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
+  KODI->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
+  KODI->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
 
   snprintf(command, 1024, "UpdateSchedule:%i|%i|%i|%s|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i\n",
           m_index,                                                           //Schedule index [0]
@@ -601,20 +601,20 @@ cLifeTimeValues::cLifeTimeValues()
 {
   /* Prepare the list with Lifetime values and descriptions */
   // MediaPortal keep methods:
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_ALWAYS, XBMC->GetLocalizedString(30133)));
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_SPACE_NEEDED, XBMC->GetLocalizedString(30130)));
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_WATCHED, XBMC->GetLocalizedString(30131)));
+  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_ALWAYS, KODI->GetLocalizedString(30133)));
+  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_SPACE_NEEDED, KODI->GetLocalizedString(30130)));
+  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_WATCHED, KODI->GetLocalizedString(30131)));
 
   //Not directly supported by Kodi. I can add this, but there is no way to select the date
-  //m_lifetimeValues.push_back(std::make_pair(TvDatabase::TillDate, XBMC->GetLocalizedString(30132)));
+  //m_lifetimeValues.push_back(std::make_pair(TvDatabase::TillDate, KODI->GetLocalizedString(30132)));
 
   // MediaPortal Until date replacements:
-  const char* strWeeks = XBMC->GetLocalizedString(30137); // %d weeks
-  const char* strMonths = XBMC->GetLocalizedString(30139); // %d months
+  const char* strWeeks = KODI->GetLocalizedString(30137); // %d weeks
+  const char* strMonths = KODI->GetLocalizedString(30139); // %d months
   const size_t cKeepStringLength = 255;
   char strKeepString[cKeepStringLength];
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_WEEK, XBMC->GetLocalizedString(30134)));
+  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_WEEK, KODI->GetLocalizedString(30134)));
 
   snprintf(strKeepString, cKeepStringLength, strWeeks, 2);
   m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_TWO_WEEKS, strKeepString));
@@ -622,7 +622,7 @@ cLifeTimeValues::cLifeTimeValues()
   snprintf(strKeepString, cKeepStringLength, strWeeks, 3);
   m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_THREE_WEEKS, strKeepString));
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_MONTH, XBMC->GetLocalizedString(30138)));
+  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_MONTH, KODI->GetLocalizedString(30138)));
 
   snprintf(strKeepString, cKeepStringLength, strMonths, 2);
   m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_TWO_MONTHS, strKeepString));
@@ -654,7 +654,7 @@ cLifeTimeValues::cLifeTimeValues()
   snprintf(strKeepString, cKeepStringLength, strMonths, 11);
   m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ELEVEN_MONTHS, strKeepString));
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_YEAR, XBMC->GetLocalizedString(30140)));
+  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_YEAR, KODI->GetLocalizedString(30140)));
 }
 
 void cLifeTimeValues::SetLifeTimeValues(PVR_TIMER_TYPE& timertype)

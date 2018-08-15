@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2013 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,17 +34,13 @@
 
 #include "DeMultiplexer.h"
 #include "utils.h" //UNUSED()
-#include "client.h" //XBMC->Log()
+#include "client.h" //KODI->Log()
 #include "TSReader.h"
 
 #define MAX_BUF_SIZE 8000
 #define BUFFER_LENGTH 0x1000
 #define READ_SIZE (1316*30)
 #define INITIAL_READ_SIZE (READ_SIZE * 1024)
-
-#ifdef TARGET_WINDOWS_STORE
-#define GetTickCount GetTickCount64
-#endif
 
 using namespace ADDON;
 
@@ -83,9 +79,9 @@ namespace MPTV
         m_bEndOfFile = false;
         m_iPatVersion = -1;
         m_ReqPatVersion = -1;
-        unsigned long m_Time = GetTickCount();
+        unsigned long long m_Time = GetTickCount64();
 
-        while ((GetTickCount() - m_Time) < 5000 && m_bGotNewChannel == false)
+        while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
             int BytesRead = ReadFromFile();
             if (0 == BytesRead)
@@ -141,23 +137,23 @@ namespace MPTV
                   // yes, then process the raw data
                   //result=true;
                   OnRawData(buffer, (int)dwReadBytes);
-                  m_LastDataFromRtsp = GetTickCount();
+                  m_LastDataFromRtsp = GetTickCount64();
                 }
               }
               else
               {
-                XBMC->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
+                KODI->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
               }
             }
             else
             {
                 if (!m_filter.IsTimeShifting())
                 {
-                    XBMC->Log(LOG_DEBUG, "%s: endoffile... %d", __FUNCTION__, GetTickCount() - m_LastDataFromRtsp);
+                    KODI->Log(LOG_DEBUG, "%s: endoffile... %llu", __FUNCTION__, GetTickCount64() - m_LastDataFromRtsp);
                     //set EOF flag and return
-                    if (GetTickCount() - m_LastDataFromRtsp > 2000 && m_filter.State() != State_Paused) // A bit crappy, but no better idea...
+                    if (GetTickCount64() - m_LastDataFromRtsp > 2000 && m_filter.State() != State_Paused) // A bit crappy, but no better idea...
                     {
-                        XBMC->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__, GetTickCount() - m_LastDataFromRtsp);
+                        KODI->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
                         m_bEndOfFile = true;
                         return 0;
                     }
@@ -187,7 +183,7 @@ namespace MPTV
                     if (!m_filter.IsTimeShifting())
                     {
                         // set EOF flag and return
-                        XBMC->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
+                        KODI->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
                         m_bEndOfFile = true;
                         return 0;
                     }
@@ -198,7 +194,7 @@ namespace MPTV
             }
             else
             {
-                XBMC->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
+                KODI->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
             }
         }
         return 0;
@@ -226,9 +222,9 @@ namespace MPTV
             if (m_ReqPatVersion == -1)
             {                                     // Now, unless channel change, 
                 m_ReqPatVersion = m_iPatVersion;    // Initialize Pat Request.
-                m_WaitNewPatTmo = GetTickCount();   // Now, unless channel change request,timeout will be always true. 
+                m_WaitNewPatTmo = GetTickCount64();   // Now, unless channel change request,timeout will be always true. 
             }
-            if (GetTickCount() < (unsigned long)m_WaitNewPatTmo)
+            if (GetTickCount64() < m_WaitNewPatTmo)
             {
                 // Timeout not reached.
                 return;
@@ -242,15 +238,15 @@ namespace MPTV
       {
         m_ReqPatVersion++;
         m_ReqPatVersion &= 0x0F;
-        XBMC->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
-        m_WaitNewPatTmo = GetTickCount() + 10000;
+        KODI->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
+        m_WaitNewPatTmo = GetTickCount64() + 10000;
 
         unsigned long dwBytesProcessed = 0;
-        unsigned long m_Time = GetTickCount();
+        unsigned long long m_Time = GetTickCount64();
 
         m_bGotNewChannel = false;
 
-        while ((GetTickCount() - m_Time) < 5000 && m_bGotNewChannel == false)
+        while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
             int BytesRead = ReadFromFile();
             if (0 == BytesRead)
@@ -258,7 +254,7 @@ namespace MPTV
             dwBytesProcessed += BytesRead;
         }
 
-        XBMC->Log(LOG_DEBUG, "Found a new channel after processing %li bytes. File position: %I64d\n", dwBytesProcessed, m_reader->GetFilePointer());
+        KODI->Log(LOG_DEBUG, "Found a new channel after processing %li bytes. File position: %I64d\n", dwBytesProcessed, m_reader->GetFilePointer());
       }
     }
 

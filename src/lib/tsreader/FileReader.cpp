@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
  */
 
 #include "FileReader.h"
-#include "client.h" //for XBMC->Log
+#include "client.h" //for KODI->Log
 #include "TSDebug.h"
 #include "p8-platform/threads/threads.h"
 #include <algorithm> //std::min, std::max
@@ -83,7 +83,7 @@ namespace MPTV
 
     long FileReader::SetFileName(const std::string& fileName)
     {
-        m_fileName = ToXBMCPath(fileName);
+        m_fileName = ToKodiPath(fileName);
         return S_OK;
     }
 
@@ -106,21 +106,21 @@ namespace MPTV
         // Is the file already opened
         if (!IsFileInvalid())
         {
-            XBMC->Log(LOG_NOTICE, "FileReader::OpenFile() file already open");
+            KODI->Log(LOG_NOTICE, "FileReader::OpenFile() file already open");
             return S_OK;
         }
 
         // Has a filename been set yet
         if (m_fileName.empty())
         {
-            XBMC->Log(LOG_ERROR, "FileReader::OpenFile() no filename");
+            KODI->Log(LOG_ERROR, "FileReader::OpenFile() no filename");
             return ERROR_INVALID_NAME;
         }
 
         do
         {
-            XBMC->Log(LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
-            void* fileHandle = XBMC->OpenFile(m_fileName.c_str(), READ_CHUNKED);
+            KODI->Log(LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
+            void* fileHandle = KODI->OpenFile(m_fileName.c_str(), READ_CHUNKED);
             if (fileHandle)
             {
                 m_hFile = fileHandle;
@@ -129,14 +129,14 @@ namespace MPTV
             else
             {
                 struct __stat64 buffer;
-                int statResult = XBMC->StatFile(m_fileName.c_str(), &buffer);
+                int statResult = KODI->StatFile(m_fileName.c_str(), &buffer);
 
                 if (statResult < 0)
                 {
                     if (errno == EACCES)
                     {
-                        XBMC->Log(LOG_ERROR, "Permission denied. Check the file or share access rights for '%s'", m_fileName.c_str());
-                        XBMC->QueueNotification(QUEUE_ERROR, "Permission denied");
+                        KODI->Log(LOG_ERROR, "Permission denied. Check the file or share access rights for '%s'", m_fileName.c_str());
+                        KODI->QueueNotification(QUEUE_ERROR, "Permission denied");
                         Tmo = 0;
                         break;
                     }
@@ -148,15 +148,15 @@ namespace MPTV
         if (Tmo)
         {
             if (Tmo < 4) // 1 failed + 1 succeded is quasi-normal, more is a bit suspicious ( disk drive too slow or problem ? )
-                XBMC->Log(LOG_DEBUG, "FileReader::OpenFile(), %d tries to succeed opening %ws.", 6 - Tmo, m_fileName.c_str());
+                KODI->Log(LOG_DEBUG, "FileReader::OpenFile(), %d tries to succeed opening %ws.", 6 - Tmo, m_fileName.c_str());
         }
         else
         {
-            XBMC->Log(LOG_ERROR, "FileReader::OpenFile(), open file %s failed.", m_fileName.c_str());
+            KODI->Log(LOG_ERROR, "FileReader::OpenFile(), open file %s failed.", m_fileName.c_str());
             return S_FALSE;
         }
 
-        XBMC->Log(LOG_DEBUG, "%s: OpenFile(%s) succeeded.", __FUNCTION__, m_fileName.c_str());
+        KODI->Log(LOG_DEBUG, "%s: OpenFile(%s) succeeded.", __FUNCTION__, m_fileName.c_str());
 
         SetFilePointer(0, SEEK_SET);
 
@@ -173,7 +173,7 @@ namespace MPTV
     {
         if (m_hFile)
         {
-            XBMC->CloseFile(m_hFile);
+            KODI->CloseFile(m_hFile);
             m_hFile = NULL;
         }
 
@@ -190,7 +190,7 @@ namespace MPTV
     int64_t FileReader::SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
     {
         TSDEBUG(LOG_DEBUG, "%s: distance %d method %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod);
-        int64_t rc = XBMC->SeekFile(m_hFile, llDistanceToMove, dwMoveMethod);
+        int64_t rc = KODI->SeekFile(m_hFile, llDistanceToMove, dwMoveMethod);
         TSDEBUG(LOG_DEBUG, "%s: distance %d method %d returns %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod, rc);
         return rc;
     }
@@ -198,18 +198,18 @@ namespace MPTV
 
     int64_t FileReader::GetFilePointer()
     {
-        return XBMC->GetFilePosition(m_hFile);
+        return KODI->GetFilePosition(m_hFile);
     }
 
 
     long FileReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
     {
-        *dwReadBytes = XBMC->ReadFile(m_hFile, (void*)pbData, lDataLength);//Read file data into buffer
+        *dwReadBytes = KODI->ReadFile(m_hFile, (void*)pbData, lDataLength);//Read file data into buffer
         TSDEBUG(LOG_DEBUG, "%s: requested read length %d actually read %d.", __FUNCTION__, lDataLength, *dwReadBytes);
 
         if (*dwReadBytes < lDataLength)
         {
-            XBMC->Log(LOG_NOTICE, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
+            KODI->Log(LOG_NOTICE, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
             return S_FALSE;
         }
         return S_OK;
@@ -218,11 +218,11 @@ namespace MPTV
 
     int64_t FileReader::GetFileSize()
     {
-        return XBMC->GetFileLength(m_hFile);
+        return KODI->GetFileLength(m_hFile);
     }
 
     int64_t FileReader::OnChannelChange(void)
     {
-        return XBMC->GetFilePosition(m_hFile);
+        return KODI->GetFilePosition(m_hFile);
     }
 }
