@@ -1,3 +1,23 @@
+v3.5.4
+- Remove Windows XP support
+- Don't update the Kodi connection state when trying to connect in the background thread. This prevents pop-ups every minute when the backend is down.
+- Report readable connection state changes instead of numbers
+- Remove the deprecated PositionLiveStream() and PositionRecordedStream() functions
+- Replace TVServerXBMC plugin references by TVServerKodi
+- Accessing %PROGRAMDATA% for TV thumbnails is only possbile for Windows Desktop
+- Replace all GetTickCount() calls by GetTickCount64() for UWP compatibility
+- Don't report an empty connection string in the log
+- Fixed: seek in recordings was broken in v18
+- Fixed: recording playback as rtsp stream via internal Kodi videoplayer
+- Fixed: Restore file playback via internal Kodi videoplayer on Windows (PVR addon by-pass)
+- GetChannelGroupMembers: add iSubChannelNumber support (PVR API 5.8.0)
+
+v3.5.3
+- Translation update from Transifex
+
+v3.5.2
+- Translation update from Transifex
+
 v3.5.1
 - Updated to PVR addon API v5.10.1
 
