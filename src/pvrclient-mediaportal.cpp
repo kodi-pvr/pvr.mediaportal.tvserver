@@ -2222,10 +2222,35 @@ void cPVRClientMediaPortal::SetConnectionState(PVR_CONNECTION_STATE newState)
 {
   if (newState != m_state)
   {
-    XBMC->Log(LOG_DEBUG, "Connection state change (%d -> %d)", m_state, newState);
+    XBMC->Log(LOG_DEBUG, "Connection state changed to '%s'",
+      GetConnectionStateString(newState));
     m_state = newState;
 
     /* Notify connection state change (callback!) */
     PVR->ConnectionStateChange(GetConnectionString(), m_state, NULL);
+  }
+}
+
+const char* cPVRClientMediaPortal::GetConnectionStateString(PVR_CONNECTION_STATE state) const
+{
+  switch (state)
+  {
+  case PVR_CONNECTION_STATE_SERVER_UNREACHABLE:
+    return "Backend server is not reachable";
+  case PVR_CONNECTION_STATE_SERVER_MISMATCH:
+    return "Backend server is reachable, but the expected type of server is not running";
+  case PVR_CONNECTION_STATE_VERSION_MISMATCH:
+    return "Backend server is reachable, but the server version does not match client requirements";
+  case PVR_CONNECTION_STATE_ACCESS_DENIED:
+    return "Backend server is reachable, but denies client access (e.g. due to wrong credentials)";
+  case PVR_CONNECTION_STATE_CONNECTED:
+    return "Connection to backend server is established";
+  case PVR_CONNECTION_STATE_DISCONNECTED:
+    return "No connection to backend server (e.g. due to network errors or client initiated disconnect)";
+  case PVR_CONNECTION_STATE_CONNECTING:
+    return "Connecting to backend";
+  case PVR_CONNECTION_STATE_UNKNOWN:
+  default:
+    return "Unknown state";
   }
 }

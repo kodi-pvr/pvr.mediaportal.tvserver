@@ -118,6 +118,7 @@ private:
   void LoadGenreTable(void);
   void LoadCardSettings(void);
   void SetConnectionState(PVR_CONNECTION_STATE newState);
+  const char* GetConnectionStateString(PVR_CONNECTION_STATE state) const;
 
   int                     m_iCurrentChannel;
   int                     m_iCurrentCard;
