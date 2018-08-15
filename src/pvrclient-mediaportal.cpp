@@ -401,6 +401,9 @@ const char* cPVRClientMediaPortal::GetBackendVersion(void)
 
 const char* cPVRClientMediaPortal::GetConnectionString(void)
 {
+  if (m_ConnectionString.empty())
+    return nullptr;
+
   XBMC->Log(LOG_DEBUG, "GetConnectionString: %s", m_ConnectionString.c_str());
   return m_ConnectionString.c_str();
 }
