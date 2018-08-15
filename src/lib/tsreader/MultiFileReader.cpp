@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
  */
 
 #include "MultiFileReader.h"
-#include "client.h" //for XBMC->Log
+#include "client.h" //for KODI->Log
 #include "TSDebug.h"
 #include <string>
 #include "utils.h"
@@ -88,7 +88,7 @@ namespace MPTV
     long MultiFileReader::OpenFile()
     {
         long hResult = m_TSBufferFile.OpenFile();
-        XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
+        KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
 
         if (hResult != S_OK)
             return hResult;
@@ -101,11 +101,11 @@ namespace MPTV
         while ((m_TSBufferFile.GetFileSize() == 0) && (retryCount < 50))
         {
             retryCount++;
-            XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
+            KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
             m_TSBufferFile.CloseFile();
             usleep(100000);
             hResult = m_TSBufferFile.OpenFile();
-            XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
+            KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
         }
 
         if (RefreshTSBufferFile() == S_FALSE)
@@ -118,8 +118,8 @@ namespace MPTV
                 usleep(100000);
                 if (timeout.TimeLeft() == 0)
                 {
-                    XBMC->Log(LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
-                    XBMC->QueueNotification(QUEUE_ERROR, "Time out while waiting for buffer file");
+                    KODI->Log(LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
+                    KODI->QueueNotification(QUEUE_ERROR, "Time out while waiting for buffer file");
                     return S_FALSE;
                 }
             } while (RefreshTSBufferFile() == S_FALSE);
@@ -178,7 +178,7 @@ namespace MPTV
 
         if (m_currentPosition > m_endPosition)
         {
-            XBMC->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
+            KODI->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
             m_currentPosition = m_endPosition;
         }
 
@@ -205,8 +205,8 @@ namespace MPTV
 
             if (!file)
             {
-                XBMC->Log(LOG_ERROR, "MultiFileReader::no buffer file with id=%i", timeshiftBufferFileID);
-                XBMC->QueueNotification(QUEUE_ERROR, "No buffer file");
+                KODI->Log(LOG_ERROR, "MultiFileReader::no buffer file with id=%i", timeshiftBufferFileID);
+                KODI->QueueNotification(QUEUE_ERROR, "No buffer file");
                 return m_currentPosition;
             }
 
@@ -229,7 +229,7 @@ namespace MPTV
 
         if (m_currentPosition > m_endPosition)
         {
-            XBMC->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
+            KODI->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
             m_currentPosition = m_endPosition;
         }
 
@@ -251,7 +251,7 @@ namespace MPTV
 
         if (m_currentPosition < m_startPosition)
         {
-            XBMC->Log(LOG_INFO, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentPosition, m_startPosition);
+            KODI->Log(LOG_INFO, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentPosition, m_startPosition);
             m_currentPosition = m_startPosition;
         }
 
@@ -265,12 +265,12 @@ namespace MPTV
                 break;
         };
 
-        // XBMC->Log(LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
+        // KODI->Log(LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
 
         if (!file)
         {
-            XBMC->Log(LOG_ERROR, "MultiFileReader::no file");
-            XBMC->QueueNotification(QUEUE_ERROR, "No buffer file");
+            KODI->Log(LOG_ERROR, "MultiFileReader::no file");
+            KODI->QueueNotification(QUEUE_ERROR, "No buffer file");
             return S_FALSE;
         }
         if (m_currentPosition < (file->startPosition + file->length))
@@ -281,7 +281,7 @@ namespace MPTV
                 m_TSFile.SetFileName(file->filename.c_str());
                 if (m_TSFile.OpenFile() != S_OK)
                 {
-                    XBMC->Log(LOG_ERROR, "MultiFileReader: can't open %s\n", file->filename.c_str());
+                    KODI->Log(LOG_ERROR, "MultiFileReader: can't open %s\n", file->filename.c_str());
                     return S_FALSE;
                 }
 
@@ -301,7 +301,7 @@ namespace MPTV
                 posSeeked = m_TSFile.GetFilePointer();
                 if (posSeeked != seekPosition)
                 {
-                    XBMC->Log(LOG_ERROR, "SEEK FAILED");
+                    KODI->Log(LOG_ERROR, "SEEK FAILED");
                     return S_FALSE;
                 }
             }
@@ -312,11 +312,11 @@ namespace MPTV
             int64_t bytesToRead = file->length - seekPosition;
             if ((int64_t)lDataLength > bytesToRead)
             {
-                // XBMC->Log(LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
+                // KODI->Log(LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
                 hr = m_TSFile.Read(pbData, (unsigned long)bytesToRead, &bytesRead);
                 if (FAILED(hr))
                 {
-                    XBMC->Log(LOG_ERROR, "READ FAILED1");
+                    KODI->Log(LOG_ERROR, "READ FAILED1");
                     return S_FALSE;
                 }
                 m_currentPosition += bytesToRead;
@@ -324,7 +324,7 @@ namespace MPTV
                 hr = this->Read(pbData + bytesToRead, lDataLength - (unsigned long)bytesToRead, dwReadBytes);
                 if (FAILED(hr))
                 {
-                    XBMC->Log(LOG_ERROR, "READ FAILED2");
+                    KODI->Log(LOG_ERROR, "READ FAILED2");
                 }
                 *dwReadBytes += bytesRead;
             }
@@ -333,7 +333,7 @@ namespace MPTV
                 hr = m_TSFile.Read(pbData, lDataLength, dwReadBytes);
                 if (FAILED(hr))
                 {
-                    XBMC->Log(LOG_ERROR, "READ FAILED3");
+                    KODI->Log(LOG_ERROR, "READ FAILED3");
                 }
                 m_currentPosition += lDataLength;
             }
@@ -344,7 +344,7 @@ namespace MPTV
             *dwReadBytes = 0;
         }
 
-        // XBMC->Log(LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
+        // KODI->Log(LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
         return S_OK;
     }
 
@@ -353,7 +353,7 @@ namespace MPTV
     {
         if (m_TSBufferFile.IsFileInvalid())
         {
-            XBMC->Log(LOG_ERROR, "%s: buffer file is invalid.", __FUNCTION__);
+            KODI->Log(LOG_ERROR, "%s: buffer file is invalid.", __FUNCTION__);
             return S_FALSE;
         }
 
@@ -382,7 +382,7 @@ namespace MPTV
             int64_t minimumlength = (int64_t)(sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved) + sizeof(Wchar_t) + sizeof(filesAdded2) + sizeof(filesRemoved2));
             if (fileLength <= minimumlength)
             {
-                XBMC->Log(LOG_ERROR, "%s: TSBufferFile too short. Minimum length %ld, current length %ld", __FUNCTION__, minimumlength, fileLength);
+                KODI->Log(LOG_ERROR, "%s: TSBufferFile too short. Minimum length %ld, current length %ld", __FUNCTION__, minimumlength, fileLength);
                 return S_FALSE;
             }
 
@@ -442,8 +442,8 @@ namespace MPTV
             {
                 Error |= 0x80;
 
-                XBMC->Log(LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
-                XBMC->Log(LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
+                KODI->Log(LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
+                KODI->Log(LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
 
                 // try to clear local / remote SMB file cache. This should happen when we close the filehandle
                 m_TSBufferFile.CloseFile();
@@ -459,11 +459,11 @@ namespace MPTV
 
         if (Loop < 8)
         {
-            XBMC->Log(LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
+            KODI->Log(LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
 
             if (Error)
             {
-                XBMC->Log(LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
+                KODI->Log(LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
                 return E_FAIL;
             }
         }
@@ -521,7 +521,7 @@ namespace MPTV
             Wchar_t* pwCurrFile = pBuffer;    //Get a pointer to the first wchar filename string in pBuffer
             long length = WcsLen(pwCurrFile);
 
-            //XBMC->Log(LOG_DEBUG, "%s: WcsLen(%d), sizeof(Wchar_t) == %d sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(Wchar_t), sizeof(wchar_t));
+            //KODI->Log(LOG_DEBUG, "%s: WcsLen(%d), sizeof(Wchar_t) == %d sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(Wchar_t), sizeof(wchar_t));
 
             while (length > 0)
             {
@@ -530,7 +530,7 @@ namespace MPTV
                 WcsToMbs(wide2normal, pwCurrFile, length);
                 wide2normal[length] = '\0';
                 std::string sCurrFile = wide2normal;
-                //XBMC->Log(LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
+                //KODI->Log(LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
                 delete[] wide2normal;
 
                 // Modify filename path here to include the real (local) path
@@ -570,7 +570,7 @@ namespace MPTV
                 }
                 else
                 {
-                    XBMC->Log(LOG_DEBUG, "MultiFileReader: Missing files!!\n");
+                    KODI->Log(LOG_DEBUG, "MultiFileReader: Missing files!!\n");
                 }
             }
 
@@ -637,15 +637,15 @@ namespace MPTV
 
         // Try to open the file
         void* hFile;
-        if (((hFile = XBMC->OpenFile(pFilename, 0)) != NULL))
+        if (((hFile = KODI->OpenFile(pFilename, 0)) != NULL))
         {
-            length = XBMC->GetFileLength(hFile);
-            XBMC->CloseFile(hFile);
+            length = KODI->GetFileLength(hFile);
+            KODI->CloseFile(hFile);
         }
         else
         {
-            XBMC->Log(LOG_ERROR, "Failed to open file %s : 0x%x(%s)\n", pFilename, errno, strerror(errno));
-            XBMC->QueueNotification(QUEUE_ERROR, "Failed to open file %s", pFilename);
+            KODI->Log(LOG_ERROR, "Failed to open file %s : 0x%x(%s)\n", pFilename, errno, strerror(errno));
+            KODI->QueueNotification(QUEUE_ERROR, "Failed to open file %s", pFilename);
             return S_FALSE;
         }
         return S_OK;

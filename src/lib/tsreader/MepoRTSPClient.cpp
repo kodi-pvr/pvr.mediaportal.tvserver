@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2010 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2010 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ using namespace ADDON;
 
 CRTSPClient::CRTSPClient()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::CRTSPClient()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::CRTSPClient()");
   allowProxyServers = false;
   controlConnectionUsesTCP = true;
   supportCodecSelection = false;
@@ -59,7 +59,7 @@ CRTSPClient::CRTSPClient()
 
 CRTSPClient::~CRTSPClient()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::~CRTSPClient()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::~CRTSPClient()");
   Medium::close(m_ourClient);
   m_ourClient = NULL;
 
@@ -75,21 +75,21 @@ CRTSPClient::~CRTSPClient()
 
 Medium* CRTSPClient::createClient(UsageEnvironment& env,int verbosityLevel, char const* applicationName)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::createClient()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::createClient()");
   return RTSPClient::createNew(env, verbosityLevel, applicationName,tunnelOverHTTPPortNum);
 }
 
 char* CRTSPClient::getOptionsResponse(Medium* client, char const* url,char* username, char* password)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse()");
   RTSPClient* rtspClient = (RTSPClient*)client;
   char* optionsResponse = rtspClient->sendOptionsCmd(url, username, password);
 
   if (optionsResponse == NULL)
   {
-    XBMC->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse(): \"OPTIONS\" request failed: %s", m_env->getResultMsg());
+    KODI->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse(): \"OPTIONS\" request failed: %s", m_env->getResultMsg());
   } else {
-    XBMC->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse(): \"OPTIONS\" request returned: %s", optionsResponse);
+    KODI->Log(LOG_DEBUG, "CRTSPClient::getOptionsResponse(): \"OPTIONS\" request returned: %s", optionsResponse);
   }
 
   return optionsResponse;
@@ -101,7 +101,7 @@ char* CRTSPClient::getSDPDescriptionFromURL(Medium* client, char const* url,
              unsigned short /*proxyServerPortNum*/,
              unsigned short /*clientStartPort*/)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::getSDPDescriptionFromURL()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::getSDPDescriptionFromURL()");
   RTSPClient* rtspClient = (RTSPClient*)client;
   char* result;
   if (username != NULL && password != NULL)
@@ -119,13 +119,13 @@ char* CRTSPClient::getSDPDescriptionFromURL(Medium* client, char const* url,
 
 char* CRTSPClient::getSDPDescription()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::getSDPDescription()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::getSDPDescription()");
   RTSPClient *client = (RTSPClient*)m_ourClient;
   RTSPClient *rtspClient = RTSPClient::createNew(client->envir(), 0, "TSFileSource", tunnelOverHTTPPortNum);
   char* result;
   result = rtspClient->describeURL(m_url);
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::getSDPDescription() statusCode = %d", rtspClient->describeStatus());
+  KODI->Log(LOG_DEBUG, "CRTSPClient::getSDPDescription() statusCode = %d", rtspClient->describeStatus());
   Medium::close(rtspClient);
 
   return result;
@@ -133,7 +133,7 @@ char* CRTSPClient::getSDPDescription()
 
 bool CRTSPClient::clientSetupSubsession(Medium* client, MediaSubsession* subsession, bool streamUsingTCP)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::clientSetupSubsession()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::clientSetupSubsession()");
   if (client == NULL || subsession == NULL)
     return false;
   RTSPClient* rtspClient = (RTSPClient*) client;
@@ -142,7 +142,7 @@ bool CRTSPClient::clientSetupSubsession(Medium* client, MediaSubsession* subsess
 
 bool CRTSPClient::clientStartPlayingSession(Medium* client, MediaSession* session)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::clientStartPlayingSession()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::clientStartPlayingSession()");
   if (client == NULL || session == NULL)
     return false;
   RTSPClient* rtspClient = (RTSPClient*) client;
@@ -160,13 +160,13 @@ bool CRTSPClient::clientStartPlayingSession(Medium* client, MediaSession* sessio
       fStart = 0;
   }
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::clientStartPlayingSession() play from %.3f / %.3f", fStart, (float) m_duration/1000);
+  KODI->Log(LOG_DEBUG, "CRTSPClient::clientStartPlayingSession() play from %.3f / %.3f", fStart, (float) m_duration/1000);
   return (rtspClient->playMediaSession(*session,fStart) ? true : false);
 }
 
 bool CRTSPClient::clientTearDownSession(Medium* client,MediaSession* session)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::clientTearDownSession()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::clientTearDownSession()");
   if (client == NULL || session == NULL)
     return false;
   RTSPClient* rtspClient = (RTSPClient*)client;
@@ -175,12 +175,12 @@ bool CRTSPClient::clientTearDownSession(Medium* client,MediaSession* session)
 
 void my_subsessionAfterPlaying(void* UNUSED(clientData))
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::subsessionAfterPlaying()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::subsessionAfterPlaying()");
 }
 
 void my_subsessionByeHandler(void* UNUSED(clientData))
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::subsessionByeHandler()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::subsessionByeHandler()");
 }
 
 void CRTSPClient::closeMediaSinks()
@@ -188,7 +188,7 @@ void CRTSPClient::closeMediaSinks()
   if (m_session == NULL)
     return;
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::closeMediaSinks()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::closeMediaSinks()");
 
   MediaSubsessionIterator iter(*m_session);
   MediaSubsession* subsession;
@@ -205,14 +205,14 @@ void CRTSPClient::tearDownStreams()
   if (m_session == NULL)
     return;
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::tearDownStreams()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::tearDownStreams()");
 
   clientTearDownSession(m_ourClient, m_session);
 }
 bool CRTSPClient::setupStreams()
 {
   // Setup streams
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::setupStreams()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::setupStreams()");
 
   bool madeProgress = false;
   MediaSubsessionIterator iter(*m_session);
@@ -225,11 +225,11 @@ bool CRTSPClient::setupStreams()
 
     if (!clientSetupSubsession(m_ourClient, subsession, streamUsingTCP))
     {
-      XBMC->Log(LOG_ERROR, "Failed to setup %s %s %s", subsession->mediumName(), subsession->codecName(), m_env->getResultMsg() );
+      KODI->Log(LOG_ERROR, "Failed to setup %s %s %s", subsession->mediumName(), subsession->codecName(), m_env->getResultMsg() );
     }
     else
     {
-      XBMC->Log(LOG_DEBUG, "Setup %s %s %d %d", subsession->mediumName(), subsession->codecName(), subsession->clientPortNum(), subsession->clientPortNum() + 1);
+      KODI->Log(LOG_DEBUG, "Setup %s %s %d %d", subsession->mediumName(), subsession->codecName(), subsession->clientPortNum(), subsession->clientPortNum() + 1);
       madeProgress = true;
     }
   }
@@ -244,24 +244,24 @@ bool CRTSPClient::setupStreams()
 
 bool CRTSPClient::startPlayingStreams()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::startPlayingStreams()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::startPlayingStreams()");
 
   if (!clientStartPlayingSession(m_ourClient, m_session))
   {
-    XBMC->Log(LOG_ERROR, "Failed to start playing session :%s", m_env ->getResultMsg() );
+    KODI->Log(LOG_ERROR, "Failed to start playing session :%s", m_env ->getResultMsg() );
     shutdown();
     return false;
   }
   else
   {
-    XBMC->Log(LOG_DEBUG, "Started playing session");
+    KODI->Log(LOG_DEBUG, "Started playing session");
   }
   return true;
 }
 
 void CRTSPClient::shutdown()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::shutdown()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::shutdown()");
 
   // Close our output files:
   closeMediaSinks();
@@ -279,7 +279,7 @@ void CRTSPClient::shutdown()
 
 bool CRTSPClient::Initialize(CMemoryBuffer* buffer)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Initialize()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Initialize()");
 
   m_buffer = buffer;
   m_duration = 7200*1000;
@@ -291,7 +291,7 @@ bool CRTSPClient::Initialize(CMemoryBuffer* buffer)
 
   if (m_ourClient == NULL)
   {
-    XBMC->Log(LOG_ERROR, "Failed to create %s %s", clientProtocolName, m_env->getResultMsg() );
+    KODI->Log(LOG_ERROR, "Failed to create %s %s", clientProtocolName, m_env->getResultMsg() );
     shutdown();
     return false;
   }
@@ -300,7 +300,7 @@ bool CRTSPClient::Initialize(CMemoryBuffer* buffer)
 
 bool CRTSPClient::OpenStream(const char* url)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::OpenStream()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::OpenStream()");
   m_session = NULL;
 
   strncpy(m_url, url, RTSP_URL_BUFFERSIZE - 1);
@@ -311,11 +311,11 @@ bool CRTSPClient::OpenStream(const char* url)
 
   if (sdpDescription == NULL)
   {
-    XBMC->Log(LOG_ERROR, "Failed to get a SDP description from URL %s %s", url, m_env->getResultMsg() );
+    KODI->Log(LOG_ERROR, "Failed to get a SDP description from URL %s %s", url, m_env->getResultMsg() );
     shutdown();
     return false;
   }
-  XBMC->Log(LOG_DEBUG, "Opened URL %s %s", url, sdpDescription);
+  KODI->Log(LOG_DEBUG, "Opened URL %s %s", url, sdpDescription);
 
   char* range = strstr(sdpDescription, "a=range:npt=");
   if (range != NULL)
@@ -328,7 +328,7 @@ bool CRTSPClient::OpenStream(const char* url)
       double Start = atof(pStart);
       double End = atof(pEnd);
 
-      XBMC->Log(LOG_DEBUG, "rangestart:%f rangeend:%f", Start, End);
+      KODI->Log(LOG_DEBUG, "rangestart:%f rangeend:%f", Start, End);
       m_duration = (long) ((End-Start)*1000.0);
     }
   }
@@ -338,13 +338,13 @@ bool CRTSPClient::OpenStream(const char* url)
 
   if (m_session == NULL)
   {
-    XBMC->Log(LOG_ERROR, "Failed to create a MediaSession object from the SDP description:%s ", m_env->getResultMsg());
+    KODI->Log(LOG_ERROR, "Failed to create a MediaSession object from the SDP description:%s ", m_env->getResultMsg());
     shutdown();
     return false;
   }
   else if (!m_session->hasSubsessions())
   {
-    XBMC->Log(LOG_DEBUG, "This session has no media subsessions");
+    KODI->Log(LOG_DEBUG, "This session has no media subsessions");
     shutdown();
     return false;
   }
@@ -362,7 +362,7 @@ bool CRTSPClient::OpenStream(const char* url)
     {
       if (strcmp(subsession->mediumName(), singleMediumToTest) != 0)
       {
-        XBMC->Log(LOG_DEBUG, "Ignoring %s %s %s", subsession->mediumName(), subsession->codecName(), singleMedium);
+        KODI->Log(LOG_DEBUG, "Ignoring %s %s %s", subsession->mediumName(), subsession->codecName(), singleMedium);
         continue;
       }
       else
@@ -383,11 +383,11 @@ bool CRTSPClient::OpenStream(const char* url)
     {
       if (!subsession->initiate(simpleRTPoffsetArg))
       {
-        XBMC->Log(LOG_ERROR, "Unable to create receiver for %s %s %s", subsession->mediumName(), subsession->codecName(), m_env->getResultMsg());
+        KODI->Log(LOG_ERROR, "Unable to create receiver for %s %s %s", subsession->mediumName(), subsession->codecName(), m_env->getResultMsg());
       }
       else
       {
-        XBMC->Log(LOG_DEBUG, "Created receiver for type=%s codec=%s ports: %d %d ", subsession->mediumName(), subsession->codecName(), subsession->clientPortNum(), subsession->clientPortNum() + 1 );
+        KODI->Log(LOG_DEBUG, "Created receiver for type=%s codec=%s ports: %d %d ", subsession->mediumName(), subsession->codecName(), subsession->clientPortNum(), subsession->clientPortNum() + 1 );
         madeProgress = true;
 
         if (subsession->rtpSource() != NULL)
@@ -397,7 +397,7 @@ bool CRTSPClient::OpenStream(const char* url)
           // (1 second) for reordering misordered incoming packets:
           int socketNum = subsession->rtpSource()->RTPgs()->socketNum();
 
-          XBMC->Log(LOG_DEBUG, "rtsp:increaseReceiveBufferTo to 2000000 for s:%d", socketNum);
+          KODI->Log(LOG_DEBUG, "rtsp:increaseReceiveBufferTo to 2000000 for s:%d", socketNum);
           increaseReceiveBufferTo( *m_env, socketNum, 2000000 );
 
           unsigned const thresh = 1000000; // 1 second
@@ -409,7 +409,7 @@ bool CRTSPClient::OpenStream(const char* url)
             unsigned int curBufferSize = getReceiveBufferSize(*m_env, socketNum);
             unsigned int newBufferSize = setReceiveBufferTo(*m_env, socketNum, socketInputBufferSize);
 
-            XBMC->Log(LOG_DEBUG, "Changed socket receive buffer size for the %s %s %d %d", subsession->mediumName(), subsession->codecName(), curBufferSize, newBufferSize);
+            KODI->Log(LOG_DEBUG, "Changed socket receive buffer size for the %s %s %d %d", subsession->mediumName(), subsession->codecName(), curBufferSize, newBufferSize);
           }
         }
       }
@@ -418,7 +418,7 @@ bool CRTSPClient::OpenStream(const char* url)
     {
       if (subsession->clientPortNum() == 0)
       {
-        XBMC->Log(LOG_DEBUG, "No client port was specified for the %s %s", subsession->mediumName(), subsession->codecName());
+        KODI->Log(LOG_DEBUG, "No client port was specified for the %s %s", subsession->mediumName(), subsession->codecName());
       }
       else
       {
@@ -456,11 +456,11 @@ bool CRTSPClient::OpenStream(const char* url)
     subsession->sink = fileSink;
     if (subsession->sink == NULL)
     {
-      XBMC->Log(LOG_DEBUG, "Failed to create FileSink %s", m_env->getResultMsg());
+      KODI->Log(LOG_DEBUG, "Failed to create FileSink %s", m_env->getResultMsg());
       shutdown();
       return false;
     }
-    XBMC->Log(LOG_DEBUG, "Created output sink: %s", m_outFileName);
+    KODI->Log(LOG_DEBUG, "Created output sink: %s", m_outFileName);
     subsession->sink->startPlaying(*(subsession->readSource()), my_subsessionAfterPlaying, subsession);
 
     // Also set a handler to be called if a RTCP "BYE" arrives
@@ -478,7 +478,7 @@ bool CRTSPClient::OpenStream(const char* url)
 
 void CRTSPClient::Stop()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient:Stop");
+  KODI->Log(LOG_DEBUG, "CRTSPClient:Stop");
 
   if (m_BufferThreadActive)
   {
@@ -487,24 +487,24 @@ void CRTSPClient::Stop()
 
   shutdown();
   m_buffer->Clear();
-  XBMC->Log(LOG_DEBUG, "CRTSPClient:Stop done");
+  KODI->Log(LOG_DEBUG, "CRTSPClient:Stop done");
 }
 
 void CRTSPClient::StartBufferThread()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::StartBufferThread");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::StartBufferThread");
 
   if (!m_BufferThreadActive)
   {
     CreateThread();
     m_BufferThreadActive = true;
   }
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::StartBufferThread done");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::StartBufferThread done");
 }
 
 void CRTSPClient::StopBufferThread()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::StopBufferThread");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::StopBufferThread");
   m_bRunning = false;
   if (!m_BufferThreadActive)
     return;
@@ -512,7 +512,7 @@ void CRTSPClient::StopBufferThread()
   StopThread();
 
   m_BufferThreadActive = false;
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::StopBufferThread done");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::StopBufferThread done");
 }
 
 bool CRTSPClient::IsRunning()
@@ -527,7 +527,7 @@ long CRTSPClient::Duration()
 
 void CRTSPClient::FillBuffer(unsigned long byteCount)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d\n", byteCount);
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d\n", byteCount);
   unsigned long long tickCount = GetTickCount64();
 
   while ( IsRunning() && m_buffer->Size() < byteCount)
@@ -536,7 +536,7 @@ void CRTSPClient::FillBuffer(unsigned long byteCount)
     if (GetTickCount64() - tickCount > 3000)
       break;
   }
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d/%d\n", byteCount, m_buffer->Size() );
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Fillbuffer...%d/%d\n", byteCount, m_buffer->Size() );
 }
 
 void *CRTSPClient::Process()
@@ -544,7 +544,7 @@ void *CRTSPClient::Process()
   m_BufferThreadActive = true;
   m_bRunning = true;
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient:: thread started");
+  KODI->Log(LOG_DEBUG, "CRTSPClient:: thread started");
 
   while (m_env != NULL && !IsStopped())
   {
@@ -553,7 +553,7 @@ void *CRTSPClient::Process()
       break;
   }
 
-  XBMC->Log(LOG_DEBUG, "CRTSPClient:: thread stopped");
+  KODI->Log(LOG_DEBUG, "CRTSPClient:: thread stopped");
 
   m_BufferThreadActive = false;
 
@@ -578,24 +578,24 @@ bool CRTSPClient::IsPaused()
 
 bool CRTSPClient::Pause()
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Pause()");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Pause()");
   if (m_ourClient != NULL && m_session != NULL)
   {
-    XBMC->Log(LOG_DEBUG, "CRTSPClient::Pause() stopthread");
+    KODI->Log(LOG_DEBUG, "CRTSPClient::Pause() stopthread");
     StopThread(10000);                    // Ambass : sometimes 100mS ( prev value ) is not enough and thread is not stopped.
                                                  //          now stopping takes around 5 secs ?!?! why ????
-    XBMC->Log(LOG_DEBUG, "CRTSPClient::Pause() thread stopped");
+    KODI->Log(LOG_DEBUG, "CRTSPClient::Pause() thread stopped");
     RTSPClient* rtspClient=(RTSPClient*)m_ourClient;
     rtspClient->pauseMediaSession(*m_session);
     m_bPaused = true;
   }
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Pause() done");
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Pause() done");
 
   return true;
 }
 bool CRTSPClient::Play(double fStart,double fDuration)
 {
-  XBMC->Log(LOG_DEBUG, "CRTSPClient::Play from %f / %f", (float)fStart, (float)fDuration);
+  KODI->Log(LOG_DEBUG, "CRTSPClient::Play from %f / %f", (float)fStart, (float)fDuration);
 
   m_bPaused = false;
   m_fStart = fStart;
@@ -647,10 +647,10 @@ bool CRTSPClient::UpdateDuration()
   char* sdpDescription = getSDPDescription();
   if (sdpDescription == NULL)
   {
-    XBMC->Log(LOG_ERROR, "UpdateStreamDuration: Failed to get a SDP description from URL %s %s", m_url, m_env->getResultMsg() );
+    KODI->Log(LOG_ERROR, "UpdateStreamDuration: Failed to get a SDP description from URL %s %s", m_url, m_env->getResultMsg() );
     return false;
   }
-  //XBMC->Log(LOG_DEBUG, "Opened URL %s %s",url,sdpDescription);
+  //KODI->Log(LOG_DEBUG, "Opened URL %s %s",url,sdpDescription);
 
   char* range = strstr(sdpDescription, "a=range:npt=");
   if (range != NULL)
@@ -664,7 +664,7 @@ bool CRTSPClient::UpdateDuration()
       double Start = atof(pStart);
       double End = atof(pEnd);
 
-      //XBMC->Log(LOG_DEBUG, "rangestart:%f rangeend:%f", Start,End);
+      //KODI->Log(LOG_DEBUG, "rangestart:%f rangeend:%f", Start,End);
       m_duration = (long) ((End-Start)*1000.0);
     }
   }

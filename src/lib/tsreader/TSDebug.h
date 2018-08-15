@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2013 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #pragma once
 
 #ifdef TSREADER_DEBUG
-#define TSDEBUG XBMC->Log
+#define TSDEBUG KODI->Log
 #else
 #ifdef _MSC_VER
 #define TSDEBUG

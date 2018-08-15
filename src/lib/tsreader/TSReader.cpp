@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
  *************************************************************************/
 
 #include "TSReader.h"
-#include "client.h" //for XBMC->Log
+#include "client.h" //for KODI->Log
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "TSDebug.h"
@@ -83,12 +83,12 @@ namespace MPTV
         // Can we access the given file already?
         if (OS::CFile::Exists(pszFileName))
         {
-            XBMC->Log(LOG_DEBUG, "Found the timeshift buffer at: %s\n", pszFileName);
-            return ToXBMCPath(sFileName);
+            KODI->Log(LOG_DEBUG, "Found the timeshift buffer at: %s\n", pszFileName);
+            return ToKodiPath(sFileName);
         }
-        XBMC->Log(LOG_NOTICE, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
+        KODI->Log(LOG_NOTICE, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
 #else
-        XBMC->Log(LOG_DEBUG, "Multiseat mode; need to translate '%s' to UNC filename.", pszFileName);
+        KODI->Log(LOG_DEBUG, "Multiseat mode; need to translate '%s' to UNC filename.", pszFileName);
 #endif
 
         bool bFound = false;
@@ -107,7 +107,7 @@ namespace MPTV
                 }
                 else
                 {
-                    XBMC->Log(LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerKodi settings!", tscard.IdCard, tscard.Name.c_str());
+                    KODI->Log(LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerKodi settings!", tscard.IdCard, tscard.Name.c_str());
                 }
             }
         }
@@ -136,19 +136,19 @@ namespace MPTV
             }
         }
 
-        sFileName = ToXBMCPath(sFileName);
+        sFileName = ToKodiPath(sFileName);
 
         if (bFound)
         {
-            XBMC->Log(LOG_NOTICE, "Translate path %s -> %s", pszFileName, sFileName.c_str());
+            KODI->Log(LOG_NOTICE, "Translate path %s -> %s", pszFileName, sFileName.c_str());
         }
         else
         {
-            XBMC->Log(LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerKodi settings!", pszFileName);
-            if (!XBMC->FileExists(pszFileName, false))
+            KODI->Log(LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerKodi settings!", pszFileName);
+            if (!KODI->FileExists(pszFileName, false))
             {
-                XBMC->Log(LOG_ERROR, "Cannot access '%s'", pszFileName);
-                XBMC->QueueNotification(QUEUE_ERROR, "Cannot access: %s", pszFileName);
+                KODI->Log(LOG_ERROR, "Cannot access '%s'", pszFileName);
+                KODI->QueueNotification(QUEUE_ERROR, "Cannot access: %s", pszFileName);
                 sFileName.clear();
                 return sFileName;
             }
@@ -162,7 +162,7 @@ namespace MPTV
             switch (errCode)
             {
             case ERROR_FILE_NOT_FOUND:
-                XBMC->Log(LOG_ERROR, "File not found: %s.\n", sFileName.c_str());
+                KODI->Log(LOG_ERROR, "File not found: %s.\n", sFileName.c_str());
                 break;
             case ERROR_ACCESS_DENIED:
             {
@@ -172,18 +172,18 @@ namespace MPTV
 
                 if (GetUserNameA(strUserName, &lLength))
                 {
-                    XBMC->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
+                    KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
                 }
                 else
 #endif
                 {
-                    XBMC->Log(LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
+                    KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
                 }
-                XBMC->QueueNotification(QUEUE_ERROR, "Access denied: %s", sFileName.c_str());
+                KODI->QueueNotification(QUEUE_ERROR, "Access denied: %s", sFileName.c_str());
                 break;
             }
             default:
-                XBMC->Log(LOG_ERROR, "Cannot find or access file: %s. Check share access rights.", sFileName.c_str());
+                KODI->Log(LOG_ERROR, "Cannot find or access file: %s. Check share access rights.", sFileName.c_str());
             }
 
             sFileName.clear();
@@ -195,7 +195,7 @@ namespace MPTV
 
     long CTsReader::Open(const char* pszFileName)
     {
-        XBMC->Log(LOG_NOTICE, "TsReader open '%s'", pszFileName);
+        KODI->Log(LOG_NOTICE, "TsReader open '%s'", pszFileName);
 
         m_fileName = pszFileName;
 
@@ -209,7 +209,7 @@ namespace MPTV
         {
             // rtsp:// stream
             // open stream
-            XBMC->Log(LOG_DEBUG, "open rtsp: %s", m_fileName.c_str());
+            KODI->Log(LOG_DEBUG, "open rtsp: %s", m_fileName.c_str());
 #ifdef LIVE555
             //strcpy(m_rtspClient.m_outFileName, "e:\\temp\\rtsptest.ts");
             m_buffer = new CMemoryBuffer();
@@ -240,8 +240,8 @@ namespace MPTV
             m_fileReader = new CMemoryReader(*m_buffer);
             m_State = State_Running;
 #else
-            XBMC->Log(LOG_ERROR, "Failed to open %s. PVR client is compiled without LIVE555 RTSP support.", m_fileName.c_str());
-            XBMC->QueueNotification(QUEUE_ERROR, "PVR client has no RTSP support: %s", m_fileName.c_str());
+            KODI->Log(LOG_ERROR, "Failed to open %s. PVR client is compiled without LIVE555 RTSP support.", m_fileName.c_str());
+            KODI->QueueNotification(QUEUE_ERROR, "PVR client has no RTSP support: %s", m_fileName.c_str());
             return E_FAIL;
 #endif //LIVE555
         }
@@ -274,7 +274,7 @@ namespace MPTV
             long retval = m_fileReader->OpenFile(m_fileName);
             if (retval != S_OK)
             {
-                XBMC->Log(LOG_ERROR, "Failed to open file '%s' as '%s'", pszFileName, m_fileName.c_str());
+                KODI->Log(LOG_ERROR, "Failed to open file '%s' as '%s'", pszFileName, m_fileName.c_str());
                 return retval;
             }
             // detect audio/video pids
@@ -305,7 +305,7 @@ namespace MPTV
             if (m_bIsRTSP)
             {
 #ifdef LIVE555
-                XBMC->Log(LOG_NOTICE, "TsReader: closing RTSP client");
+                KODI->Log(LOG_NOTICE, "TsReader: closing RTSP client");
                 m_rtspClient->Stop();
                 SAFE_DELETE(m_rtspClient);
                 SAFE_DELETE(m_buffer);
@@ -313,7 +313,7 @@ namespace MPTV
             }
             else
             {
-                XBMC->Log(LOG_NOTICE, "TsReader: closing file");
+                KODI->Log(LOG_NOTICE, "TsReader: closing file");
                 m_fileReader->CloseFile();
             }
             SAFE_DELETE(m_fileReader);
@@ -325,7 +325,7 @@ namespace MPTV
     {
         string newFileName;
 
-        XBMC->Log(LOG_NOTICE, "TsReader: OnZap(%s)", pszFileName);
+        KODI->Log(LOG_NOTICE, "TsReader: OnZap(%s)", pszFileName);
 
         // Check whether the new channel url/timeshift buffer is changed
         // In case of a new url/timeshift buffer file, close the old one first
@@ -339,7 +339,7 @@ namespace MPTV
         {
             if (m_fileReader)
             {
-                XBMC->Log(LOG_DEBUG, "%s: request new PAT", __FUNCTION__);
+                KODI->Log(LOG_DEBUG, "%s: request new PAT", __FUNCTION__);
 
                 int64_t pos_before, pos_after;
                 MultiFileReader* fileReader = dynamic_cast<MultiFileReader*>(m_fileReader);
@@ -368,7 +368,7 @@ namespace MPTV
                 m_demultiplexer.RequestNewPat();
                 fileReader->OnChannelChange();
 
-                XBMC->Log(LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
+                KODI->Log(LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
                 usleep(100000);
                 return true;
             }
@@ -410,7 +410,7 @@ namespace MPTV
 
     long CTsReader::Pause()
     {
-        XBMC->Log(LOG_DEBUG, "TsReader: Pause - IsTimeShifting = %d - state = %d", IsTimeShifting(), m_State);
+        KODI->Log(LOG_DEBUG, "TsReader: Pause - IsTimeShifting = %d - state = %d", IsTimeShifting(), m_State);
 
         if (m_State == State_Running)
         {
@@ -419,7 +419,7 @@ namespace MPTV
             // Are we using rtsp?
             if (m_bIsRTSP)
             {
-                XBMC->Log(LOG_DEBUG, "CTsReader::Pause()  ->pause rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                KODI->Log(LOG_DEBUG, "CTsReader::Pause()  ->pause rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
                 m_rtspClient->Pause();
             }
 #endif //LIVE555
@@ -431,15 +431,15 @@ namespace MPTV
             // Are we using rtsp?
             if (m_bIsRTSP)
             {
-                XBMC->Log(LOG_DEBUG, "CTsReader::Pause() is paused, continue rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                KODI->Log(LOG_DEBUG, "CTsReader::Pause() is paused, continue rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
                 m_rtspClient->Continue();
-                XBMC->Log(LOG_DEBUG, "CTsReader::Pause() rtsp running"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                KODI->Log(LOG_DEBUG, "CTsReader::Pause() rtsp running"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
             }
             m_State = State_Running;
 #endif //LIVE555
         }
 
-        XBMC->Log(LOG_DEBUG, "TsReader: Pause - END - state = %d", m_State);
+        KODI->Log(LOG_DEBUG, "TsReader: Pause - END - state = %d", m_State);
         return S_OK;
     }
 

@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2013 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ namespace MPTV
         bool m_bAudioAtEof;
         bool m_bVideoAtEof;
 
-        // XBMC specific
+        // Kodi specific
         bool m_bGotNewChannel;
     };
 }

@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2012 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ void CMemorySink::addData(unsigned char* data, size_t dataSize, struct timeval U
 
   if (m_bReEntrant)
   {
-    XBMC->Log(LOG_DEBUG, "REENTRANT IN MEMORYSINK.CPP");
+    KODI->Log(LOG_DEBUG, "REENTRANT IN MEMORYSINK.CPP");
     return;
   }
 

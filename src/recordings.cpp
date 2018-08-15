@@ -1,6 +1,6 @@
 /*
- *      Copyright (C) 2005-2011 Team XBMC
- *      http://www.xbmc.org
+ *      Copyright (C) 2005-2011 Team Kodi
+ *      https://kodi.tv
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -92,13 +92,13 @@ bool cRecording::ParseLine(const std::string& data)
 
     if ( m_startTime.SetFromDateTime(fields[1]) == false )
     {
-      XBMC->Log(LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
+      KODI->Log(LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
       return false;
     }
 
     if ( m_endTime.SetFromDateTime(fields[2]) == false )
     {
-      XBMC->Log(LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
+      KODI->Log(LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
       return false;
     }
 
@@ -188,7 +188,7 @@ bool cRecording::ParseLine(const std::string& data)
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
+    KODI->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
     return false;
   }
 }

@@ -21,7 +21,7 @@
 */
 
 #include "os-dependent.h"
-#include "client.h" // XBMC->Log
+#include "client.h" // KODI->Log
 #include "PmtParser.h"
 #include "ChannelInfo.h"
 #include <cassert>
@@ -70,7 +70,7 @@ namespace MPTV
 
             if (!m_isFound)
             {
-                XBMC->Log(LOG_DEBUG, "got pmt:%x service id:%x", GetPid(), program_number);
+                KODI->Log(LOG_DEBUG, "got pmt:%x service id:%x", GetPid(), program_number);
                 m_isFound = true;
                 if (m_pmtCallback != NULL)
                 {
@@ -102,7 +102,7 @@ namespace MPTV
                 stream_type = section.Data[pointer];
                 elementary_PID = ((section.Data[pointer + 1] & 0x1F) << 8) + section.Data[pointer + 2];
                 ES_info_length = ((section.Data[pointer + 3] & 0xF) << 8) + section.Data[pointer + 4];
-                XBMC->Log(LOG_DEBUG, "pmt: pid:%x type:%x", elementary_PID, stream_type);
+                KODI->Log(LOG_DEBUG, "pmt: pid:%x type:%x", elementary_PID, stream_type);
 
                 if (stream_type == SERVICE_TYPE_VIDEO_MPEG1
                     || stream_type == SERVICE_TYPE_VIDEO_MPEG2
@@ -136,7 +136,7 @@ namespace MPTV
                 {
                     if (pointer + 1 >= section.section_length)
                     {
-                        XBMC->Log(LOG_DEBUG, "pmt parser check1");
+                        KODI->Log(LOG_DEBUG, "pmt parser check1");
                         return;
                     }
 
@@ -172,7 +172,7 @@ namespace MPTV
                     {
                         if (pointer + 4 >= section.section_length)
                         {
-                            XBMC->Log(LOG_DEBUG, "pmt parser check2");
+                            KODI->Log(LOG_DEBUG, "pmt parser check2");
                             return;
                         }
 
@@ -244,7 +244,7 @@ namespace MPTV
                     }
                     if (indicator == DESCRIPTOR_VBI_TELETEXT)
                     {
-                        XBMC->Log(LOG_DEBUG, "VBI teletext descriptor");
+                        KODI->Log(LOG_DEBUG, "VBI teletext descriptor");
                     }
                     if (indicator == DESCRIPTOR_DVB_TELETEXT /*&& m_pidInfo.TeletextPid==0*/)
                     {
@@ -260,7 +260,7 @@ namespace MPTV
 
                         //BYTE b = 0x02 << 3;
 
-                        XBMC->Log(LOG_DEBUG, "Descriptor length %i, N= %i", descriptorLen, N);
+                        KODI->Log(LOG_DEBUG, "Descriptor length %i, N= %i", descriptorLen, N);
                         for (int j = 0; j < N; j++)
                         {
                             //BYTE ISO_639_language_code[3];
@@ -286,15 +286,15 @@ namespace MPTV
 
                             int real_page = teletext_magazine_number * 100 + real_page_tens * 10 + real_page_units;
 
-                            //XBMC->Log(LOG_DEBUG, "Mag: %i, tens %i, units %i, total ?= %i", teletext_magazine_number,real_page_tens,real_page_units,real_page);
+                            //KODI->Log(LOG_DEBUG, "Mag: %i, tens %i, units %i, total ?= %i", teletext_magazine_number,real_page_tens,real_page_units,real_page);
 
                             //if its a teletext subtitle service (standard / hard of hearing respectively)
                             if (teletext_type == 0x02 || teletext_type == 0x05)
                             {
                                 if (!m_pidInfo.HasTeletextPageInfo(real_page))
                                 {
-                                    XBMC->Log(LOG_DEBUG, "TODO: Teletext subtitles in PMT: PID %i, mag %i, page %i", elementary_PID, teletext_magazine_number, real_page);
-                                    //XBMC->Log(LOG_DEBUG, "Teletext subtitles in PMT: PID %i, mag %i, page %i, prevPage %i", elementary_PID, teletext_magazine_number, real_page, m_pidInfo.TeletextSubPage);
+                                    KODI->Log(LOG_DEBUG, "TODO: Teletext subtitles in PMT: PID %i, mag %i, page %i", elementary_PID, teletext_magazine_number, real_page);
+                                    //KODI->Log(LOG_DEBUG, "Teletext subtitles in PMT: PID %i, mag %i, page %i, prevPage %i", elementary_PID, teletext_magazine_number, real_page, m_pidInfo.TeletextSubPage);
                                     //TeletextServiceInfo info;
                                     //info.page = real_page;
                                     //info.type = teletext_type;
@@ -306,7 +306,7 @@ namespace MPTV
                             }
                             else
                             {
-                                XBMC->Log(LOG_DEBUG, "Teletext SI: Page %i Type %X", real_page, teletext_type);
+                                KODI->Log(LOG_DEBUG, "Teletext SI: Page %i Type %X", real_page, teletext_type);
                             }
                         }
                     }
@@ -353,13 +353,13 @@ namespace MPTV
             }
             if (m_pmtCallback != NULL)
             {
-                XBMC->Log(LOG_DEBUG, "DecodePMT pid:0x%x pcrpid:0x%x sid:%x", m_pidInfo.PmtPid, m_pidInfo.PcrPid, m_pidInfo.ServiceId);
+                KODI->Log(LOG_DEBUG, "DecodePMT pid:0x%x pcrpid:0x%x sid:%x", m_pidInfo.PmtPid, m_pidInfo.PcrPid, m_pidInfo.ServiceId);
                 m_pmtCallback->OnPidsReceived(m_pidInfo);
             }
         }
         catch (...)
         {
-            XBMC->Log(LOG_DEBUG, "Exception in PmtParser");
+            KODI->Log(LOG_DEBUG, "Exception in PmtParser");
         }
     }
 

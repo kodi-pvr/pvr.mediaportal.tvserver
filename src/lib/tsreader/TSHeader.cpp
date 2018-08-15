@@ -20,7 +20,7 @@
  *
  */
 #include "os-dependent.h"
-#include "client.h" //XBMC->Log
+#include "client.h" //KODI->Log
 #include "TSHeader.h" 
 
 #define PAYLOADONLY             1
@@ -125,20 +125,20 @@ namespace MPTV
 
     void CTsHeader::LogHeader()
     {
-        XBMC->Log(LOG_DEBUG, "tsheader:%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x",
+        KODI->Log(LOG_DEBUG, "tsheader:%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x",
             m_packet[0], m_packet[1], m_packet[2], m_packet[3], m_packet[4], m_packet[5], m_packet[6], m_packet[7], m_packet[8], m_packet[9]);
-        XBMC->Log(LOG_DEBUG, "  SyncByte           :%x", SyncByte);
-        XBMC->Log(LOG_DEBUG, "  TransportError     :%x", TransportError);
-        XBMC->Log(LOG_DEBUG, "  PayloadUnitStart   :%d", PayloadUnitStart);
-        XBMC->Log(LOG_DEBUG, "  TransportPriority  :%x", TransportPriority);
-        XBMC->Log(LOG_DEBUG, "  Pid                :%x", Pid);
-        XBMC->Log(LOG_DEBUG, "  TScrambling        :%x", TScrambling);
-        XBMC->Log(LOG_DEBUG, "  AdaptionControl    :%x", AdaptionControl);
-        XBMC->Log(LOG_DEBUG, "  ContinuityCounter  :%x", ContinuityCounter);
-        XBMC->Log(LOG_DEBUG, "  AdaptionFieldLength:%d", AdaptionFieldLength);
-        XBMC->Log(LOG_DEBUG, "  PayLoadStart       :%d", PayLoadStart);
-        XBMC->Log(LOG_DEBUG, "  PayLoadOnly            :%d", PayLoadOnly());
-        XBMC->Log(LOG_DEBUG, "  AdaptionFieldOnly      :%d", AdaptionFieldOnly());
-        XBMC->Log(LOG_DEBUG, "  AdaptionFieldAndPayLoad:%d", AdaptionFieldAndPayLoad());
+        KODI->Log(LOG_DEBUG, "  SyncByte           :%x", SyncByte);
+        KODI->Log(LOG_DEBUG, "  TransportError     :%x", TransportError);
+        KODI->Log(LOG_DEBUG, "  PayloadUnitStart   :%d", PayloadUnitStart);
+        KODI->Log(LOG_DEBUG, "  TransportPriority  :%x", TransportPriority);
+        KODI->Log(LOG_DEBUG, "  Pid                :%x", Pid);
+        KODI->Log(LOG_DEBUG, "  TScrambling        :%x", TScrambling);
+        KODI->Log(LOG_DEBUG, "  AdaptionControl    :%x", AdaptionControl);
+        KODI->Log(LOG_DEBUG, "  ContinuityCounter  :%x", ContinuityCounter);
+        KODI->Log(LOG_DEBUG, "  AdaptionFieldLength:%d", AdaptionFieldLength);
+        KODI->Log(LOG_DEBUG, "  PayLoadStart       :%d", PayLoadStart);
+        KODI->Log(LOG_DEBUG, "  PayLoadOnly            :%d", PayLoadOnly());
+        KODI->Log(LOG_DEBUG, "  AdaptionFieldOnly      :%d", AdaptionFieldOnly());
+        KODI->Log(LOG_DEBUG, "  AdaptionFieldAndPayLoad:%d", AdaptionFieldAndPayLoad());
     }
 }
