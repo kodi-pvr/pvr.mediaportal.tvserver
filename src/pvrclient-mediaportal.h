@@ -111,7 +111,7 @@ protected:
 private:
   /* TVServerKodi Listening Thread */
   void* Process(void);
-  PVR_CONNECTION_STATE Connect();
+  PVR_CONNECTION_STATE Connect(bool updateConnectionState = true);
 
 
   bool GetChannel(unsigned int number, PVR_CHANNEL &channeldata);

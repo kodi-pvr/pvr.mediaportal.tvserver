@@ -177,7 +177,7 @@ ADDON_STATUS cPVRClientMediaPortal::TryConnect()
   return ADDON_STATUS_OK;
 }
 
-PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
+PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
 {
   P8PLATFORM::CLockObject critsec(m_connectionMutex);
 
@@ -186,14 +186,23 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   if (!m_tcpclient->create())
   {
     XBMC->Log(LOG_ERROR, "Could not connect create socket");
-    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    }
     return PVR_CONNECTION_STATE_UNKNOWN;
   }
-  SetConnectionState(PVR_CONNECTION_STATE_CONNECTING);
+  if (updateConnectionState)
+  {
+    SetConnectionState(PVR_CONNECTION_STATE_CONNECTING);
+  }
 
   if (!m_tcpclient->connect(g_szHostname, (unsigned short) g_iPort))
   {
-    SetConnectionState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
+    }
     return PVR_CONNECTION_STATE_SERVER_UNREACHABLE;
   }
 
@@ -204,14 +213,20 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
 
   if (result.length() == 0)
   {
-    SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
+    }
     return PVR_CONNECTION_STATE_UNKNOWN;
   }
 
   if(result.find("Unexpected protocol") != std::string::npos)
   {
     XBMC->Log(LOG_ERROR, "TVServer does not accept protocol: PVRclientXBMC:0-1");
-    SetConnectionState(PVR_CONNECTION_STATE_SERVER_MISMATCH);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_SERVER_MISMATCH);
+    }
     return PVR_CONNECTION_STATE_SERVER_MISMATCH;
   }
 
@@ -224,7 +239,10 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!", TVSERVERKODI_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30051), TVSERVERKODI_MIN_VERSION_STRING);
-    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    }
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
@@ -233,7 +251,10 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   if( count < 4 )
   {
     XBMC->Log(LOG_ERROR, "Could not parse the TVServerKodi version string '%s'", fields[1].c_str());
-    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    }
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
 
@@ -242,7 +263,10 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   {
     XBMC->Log(LOG_ERROR, "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30050), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
-    SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    if (updateConnectionState)
+    {
+      SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
+    }
     return PVR_CONNECTION_STATE_VERSION_MISMATCH;
   }
   else
@@ -261,7 +285,10 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect()
   snprintf(buffer, 512, "%s:%i", g_szHostname.c_str(), g_iPort);
   m_ConnectionString = buffer;
 
-  SetConnectionState(PVR_CONNECTION_STATE_CONNECTED);
+  if (updateConnectionState)
+  {
+    SetConnectionState(PVR_CONNECTION_STATE_CONNECTED);
+  }
 
   /* Load additional settings */
   LoadGenreTable();
@@ -328,12 +355,13 @@ void* cPVRClientMediaPortal::Process(void)
   XBMC->Log(LOG_DEBUG, "Background thread started.");
 
   bool keepWaiting = true;
+  PVR_CONNECTION_STATE state;
 
   while (!IsStopped() && keepWaiting)
   {
-    PVR_CONNECTION_STATE result = Connect();
+    state = Connect(false);
     
-    switch (result)
+    switch (state)
     {
     case PVR_CONNECTION_STATE_ACCESS_DENIED:
     case PVR_CONNECTION_STATE_UNKNOWN:
@@ -354,6 +382,7 @@ void* cPVRClientMediaPortal::Process(void)
       usleep(60000000);
     }
   }
+  SetConnectionState(state);
 
   XBMC->Log(LOG_DEBUG, "Background thread finished.");
 
