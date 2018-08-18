@@ -120,6 +120,7 @@ private:
   void SetConnectionState(PVR_CONNECTION_STATE newState);
   cRecording* GetRecordingInfo(const PVR_RECORDING& recording);
   const char* GetConnectionStateString(PVR_CONNECTION_STATE state) const;
+  void AddStreamProperty(PVR_NAMED_VALUE* properties, unsigned int* propertiesCount, std::string name, std::string value);
 
   int                     m_iCurrentChannel;
   int                     m_iCurrentCard;
@@ -146,8 +147,6 @@ private:
   int                     m_iSNR;
 
   cRecording*             m_lastSelectedRecording;
-
-  void Close();
 
   //Used for TV Server communication:
   std::string SendCommand(const char* command);
