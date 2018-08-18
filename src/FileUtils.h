@@ -27,4 +27,13 @@ namespace OS
   public:
     static bool Exists(const std::string& strFileName, long* errCode = NULL);
   };
+
+#ifdef TARGET_WINDOWS_DESKTOP
+  /**
+   * Return the location of the Program Data folder
+   * @param[in,out] programData Reference to a string that will receive the program data path
+   * @return true on success, false on failure
+   */
+  bool GetProgramData(std::string& programData);
+#endif
 };

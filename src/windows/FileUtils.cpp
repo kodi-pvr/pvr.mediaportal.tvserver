@@ -22,6 +22,9 @@
 #include "p8-platform/windows/CharsetConverter.h"
 #include <string>
 #include "../utils.h"
+#ifdef TARGET_WINDOWS_DESKTOP
+#include<Shlobj.h>
+#endif
 
 namespace OS
 {
@@ -41,4 +44,24 @@ namespace OS
 
     return false;
   }
+
+#ifdef TARGET_WINDOWS_DESKTOP
+  /**
+  * Return the location of the Program Data folder
+  */
+  bool GetProgramData(std::string& programData)
+  {
+    LPWSTR wszPath = NULL;
+    if (SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &wszPath) != S_OK)
+    {
+      return false;
+    }
+    std::wstring wPath = wszPath;
+    CoTaskMemFree(wszPath);
+    programData = WStringToString(wPath);
+
+    return true;
+  }
+
+#endif
 }

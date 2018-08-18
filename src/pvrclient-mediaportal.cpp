@@ -707,20 +707,16 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
   std::string strThumbPath;
   std::string strProgramData;
 
-  if (OS::GetEnvironmentVariable("PROGRAMDATA", strProgramData) == true)
-    strThumbPath = strProgramData + "\\Team MediaPortal\\MediaPortal\\Thumbs\\";
-  else
+  if (OS::GetProgramData(strProgramData) == true)
   {
-    /* Windows Vista and above */
-    strThumbPath = "C:\\ProgramData\\Team MediaPortal\\MediaPortal\\Thumbs\\";
+    strThumbPath = strProgramData + "\\Team MediaPortal\\MediaPortal\\Thumbs\\";
+    if (bRadio)
+      strThumbPath += "Radio\\";
+    else
+      strThumbPath += "TV\\logos\\";
+
+    bCheckForThumbs = OS::CFile::Exists(strThumbPath);
   }
-
-  if (bRadio)
-    strThumbPath += "Radio\\";
-  else
-    strThumbPath += "TV\\logos\\";
-
-  bCheckForThumbs = OS::CFile::Exists(strThumbPath);
 #endif // TARGET_WINDOWS_DESKTOP
 
   memset(&tag, 0, sizeof(PVR_CHANNEL));
@@ -760,7 +756,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
       }
       PVR_STRCPY(tag.strChannelName, channel.Name());
       PVR_STRCLR(tag.strIconPath);
-#ifdef TARGET_WINDOWS
+#ifdef TARGET_WINDOWS_DESKTOP
       if (bCheckForThumbs)
       {
         const int ciExtCount = 5;
@@ -1095,14 +1091,43 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         /* Recording thumbnail */
         std::string strThumbnailName(recordingUri);
         StringUtils::Replace(strThumbnailName, ".ts", ".jpg");
-
+        /* Check if it exists next to the recording */
         if (KODI->FileExists(strThumbnailName.c_str(), false))
         {
           PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
         }
         else
         {
-          PVR_STRCLR(tag.strThumbnailPath);
+#ifdef TARGET_WINDOWS_DESKTOP
+          /* Check also: C:\ProgramData\Team MediaPortal\MediaPortal TV Server\thumbs */
+          std::string strThumbnailFilename = recording.FileName();
+          StringUtils::Replace(strThumbnailFilename, ".ts", ".jpg");
+          std::string strProgramData;
+          if (OS::GetProgramData(strProgramData))
+          {
+            /* MediaPortal 1 */
+            strThumbnailName = strProgramData +
+                               "\\Team MediaPortal\\MediaPortal TV Server\\thumbs\\" +
+                               strThumbnailFilename;
+            if (KODI->FileExists(strThumbnailName.c_str(), false))
+            {
+              PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+            }
+            else
+            {
+              /* MediaPortal 2 */
+              strThumbnailName = strProgramData +
+                                 "\\Team MediaPortal\\MP2-Server\\SlimTVCore\\v3.0\\thumbs\\" +
+                                 strThumbnailFilename;
+              if (KODI->FileExists(strThumbnailName.c_str(), false))
+              {
+                PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+              }
+            }
+          }
+          else
+#endif /* TARGET_WINDOWS_DESKTOP */
+            PVR_STRCLR(tag.strThumbnailPath);
         }
       }
 
