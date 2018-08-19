@@ -75,7 +75,10 @@ set(MPTV_HEADERS src/Cards.h
                  src/utils.h)
 source_group("Header Files" FILES ${MPTV_HEADERS})
 if(WIN32)
-  set(MPTV_HEADERS_WINDOWS src/windows/WindowsUtils.h)
+  set(MPTV_HEADERS_WINDOWS
+    src/FileUtils.h
+    src/windows/WindowsUtils.h
+  )
   source_group("Header Files\\windows" FILES ${MPTV_HEADERS_WINDOWS})
   list(APPEND MPTV_HEADERS ${MPTV_HEADERS_WINDOWS})
 endif(WIN32)

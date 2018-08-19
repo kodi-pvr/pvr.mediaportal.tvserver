@@ -1,3 +1,7 @@
+v3.5.5
+- Fixed: Windows UWP build
+- Added: Check also C:\ProgramData\Team MediaPortal\MediaPortal TV Server\thumbs for recording thumbs in single seat mode
+
 v3.5.4
 - Remove Windows XP support
 - Don't update the Kodi connection state when trying to connect in the background thread. This prevents pop-ups every minute when the backend is down.
