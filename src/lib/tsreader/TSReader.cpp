@@ -47,7 +47,7 @@ using namespace ADDON;
 namespace MPTV
 {
     CTsReader::CTsReader() : m_demultiplexer(*this),
-        m_fileName("")
+        m_fileName(""), m_startTickCount(), m_startTime(0)
     {
         m_fileReader = NULL;
         m_fileDuration = NULL;
@@ -283,6 +283,9 @@ namespace MPTV
 
             m_fileReader->SetFilePointer(0LL, FILE_BEGIN);
             m_State = State_Running;
+
+            time(&m_startTime);
+            m_startTickCount = GetTickCount64();
         }
         return S_OK;
     }
@@ -456,6 +459,21 @@ namespace MPTV
     int64_t CTsReader::GetFilePointer()
     {
         return m_fileReader->GetFilePointer();
+    }
+
+    time_t CTsReader::GetStartTime()
+    {
+      return m_startTime;
+    }
+
+    int64_t CTsReader::GetPtsBegin()
+    {
+      return 0;
+    }
+
+    int64_t CTsReader::GetPtsEnd()
+    {
+      return (GetTickCount64() - m_startTickCount) * 1000; // useconds
     }
 
     int64_t CTsReader::SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)

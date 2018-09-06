@@ -1,3 +1,9 @@
+v3.5.7
+- Fixed: timeshift support for Live TV in v18 (TSReader)
+
+v3.5.6
+- Translation update from Transifex
+
 v3.5.5
 - Fixed: Windows UWP build
 - Added: Check also C:\ProgramData\Team MediaPortal\MediaPortal TV Server\thumbs for recording thumbs in single seat mode
