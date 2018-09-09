@@ -1,3 +1,7 @@
+v3.5.8
+- Windows UWP: Fixes for recording playback (TSReader) via the vfs.smb2 plugin
+- Windows UWP: disable recording thumbnails code for now (does not work over network shares)
+
 v3.5.7
 - Fixed: timeshift support for Live TV in v18 (TSReader)
 
