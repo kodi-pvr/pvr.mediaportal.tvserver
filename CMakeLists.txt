@@ -19,7 +19,7 @@ set(LIVE555_INCLUDE_DIR
   src/lib/live555/
 )
 
-set(LIVE555_DEFINES -DLIVE555 -DSOCKLEN_T=socklen_t -DBSD=1)
+set(LIVE555_DEFINES -DLIVE555 -D_WINSOCK_DEPRECATED_NO_WARNINGS -DSOCKLEN_T=socklen_t -DBSD=1)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}

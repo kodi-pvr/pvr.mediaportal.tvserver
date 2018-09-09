@@ -79,7 +79,7 @@ namespace MPTV
     std::string CTsReader::TranslatePath(const char*  pszFileName)
     {
         std::string sFileName = pszFileName;
-#if defined (TARGET_WINDOWS)
+#if defined (TARGET_WINDOWS_DESKTOP)
         // Can we access the given file already?
         if (OS::CFile::Exists(pszFileName))
         {
@@ -87,6 +87,8 @@ namespace MPTV
             return ToKodiPath(sFileName);
         }
         KODI->Log(LOG_NOTICE, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
+#elif defined (TARGET_WINDOWS_STORE)
+        KODI->Log(LOG_DEBUG, "WindowsStore: need to translate '%s' to UNC filename.", pszFileName);
 #else
         KODI->Log(LOG_DEBUG, "Multiseat mode; need to translate '%s' to UNC filename.", pszFileName);
 #endif
@@ -154,7 +156,7 @@ namespace MPTV
             }
         }
 
-#if defined (TARGET_WINDOWS)
+#if defined (TARGET_WINDOWS_DESKTOP)
         // Can we now access the given file?
         long errCode;
         if (!OS::CFile::Exists(sFileName, &errCode))
@@ -166,7 +168,6 @@ namespace MPTV
                 break;
             case ERROR_ACCESS_DENIED:
             {
-#ifdef TARGET_WINDOWS_DESKTOP
                 char strUserName[256];
                 DWORD lLength = 256;
 
@@ -175,7 +176,6 @@ namespace MPTV
                     KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
                 }
                 else
-#endif
                 {
                     KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
                 }
@@ -187,6 +187,11 @@ namespace MPTV
             }
 
             sFileName.clear();
+        }
+#elif defined TARGET_WINDOWS_STORE
+        if (!KODI->FileExists(sFileName.c_str(), false))
+        {
+          KODI->Log(LOG_ERROR, "Cannot find or access file: %s. Did you enable the vfs.smb2 plugin?\n", sFileName.c_str());
         }
 #endif
 
