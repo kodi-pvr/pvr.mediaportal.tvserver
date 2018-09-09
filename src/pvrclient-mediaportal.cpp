@@ -1085,7 +1085,9 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       }
 
       std::string recordingUri(ToKodiPath(recording.FilePath()));
+      PVR_STRCLR(tag.strThumbnailPath);
 
+#ifdef TARGET_WINDOWS_DESKTOP
       if (g_bUseRTSP == false)
       {
         /* Recording thumbnail */
@@ -1098,7 +1100,6 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         }
         else
         {
-#ifdef TARGET_WINDOWS_DESKTOP
           /* Check also: C:\ProgramData\Team MediaPortal\MediaPortal TV Server\thumbs */
           std::string strThumbnailFilename = recording.FileName();
           StringUtils::Replace(strThumbnailFilename, ".ts", ".jpg");
@@ -1126,10 +1127,10 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
             }
           }
           else
-#endif /* TARGET_WINDOWS_DESKTOP */
             PVR_STRCLR(tag.strThumbnailPath);
         }
       }
+#endif /* TARGET_WINDOWS_DESKTOP */
 
       if (g_eStreamingMethod!=TSReader)
       {
