@@ -11,26 +11,33 @@ find_package(kodiplatform REQUIRED)
 find_package(p8-platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
-set(LIVE555_INCLUDE_DIR
-  src/lib/live555/liveMedia/include
-  src/lib/live555/BasicUsageEnvironment/include
-  src/lib/live555/UsageEnvironment/include
-  src/lib/live555/groupsock/include
-  src/lib/live555/
+find_package(PkgConfig)
+pkg_check_modules(LIVE555 live555)
+
+set(MPTV_INCLUDE_DIRS ${kodiplatform_INCLUDE_DIRS}
+                      ${p8-platform_INCLUDE_DIRS}
+                      ${TINYXML_INCLUDE_DIR}
+                      ${KODI_INCLUDE_DIR}
+                      ${PROJECT_SOURCE_DIR}/src
+                      ${PROJECT_BINARY_DIR}
 )
 
-set(LIVE555_DEFINES -DLIVE555 -D_WINSOCK_DEPRECATED_NO_WARNINGS -DSOCKLEN_T=socklen_t -DBSD=1)
+if (NOT LIVE555_FOUND)
+  set(LIVE555_INCLUDE_DIR
+    src/lib/live555/liveMedia/include
+    src/lib/live555/BasicUsageEnvironment/include
+    src/lib/live555/UsageEnvironment/include
+    src/lib/live555/groupsock/include
+    src/lib/live555/
+  )
 
-include_directories(${kodiplatform_INCLUDE_DIRS}
-                    ${p8-platform_INCLUDE_DIRS}
-                    ${TINYXML_INCLUDE_DIR}
-                    ${KODI_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/src
-                    ${PROJECT_BINARY_DIR}
-                    ${LIVE555_INCLUDE_DIR}
-)
+  set(LIVE555_DEFINES -DLIVE555 -D_WINSOCK_DEPRECATED_NO_WARNINGS -DSOCKLEN_T=socklen_t -DBSD=1)
 
-add_definitions(-D__STDC_FORMAT_MACROS ${LIVE555_DEFINES})
+  add_definitions(-D__STDC_FORMAT_MACROS ${LIVE555_DEFINES})
+  set(MPTV_INCLUDE_DIRS ${MPTV_INCLUDE_DIRS} ${LIVE555_INCLUDE_DIR})
+endif()
+
+include_directories(${MPTV_INCLUDE_DIRS})
 
 if (NOT WIN32)
   add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
@@ -230,10 +237,17 @@ SET(LIVE555_HEADERS
 source_group("Header Files\\lib\\live555" FILES ${LIVE555_HEADERS})
 
 # Make sure that CMake adds all files to the MSVC project
-list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${LIVE555_SOURCES} ${LIVE555_HEADERS})
+list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS})
+if (NOT LIVE555_FOUND)
+  list(APPEND MPTV_SOURCES ${LIVE555_SOURCES} ${LIVE555_HEADERS})
+endif()
 
 set(DEPLIBS ${p8-platform_LIBRARIES}
             ${TINYXML_LIBRARIES})
+
+if (LIVE555_FOUND)
+  set(DEPLIBS ${LIVE555_LIBRARIES} ${DEPLIBS})
+endif()
 
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
