@@ -1,6 +1,7 @@
 v3.5.11:
 - Fixed: GetAddonCapabilities() did not explicitly set all newly added capabilities
 - Fixed: Error: "Couldn't get 'defaultrecordinglifetime' setting, falling back to '100' as default"
+- Fixed: Kodi crash during plugin load
 
 v3.5.10
 - Android: fix compiling for android with ndk-18  (credits Rechi)
