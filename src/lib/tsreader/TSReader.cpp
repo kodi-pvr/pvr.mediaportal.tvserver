@@ -302,7 +302,7 @@ namespace MPTV
             return m_fileReader->Read(pbData, lDataLength, dwReadBytes);
         }
 
-        dwReadBytes = 0;
+        *dwReadBytes = 0;
         return S_FALSE;
     }
 

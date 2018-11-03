@@ -45,7 +45,7 @@ namespace MPTV
     long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
     {
         *dwReadBytes = m_buffer.ReadFromBuffer(pbData,lDataLength);
-        if ((*dwReadBytes) <=0)
+        if ((*dwReadBytes) == 0)
             return S_FALSE;
         return S_OK;
     }
