@@ -494,23 +494,30 @@ void OnPowerSavingDeactivated()
 //-----------------------------------------------------------------------------
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
 {
-  KODI->Log(LOG_DEBUG, "->GetProperties()");
+  KODI->Log(LOG_DEBUG, "->GetAddonCapabilities()");
 
-  pCapabilities->bSupportsEPG                = true;
-  pCapabilities->bSupportsRecordings         = true;
+  memset(pCapabilities, 0, sizeof(PVR_ADDON_CAPABILITIES));
+
+  pCapabilities->bSupportsEPG = true;
+  pCapabilities->bSupportsEPGEdl = false;
+  pCapabilities->bSupportsTV = true;
+  pCapabilities->bSupportsRadio = g_bRadioEnabled;
+  pCapabilities->bSupportsRecordings = true;
   pCapabilities->bSupportsRecordingsUndelete = false;
-  pCapabilities->bSupportsTimers             = true;
-  pCapabilities->bSupportsTV                 = true;
-  pCapabilities->bSupportsRadio              = g_bRadioEnabled;
-  pCapabilities->bSupportsChannelGroups      = true;
-  pCapabilities->bHandlesInputStream         = true;
-  pCapabilities->bHandlesDemuxing            = false;
-  pCapabilities->bSupportsChannelScan        = false;
+  pCapabilities->bSupportsTimers = true;
+  pCapabilities->bSupportsChannelGroups = true;
+  pCapabilities->bSupportsChannelScan = false;
+  pCapabilities->bSupportsChannelSettings = false;
+  pCapabilities->bHandlesInputStream = true;
+  pCapabilities->bHandlesDemuxing = false;
   pCapabilities->bSupportsRecordingPlayCount = (g_iTVServerKodiBuild < 117) ? false : true;
   pCapabilities->bSupportsLastPlayedPosition = (g_iTVServerKodiBuild < 121) ? false : true;
+  pCapabilities->bSupportsRecordingEdl = false;
   pCapabilities->bSupportsRecordingsRename = true;
   pCapabilities->bSupportsRecordingsLifetimeChange = false;
   pCapabilities->bSupportsDescrambleInfo = false;
+  pCapabilities->bSupportsAsyncEPGTransfer = false;
+  pCapabilities->iRecordingsLifetimesSize = 0;
 
   return PVR_ERROR_NO_ERROR;
 }
