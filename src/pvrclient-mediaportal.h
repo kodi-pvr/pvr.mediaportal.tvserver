@@ -151,5 +151,5 @@ private:
   //Used for TV Server communication:
   std::string SendCommand(const char* command);
   std::string SendCommand(const std::string& command);
-  bool SendCommand2(std::string command, std::vector<std::string>& lines);
+  bool SendCommand2(const std::string& command, std::vector<std::string>& lines);
 };

@@ -139,7 +139,7 @@ string cPVRClientMediaPortal::SendCommand(const string& command)
 }
 
 
-bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
+bool cPVRClientMediaPortal::SendCommand2(const string& command, vector<string>& lines)
 {
   string result = SendCommand(command);
 
@@ -1084,10 +1084,10 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         PVR_STRCLR(tag.strDirectory);
       }
 
-      std::string recordingUri(ToKodiPath(recording.FilePath()));
       PVR_STRCLR(tag.strThumbnailPath);
 
 #ifdef TARGET_WINDOWS_DESKTOP
+      std::string recordingUri(ToKodiPath(recording.FilePath()));
       if (g_bUseRTSP == false)
       {
         /* Recording thumbnail */
@@ -1149,13 +1149,13 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
 
 PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
 {
-  char            command[256];
+  char            command[1200];
   string          result;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 256, "DeleteRecordedTV:%s\n", recording.strRecordingId);
+  snprintf(command, 1200, "DeleteRecordedTV:%s\n", recording.strRecordingId);
 
   result = SendCommand(command);
 
@@ -1175,13 +1175,13 @@ PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
 
 PVR_ERROR cPVRClientMediaPortal::RenameRecording(const PVR_RECORDING &recording)
 {
-  char           command[512];
+  char           command[1200];
   string         result;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 512, "UpdateRecording:%s|%s\n",
+  snprintf(command, 1200, "UpdateRecording:%s|%s\n",
     recording.strRecordingId,
     uri::encode(uri::PATH_TRAITS, recording.strTitle).c_str());
 
@@ -1772,7 +1772,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
     if (g_eStreamingMethod == TSReader)
     {
-      if (g_eStreamingMethod == TSReader && m_tsreader != NULL)
+      if (m_tsreader != NULL)
       {
         bool bReturn = false;
 
@@ -2258,7 +2258,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
       {
         KODI->Log(LOG_DEBUG, "GetChannelStreamProperties (ffmpeg) for uid=%i is '%s'", channel->iUniqueId,
                   m_PlaybackURL.c_str());
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL.c_str());
+        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL);
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
         return PVR_ERROR_NO_ERROR;
