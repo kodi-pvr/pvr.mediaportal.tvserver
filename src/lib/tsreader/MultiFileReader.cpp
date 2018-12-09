@@ -241,7 +241,7 @@ namespace MPTV
         return m_currentPosition;
     }
 
-    long MultiFileReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
+    long MultiFileReader::Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes)
     {
         // If the file has already been closed, don't continue
         if (m_TSBufferFile.IsFileInvalid())
@@ -306,14 +306,14 @@ namespace MPTV
                 }
             }
 
-            unsigned long bytesRead = 0;
+            size_t bytesRead = 0;
             long hr;
 
             int64_t bytesToRead = file->length - seekPosition;
             if ((int64_t)lDataLength > bytesToRead)
             {
                 // KODI->Log(LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
-                hr = m_TSFile.Read(pbData, (unsigned long)bytesToRead, &bytesRead);
+                hr = m_TSFile.Read(pbData, (size_t)bytesToRead, &bytesRead);
                 if (FAILED(hr))
                 {
                     KODI->Log(LOG_ERROR, "READ FAILED1");
@@ -321,7 +321,7 @@ namespace MPTV
                 }
                 m_currentPosition += bytesToRead;
 
-                hr = this->Read(pbData + bytesToRead, lDataLength - (unsigned long)bytesToRead, dwReadBytes);
+                hr = this->Read(pbData + bytesToRead, lDataLength - (size_t)bytesToRead, dwReadBytes);
                 if (FAILED(hr))
                 {
                     KODI->Log(LOG_ERROR, "READ FAILED2");
@@ -357,7 +357,7 @@ namespace MPTV
             return S_FALSE;
         }
 
-        unsigned long bytesRead;
+        size_t bytesRead;
         MultiFileReaderFile *file;
 
         int64_t currentPosition;
@@ -388,7 +388,7 @@ namespace MPTV
 
             m_TSBufferFile.SetFilePointer(0, FILE_BEGIN);
 
-            uint32_t readLength = sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved);
+            size_t readLength = sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved);
             unsigned char* readBuffer = new unsigned char[readLength];
 
             long result = m_TSBufferFile.Read(readBuffer, readLength, &bytesRead);
@@ -519,7 +519,7 @@ namespace MPTV
             std::vector<std::string> filenames;
 
             Wchar_t* pwCurrFile = pBuffer;    //Get a pointer to the first wchar filename string in pBuffer
-            long length = WcsLen(pwCurrFile);
+            size_t length = WcsLen(pwCurrFile);
 
             //KODI->Log(LOG_DEBUG, "%s: WcsLen(%d), sizeof(Wchar_t) == %d sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(Wchar_t), sizeof(wchar_t));
 

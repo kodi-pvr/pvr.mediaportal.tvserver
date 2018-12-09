@@ -55,7 +55,7 @@ namespace MPTV
         void       OnNewChannel(CChannelInfo& info);
         void       SetFileReader(FileReader* reader);
         void RequestNewPat(void);
-        int ReadFromFile();
+        size_t ReadFromFile();
 
     private:
         unsigned long long m_LastDataFromRtsp;

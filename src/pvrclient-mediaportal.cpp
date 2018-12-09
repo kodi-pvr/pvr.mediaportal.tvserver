@@ -1856,8 +1856,8 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
 int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
 {
-  unsigned long read_wanted = iBufferSize;
-  unsigned long read_done   = 0;
+  size_t read_wanted = iBufferSize;
+  size_t read_done   = 0;
   static int read_timeouts  = 0;
   unsigned char* bufptr = pBuffer;
 
@@ -1874,7 +1874,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
     return -1;
   }
 
-  while (read_done < (unsigned long) iBufferSize)
+  while (read_done < static_cast<size_t>(iBufferSize))
   {
     read_wanted = iBufferSize - read_done;
 
@@ -1882,11 +1882,11 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
     {
       usleep(20000);
       read_timeouts++;
-      return read_wanted;
+      return static_cast<int>(read_wanted);
     }
     read_done += read_wanted;
 
-    if ( read_done < (unsigned long) iBufferSize )
+    if ( read_done < static_cast<size_t>(iBufferSize) )
     {
       if (read_timeouts > 200)
       {
@@ -1900,7 +1900,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
         //if read_done == 0 then check if the backend is still timeshifting,
         //or retrieve the reason why the timeshifting was stopped/failed...
 
-        return read_done;
+        return static_cast<int>(read_done);
       }
       bufptr += read_wanted;
       read_timeouts++;
@@ -1909,7 +1909,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
   }
   read_timeouts = 0;
 
-  return read_done;
+  return static_cast<int>(read_done);
 }
 
 void cPVRClientMediaPortal::CloseLiveStream(void)
@@ -2143,14 +2143,14 @@ void cPVRClientMediaPortal::CloseRecordedStream(void)
 
 int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
 {
-  unsigned long read_wanted = iBufferSize;
-  unsigned long read_done   = 0;
+  size_t read_wanted = static_cast<size_t>(iBufferSize);
+  size_t read_done   = 0;
   unsigned char* bufptr = pBuffer;
 
   if (g_eStreamingMethod == ffmpeg)
     return -1;
 
-  while (read_done < (unsigned long) iBufferSize)
+  while (read_done < static_cast<size_t>(iBufferSize))
   {
     read_wanted = iBufferSize - read_done;
     if (!m_tsreader)
@@ -2159,18 +2159,18 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
     if (m_tsreader->Read(bufptr, read_wanted, &read_wanted) > 0)
     {
       usleep(20000);
-      return read_wanted;
+      return static_cast<int>(read_wanted);
     }
     read_done += read_wanted;
 
-    if ( read_done < (unsigned long) iBufferSize )
+    if ( read_done < static_cast<size_t>(iBufferSize) )
     {
       bufptr += read_wanted;
       usleep(20000);
     }
   }
 
-  return read_done;
+  return static_cast<int>(read_done);
 }
 
 long long cPVRClientMediaPortal::SeekRecordedStream(long long iPosition, int iWhence)

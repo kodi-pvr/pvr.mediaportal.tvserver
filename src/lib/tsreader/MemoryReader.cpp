@@ -42,9 +42,9 @@ namespace MPTV
     {
     }
 
-    long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
+    long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, size_t *dwReadBytes)
     {
-        *dwReadBytes = m_buffer.ReadFromBuffer(pbData,lDataLength);
+        *dwReadBytes = m_buffer.ReadFromBuffer(pbData, lDataLength);
         if ((*dwReadBytes) == 0)
             return S_FALSE;
         return S_OK;
@@ -55,7 +55,7 @@ namespace MPTV
         return 0;
     }
 
-    int CMemoryReader::HasData()
+    size_t CMemoryReader::HasData()
     {
         return (m_buffer.Size());
     }

@@ -41,9 +41,9 @@ namespace MPTV
 
     // Ambass : Now, need to have 2 consecutive TS_PACKET_SYNC to try avoiding bad synchronisation.  
     //          In case of data flow change ( Seek, tv Zap .... ) Reset() should be called first to flush buffer.
-    void CPacketSync::OnRawData(byte* pData, int nDataLen)
+    void CPacketSync::OnRawData(byte* pData, size_t nDataLen)
     {
-        int syncOffset = 0;
+        size_t syncOffset = 0;
         if (m_tempBufferPos > 0)
         {
             if (pData[TS_PACKET_LEN - m_tempBufferPos] == TS_PACKET_SYNC)
