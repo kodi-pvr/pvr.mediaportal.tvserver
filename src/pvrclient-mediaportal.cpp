@@ -2215,11 +2215,11 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
   {
     AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, myrecording->Stream());
   }
-#ifdef TARGET_WINDOWS_DESKTOP
   else if (!g_bUseRTSP)
   {
     if (myrecording->IsRecording() == false)
     {
+#ifdef TARGET_WINDOWS_DESKTOP
       if (OS::CFile::Exists(myrecording->FilePath()))
       {
         std::string recordingUri(ToKodiPath(myrecording->FilePath()));
@@ -2227,6 +2227,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
         // Direct file playback by Kodi (without involving the addon)
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, recordingUri.c_str());
       }
+#endif
     }
     else
     {
@@ -2234,7 +2235,6 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
       AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
     }
   }
-#endif
 
   return PVR_ERROR_NO_ERROR;
 }
