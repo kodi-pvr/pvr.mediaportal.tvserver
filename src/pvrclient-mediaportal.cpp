@@ -1239,6 +1239,11 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORD
   char           command[512];
   string         result;
 
+  if (lastplayedposition < 0)
+  {
+    lastplayedposition = 0;
+  }
+
   snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", atoi(recording.strRecordingId), lastplayedposition);
 
   result = SendCommand(command);
