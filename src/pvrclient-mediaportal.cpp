@@ -2423,8 +2423,16 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
     // Warning: documentation in xbmc_pvr_types.h is wrong. pts values are not in seconds.
     stream_times->startTime = 0; // seconds
     stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
-    stream_times->ptsBegin = 0;  // useconds
-    stream_times->ptsEnd = ((int64_t) m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
+    if (m_lastSelectedRecording->IsRecording())
+    {
+      stream_times->ptsBegin = m_tsreader->GetPtsBegin();  // useconds
+      stream_times->ptsEnd = m_tsreader->GetPtsEnd();
+    }
+    else
+    {
+       stream_times->ptsBegin = 0;  // useconds
+       stream_times->ptsEnd = ((int64_t)m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
+    }
     return PVR_ERROR_NO_ERROR;
   }
   else if (m_bTimeShiftStarted)
