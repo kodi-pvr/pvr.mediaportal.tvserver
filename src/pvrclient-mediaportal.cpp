@@ -48,8 +48,8 @@ int g_iTVServerKodiBuild = 0;
 /* TVServerKodi plugin supported versions */
 #define TVSERVERKODI_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERKODI_MIN_VERSION_BUILD          107
-#define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
-#define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  136
+#define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.20.0.140"
+#define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  140
 
 /************************************************************/
 /** Class interface */
