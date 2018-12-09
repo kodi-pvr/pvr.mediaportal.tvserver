@@ -433,7 +433,7 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
       continue;
     }
 
-    int status = ::connect(_sd, address->ai_addr, address->ai_addrlen);
+    int status = ::connect(_sd, address->ai_addr, static_cast<int>(address->ai_addrlen));
     if (status == SOCKET_ERROR)
     {
       close();
