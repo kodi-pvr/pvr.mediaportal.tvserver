@@ -1726,6 +1726,10 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       }
     }
     m_iCurrentChannel = -1;
+    if (m_tsreader != nullptr)
+    {
+      SAFE_DELETE(m_tsreader);
+    }
     return false;
   }
   else
