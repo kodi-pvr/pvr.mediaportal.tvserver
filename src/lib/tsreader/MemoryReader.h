@@ -40,11 +40,11 @@ namespace MPTV
       public:
         CMemoryReader(CMemoryBuffer& buffer);
         virtual ~CMemoryReader(void);
-        long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+        long Read(unsigned char* pbData, unsigned long lDataLength, size_t *dwReadBytes);
         unsigned long setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
         bool IsBuffer() { return true; };
         long CloseFile() { return S_OK; };
-        int HasData();
+        size_t HasData();
 
       private:
         CMemoryBuffer& m_buffer;

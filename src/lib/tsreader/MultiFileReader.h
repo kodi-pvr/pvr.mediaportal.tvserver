@@ -58,7 +58,7 @@ namespace MPTV
         virtual long OpenFile();
         virtual long OpenFile(const std::string& fileName);
         virtual long CloseFile();
-        virtual long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+        virtual long Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes);
 
         virtual bool IsFileInvalid();
 

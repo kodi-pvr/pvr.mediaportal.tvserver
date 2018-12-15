@@ -52,7 +52,7 @@ namespace MPTV
         CTsReader();
         ~CTsReader(void);
         long Open(const char* pszFileName);
-        long Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes);
+        long Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes);
         void Close();
         int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
         int64_t GetFileSize();

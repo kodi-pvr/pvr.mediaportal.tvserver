@@ -1,3 +1,19 @@
+v3.5.14:
+- Fixed: Delete the tsreader when tuning to a new channel failed. This fixes the first re-tune to a working channel after a failure
+- Updated: recommended TVServerKodi version to build 140
+- Recording playback: update the end time if the recording is still ongoing
+- Recording: Prevent setting a negative last played position. MediaPortal does not like this.
+- Recording: mark in-progress recording as "real-time" also on non-Windows targets
+- Fixed: various 64-bit compiler warnings
+- Fixed: Increase the command buffer size to fit the full contents of strRecordingId in DeleteRecording() and GetRecordings()
+- Fixed: tsreader: checking for < 0 on unsigned values is useless
+
+v3.5.13:
+- Translation update from Transifex
+
+v3.5.12:
+- Translation update from Transifex
+
 v3.5.11:
 - Fixed: GetAddonCapabilities() did not explicitly set all newly added capabilities
 - Fixed: Error: "Couldn't get 'defaultrecordinglifetime' setting, falling back to '100' as default"

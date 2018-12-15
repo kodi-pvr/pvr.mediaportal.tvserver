@@ -659,7 +659,7 @@ cLifeTimeValues::cLifeTimeValues()
 
 void cLifeTimeValues::SetLifeTimeValues(PVR_TIMER_TYPE& timertype)
 {
-  timertype.iLifetimesSize = m_lifetimeValues.size();
+  timertype.iLifetimesSize = static_cast<unsigned int>(m_lifetimeValues.size());
   timertype.iLifetimesDefault = -MPTV_KEEP_ALWAYS; //Negative = special types, positive values is days
 
   //select default keep method

@@ -35,12 +35,12 @@ namespace MPTV
 
     public:
         virtual ~CPacketSync(void);
-        void OnRawData(byte* pData, int nDataLen);
+        void OnRawData(byte* pData, size_t nDataLen);
         virtual void OnTsPacket(byte* tsPacket);
         void Reset(void);
 
     private:
         byte  m_tempBuffer[200];
-        int   m_tempBufferPos;
+        ssize_t   m_tempBufferPos;
     };
 }

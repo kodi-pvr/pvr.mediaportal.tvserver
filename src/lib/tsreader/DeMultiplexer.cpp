@@ -99,25 +99,25 @@ namespace MPTV
     /// and processes the raw data
     /// When a TS packet has been discovered, OnTsPacket(byte* tsPacket) gets called
     //  which in its turn deals with the packet
-    int CDeMultiplexer::ReadFromFile()
+    size_t CDeMultiplexer::ReadFromFile()
     {
         if (m_filter.IsSeeking())
             return 0;       // Ambass : to check
 
         P8PLATFORM::CLockObject lock(m_sectionRead);
         if (NULL == m_reader)
-            return false;
+            return 0;
 
         byte buffer[READ_SIZE];
-        unsigned long dwReadBytes = 0;
+        size_t dwReadBytes = 0;
 
         // if we are playing a RTSP stream
         if (m_reader->IsBuffer())
         {
             // and, the current buffer holds data
-            int nBytesToRead = m_reader->HasData();
+            size_t nBytesToRead = m_reader->HasData();
 
-            if (nBytesToRead > (int) sizeof(buffer))
+            if (nBytesToRead > sizeof(buffer))
             {
                 nBytesToRead = sizeof(buffer);
             }
@@ -130,13 +130,13 @@ namespace MPTV
             if (nBytesToRead)
             {
               // then read raw data from the buffer
-              if (SUCCEEDED(m_reader->Read(buffer, nBytesToRead, (unsigned long*)&dwReadBytes)))
+              if (SUCCEEDED(m_reader->Read(buffer, nBytesToRead, &dwReadBytes)))
               {
                 if (dwReadBytes > 0)
                 {
                   // yes, then process the raw data
                   //result=true;
-                  OnRawData(buffer, (int)dwReadBytes);
+                  OnRawData(buffer, dwReadBytes);
                   m_LastDataFromRtsp = GetTickCount64();
                 }
               }
@@ -165,7 +165,7 @@ namespace MPTV
         {
             // playing a local file.
             // read raw data from the file
-            if (SUCCEEDED(m_reader->Read(buffer, sizeof(buffer), (unsigned long*)&dwReadBytes)))
+            if (SUCCEEDED(m_reader->Read(buffer, sizeof(buffer), &dwReadBytes)))
             {
                 if ((m_filter.IsTimeShifting()) && (dwReadBytes < sizeof(buffer)))
                 {

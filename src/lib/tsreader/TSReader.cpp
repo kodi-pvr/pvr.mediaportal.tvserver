@@ -208,7 +208,7 @@ namespace MPTV
             Close();
 
         // check file type
-        int length = m_fileName.length();
+        size_t length = m_fileName.length();
 
         if ((length > 7) && (strnicmp(m_fileName.c_str(), "rtsp://", 7) == 0))
         {
@@ -295,14 +295,14 @@ namespace MPTV
         return S_OK;
     }
 
-    long CTsReader::Read(unsigned char* pbData, unsigned long lDataLength, unsigned long *dwReadBytes)
+    long CTsReader::Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes)
     {
         if (m_fileReader)
         {
             return m_fileReader->Read(pbData, lDataLength, dwReadBytes);
         }
 
-        dwReadBytes = 0;
+        *dwReadBytes = 0;
         return S_FALSE;
     }
 
@@ -365,12 +365,19 @@ namespace MPTV
                 }
                 else
                 {
+                  if (timeShiftBufferPos < 0)
+                  {
+                    pos_after = m_fileReader->SetFilePointer(0LL, FILE_BEGIN);
+                  }
+                  else
+                  {
                     pos_after = m_fileReader->SetFilePointer(0LL, FILE_END);
                     if ((timeShiftBufferPos > 0) && (pos_after > timeShiftBufferPos))
                     {
-                        /* Move backward */
-                        pos_after = fileReader->SetFilePointer((timeShiftBufferPos - pos_after), FILE_CURRENT);
+                      /* Move backward */
+                      pos_after = fileReader->SetFilePointer((timeShiftBufferPos - pos_after), FILE_CURRENT);
                     }
+                  }
                 }
 
                 m_demultiplexer.RequestNewPat();
@@ -393,7 +400,7 @@ namespace MPTV
     {
         std::string tmp = directory;
 
-#ifdef TARGET_WINDOWS
+#ifdef TARGET_WINDOWS_DESKTOP
         if (tmp.find("smb://") != string::npos)
         {
           // Convert XBMC smb share name back to a real windows network share...

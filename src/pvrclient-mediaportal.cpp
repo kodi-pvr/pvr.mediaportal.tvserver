@@ -48,8 +48,8 @@ int g_iTVServerKodiBuild = 0;
 /* TVServerKodi plugin supported versions */
 #define TVSERVERKODI_MIN_VERSION_STRING         "1.1.7.107"
 #define TVSERVERKODI_MIN_VERSION_BUILD          107
-#define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.15.0.136"
-#define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  136
+#define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.20.0.140"
+#define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  140
 
 /************************************************************/
 /** Class interface */
@@ -139,7 +139,7 @@ string cPVRClientMediaPortal::SendCommand(const string& command)
 }
 
 
-bool cPVRClientMediaPortal::SendCommand2(string command, vector<string>& lines)
+bool cPVRClientMediaPortal::SendCommand2(const string& command, vector<string>& lines)
 {
   string result = SendCommand(command);
 
@@ -1084,10 +1084,10 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
         PVR_STRCLR(tag.strDirectory);
       }
 
-      std::string recordingUri(ToKodiPath(recording.FilePath()));
       PVR_STRCLR(tag.strThumbnailPath);
 
 #ifdef TARGET_WINDOWS_DESKTOP
+      std::string recordingUri(ToKodiPath(recording.FilePath()));
       if (g_bUseRTSP == false)
       {
         /* Recording thumbnail */
@@ -1149,13 +1149,13 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
 
 PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
 {
-  char            command[256];
+  char            command[1200];
   string          result;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 256, "DeleteRecordedTV:%s\n", recording.strRecordingId);
+  snprintf(command, 1200, "DeleteRecordedTV:%s\n", recording.strRecordingId);
 
   result = SendCommand(command);
 
@@ -1175,13 +1175,13 @@ PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
 
 PVR_ERROR cPVRClientMediaPortal::RenameRecording(const PVR_RECORDING &recording)
 {
-  char           command[512];
+  char           command[1200];
   string         result;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 512, "UpdateRecording:%s|%s\n",
+  snprintf(command, 1200, "UpdateRecording:%s|%s\n",
     recording.strRecordingId,
     uri::encode(uri::PATH_TRAITS, recording.strTitle).c_str());
 
@@ -1238,6 +1238,11 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORD
 
   char           command[512];
   string         result;
+
+  if (lastplayedposition < 0)
+  {
+    lastplayedposition = 0;
+  }
 
   snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", atoi(recording.strRecordingId), lastplayedposition);
 
@@ -1721,6 +1726,10 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       }
     }
     m_iCurrentChannel = -1;
+    if (m_tsreader != nullptr)
+    {
+      SAFE_DELETE(m_tsreader);
+    }
     return false;
   }
   else
@@ -1772,7 +1781,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
     if (g_eStreamingMethod == TSReader)
     {
-      if (g_eStreamingMethod == TSReader && m_tsreader != NULL)
+      if (m_tsreader != NULL)
       {
         bool bReturn = false;
 
@@ -1856,8 +1865,8 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
 int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
 {
-  unsigned long read_wanted = iBufferSize;
-  unsigned long read_done   = 0;
+  size_t read_wanted = iBufferSize;
+  size_t read_done   = 0;
   static int read_timeouts  = 0;
   unsigned char* bufptr = pBuffer;
 
@@ -1874,7 +1883,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
     return -1;
   }
 
-  while (read_done < (unsigned long) iBufferSize)
+  while (read_done < static_cast<size_t>(iBufferSize))
   {
     read_wanted = iBufferSize - read_done;
 
@@ -1882,11 +1891,11 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
     {
       usleep(20000);
       read_timeouts++;
-      return read_wanted;
+      return static_cast<int>(read_wanted);
     }
     read_done += read_wanted;
 
-    if ( read_done < (unsigned long) iBufferSize )
+    if ( read_done < static_cast<size_t>(iBufferSize) )
     {
       if (read_timeouts > 200)
       {
@@ -1900,7 +1909,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
         //if read_done == 0 then check if the backend is still timeshifting,
         //or retrieve the reason why the timeshifting was stopped/failed...
 
-        return read_done;
+        return static_cast<int>(read_done);
       }
       bufptr += read_wanted;
       read_timeouts++;
@@ -1909,7 +1918,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
   }
   read_timeouts = 0;
 
-  return read_done;
+  return static_cast<int>(read_done);
 }
 
 void cPVRClientMediaPortal::CloseLiveStream(void)
@@ -2045,33 +2054,6 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
   std::string recfile = "";
 
-#if 0
-  // TVServerKodi v1.1.0.90 or higher
-  string         result;
-  char           command[256];
-
-  //if(g_bUseRecordingsDir)
-  if(!g_bUseRTSP)
-    snprintf(command, 256, "GetRecordingInfo:%s|False\n", recording.strRecordingId);
-  else
-    snprintf(command, 256, "GetRecordingInfo:%s|True\n", recording.strRecordingId);
-  result = SendCommand(command);
-
-  if (result.empty())
-  {
-    KODI->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command);
-    return false;
-  }
-
-  cRecording myrecording;
-  if (!myrecording.ParseLine(result))
-  {
-    KODI->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command, result.c_str());
-    return false;
-  }
-
-  KODI->Log(LOG_NOTICE, "RECORDING: %s", result.c_str() );
-#endif
   cRecording* myrecording = GetRecordingInfo(recording);
 
   if (!myrecording)
@@ -2143,14 +2125,14 @@ void cPVRClientMediaPortal::CloseRecordedStream(void)
 
 int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
 {
-  unsigned long read_wanted = iBufferSize;
-  unsigned long read_done   = 0;
+  size_t read_wanted = static_cast<size_t>(iBufferSize);
+  size_t read_done   = 0;
   unsigned char* bufptr = pBuffer;
 
   if (g_eStreamingMethod == ffmpeg)
     return -1;
 
-  while (read_done < (unsigned long) iBufferSize)
+  while (read_done < static_cast<size_t>(iBufferSize))
   {
     read_wanted = iBufferSize - read_done;
     if (!m_tsreader)
@@ -2159,18 +2141,18 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
     if (m_tsreader->Read(bufptr, read_wanted, &read_wanted) > 0)
     {
       usleep(20000);
-      return read_wanted;
+      return static_cast<int>(read_wanted);
     }
     read_done += read_wanted;
 
-    if ( read_done < (unsigned long) iBufferSize )
+    if ( read_done < static_cast<size_t>(iBufferSize) )
     {
       bufptr += read_wanted;
       usleep(20000);
     }
   }
 
-  return read_done;
+  return static_cast<int>(read_done);
 }
 
 long long cPVRClientMediaPortal::SeekRecordedStream(long long iPosition, int iWhence)
@@ -2215,11 +2197,11 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
   {
     AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, myrecording->Stream());
   }
-#ifdef TARGET_WINDOWS_DESKTOP
   else if (!g_bUseRTSP)
   {
     if (myrecording->IsRecording() == false)
     {
+#ifdef TARGET_WINDOWS_DESKTOP
       if (OS::CFile::Exists(myrecording->FilePath()))
       {
         std::string recordingUri(ToKodiPath(myrecording->FilePath()));
@@ -2227,6 +2209,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
         // Direct file playback by Kodi (without involving the addon)
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, recordingUri.c_str());
       }
+#endif
     }
     else
     {
@@ -2234,7 +2217,6 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
       AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
     }
   }
-#endif
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -2258,7 +2240,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
       {
         KODI->Log(LOG_DEBUG, "GetChannelStreamProperties (ffmpeg) for uid=%i is '%s'", channel->iUniqueId,
                   m_PlaybackURL.c_str());
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL.c_str());
+        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL);
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
         AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
         return PVR_ERROR_NO_ERROR;
@@ -2419,7 +2401,7 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
     stream_times->startTime = 0; // seconds
     stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
     stream_times->ptsBegin = 0;  // useconds
-    stream_times->ptsEnd = ((int64_t) m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
+    stream_times->ptsEnd = ((int64_t)m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
     return PVR_ERROR_NO_ERROR;
   }
   else if (m_bTimeShiftStarted)

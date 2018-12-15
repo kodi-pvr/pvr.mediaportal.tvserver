@@ -161,7 +161,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
 
 long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
 {
-  if (lDataLength <= 0 || pbData == NULL) return E_FAIL;
+  if (lDataLength == 0 || pbData == NULL) return E_FAIL;
 
   BufferItem* item = new BufferItem();
   item->nOffset = 0;
