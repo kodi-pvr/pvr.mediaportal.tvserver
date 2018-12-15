@@ -365,12 +365,19 @@ namespace MPTV
                 }
                 else
                 {
+                  if (timeShiftBufferPos < 0)
+                  {
+                    pos_after = m_fileReader->SetFilePointer(0LL, FILE_BEGIN);
+                  }
+                  else
+                  {
                     pos_after = m_fileReader->SetFilePointer(0LL, FILE_END);
                     if ((timeShiftBufferPos > 0) && (pos_after > timeShiftBufferPos))
                     {
-                        /* Move backward */
-                        pos_after = fileReader->SetFilePointer((timeShiftBufferPos - pos_after), FILE_CURRENT);
+                      /* Move backward */
+                      pos_after = fileReader->SetFilePointer((timeShiftBufferPos - pos_after), FILE_CURRENT);
                     }
+                  }
                 }
 
                 m_demultiplexer.RequestNewPat();
