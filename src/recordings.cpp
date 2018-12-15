@@ -299,7 +299,23 @@ time_t cRecording::StartTime(void) const
 
 int cRecording::Duration(void) const
 {
-  return m_duration;
+  if (m_isRecording)
+  {
+    MPTV::CDateTime endTime = MPTV::CDateTime::Now();
+    int diff = endTime - m_startTime - 10;
+    if (diff > 0)
+    {
+      return diff;
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  else
+  {
+    return m_duration;
+  }
 }
 
 int cRecording::GetSeriesNumber(void) const
