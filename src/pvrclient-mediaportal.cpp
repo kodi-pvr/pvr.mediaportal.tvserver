@@ -2369,12 +2369,13 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & record
   string result;
   string command;
 
-  command = StringUtils::Format("GetRecordingInfo:%s|%s|False|%s\n", 
+  command = StringUtils::Format("GetRecordingInfo:%s|%s|True|%s\n", 
     recording.strRecordingId, 
     ((g_bUseRTSP || g_eStreamingMethod == ffmpeg) ? "True" : "False"),
     g_bResolveRTSPHostname ? "True" : "False"
   );
   result = SendCommand(command);
+  uri::decode(result);
 
   if (result.empty())
   {

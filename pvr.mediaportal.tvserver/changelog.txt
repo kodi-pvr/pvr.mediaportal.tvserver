@@ -1,3 +1,6 @@
+v3.5.15:
+- Fixed: recording playback when the description contains text with a return
+
 v3.5.14:
 - Fixed: Delete the tsreader when tuning to a new channel failed. This fixes the first re-tune to a working channel after a failure
 - Updated: recommended TVServerKodi version to build 140
