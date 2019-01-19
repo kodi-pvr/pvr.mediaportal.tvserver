@@ -83,7 +83,7 @@ namespace MPTV
 
         while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
-            int BytesRead = ReadFromFile();
+            size_t BytesRead = ReadFromFile();
             if (0 == BytesRead)
                 usleep(10000);
         }
@@ -241,14 +241,14 @@ namespace MPTV
         KODI->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
         m_WaitNewPatTmo = GetTickCount64() + 10000;
 
-        unsigned long dwBytesProcessed = 0;
+        size_t dwBytesProcessed = 0;
         unsigned long long m_Time = GetTickCount64();
 
         m_bGotNewChannel = false;
 
         while ((GetTickCount64() - m_Time) < 5000 && m_bGotNewChannel == false)
         {
-            int BytesRead = ReadFromFile();
+            size_t BytesRead = ReadFromFile();
             if (0 == BytesRead)
                 usleep(10000);
             dwBytesProcessed += BytesRead;
