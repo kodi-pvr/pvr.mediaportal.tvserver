@@ -204,14 +204,14 @@ namespace MPTV
 
     long FileReader::Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes)
     {
-		ssize_t read_bytes = KODI->ReadFile(m_hFile, (void*)pbData, lDataLength);//Read file data into buffer
-		if (read_bytes < 0)
-		{
-			TSDEBUG(LOG_DEBUG, "%s: ReadFile function failed.", __FUNCTION__);
-			*dwReadBytes = 0;
-			return S_FALSE;
-		}
-		*dwReadBytes = static_cast<size_t>(read_bytes);
+        ssize_t read_bytes = KODI->ReadFile(m_hFile, (void*)pbData, lDataLength);//Read file data into buffer
+        if (read_bytes < 0)
+        {
+            TSDEBUG(LOG_DEBUG, "%s: ReadFile function failed.", __FUNCTION__);
+            *dwReadBytes = 0;
+            return S_FALSE;
+        }
+        *dwReadBytes = static_cast<size_t>(read_bytes);
         TSDEBUG(LOG_DEBUG, "%s: requested read length %d actually read %d.", __FUNCTION__, lDataLength, *dwReadBytes);
 
         if (*dwReadBytes < lDataLength)

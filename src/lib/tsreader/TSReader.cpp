@@ -217,7 +217,9 @@ namespace MPTV
             KODI->Log(LOG_DEBUG, "open rtsp: %s", m_fileName.c_str());
 #ifdef LIVE555
             //strcpy(m_rtspClient.m_outFileName, "e:\\temp\\rtsptest.ts");
+            delete m_buffer;
             m_buffer = new CMemoryBuffer();
+            delete m_rtspClient;
             m_rtspClient = new CRTSPClient();
             m_rtspClient->Initialize(m_buffer);
 
@@ -242,6 +244,7 @@ namespace MPTV
 
             // play
             m_rtspClient->Play(0.0,0.0);
+            delete m_fileReader;
             m_fileReader = new CMemoryReader(*m_buffer);
             m_State = State_Running;
 #else

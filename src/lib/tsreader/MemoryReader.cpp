@@ -42,7 +42,7 @@ namespace MPTV
     {
     }
 
-    long CMemoryReader::Read(unsigned char* pbData, unsigned long lDataLength, size_t *dwReadBytes)
+    long CMemoryReader::Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes)
     {
         *dwReadBytes = m_buffer.ReadFromBuffer(pbData, lDataLength);
         if ((*dwReadBytes) == 0)
@@ -50,7 +50,7 @@ namespace MPTV
         return S_OK;
     }
 
-    unsigned long CMemoryReader::setFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
+    int64_t CMemoryReader::SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
     {
         return 0;
     }
