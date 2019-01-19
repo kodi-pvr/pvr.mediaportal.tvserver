@@ -78,7 +78,7 @@ namespace MPTV
         void SetCardId(int id);
         bool IsTimeShifting();
         bool IsSeeking();
-        long Pause();
+        long Pause(bool bPaused);
 
         TsReaderState State() { return m_State; };
 

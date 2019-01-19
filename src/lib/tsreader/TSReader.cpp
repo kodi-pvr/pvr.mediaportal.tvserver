@@ -426,7 +426,7 @@ namespace MPTV
         return m_bTimeShifting;
     }
 
-    long CTsReader::Pause()
+    long CTsReader::Pause(bool UNUSED(bPaused))
     {
         KODI->Log(LOG_DEBUG, "TsReader: Pause - IsTimeShifting = %d - state = %d", IsTimeShifting(), m_State);
 
@@ -493,6 +493,17 @@ namespace MPTV
 
     int64_t CTsReader::SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
     {
-        return m_fileReader->SetFilePointer(llDistanceToMove, dwMoveMethod);
+        // Are we using rtsp?
+        if (m_bIsRTSP)
+        {
+          // TODO: fixme...
+          // Need to translate the distance to move (bytes) to a time
+          // then ask live555 to seek to that time
+          return m_fileReader->GetFilePointer();
+        }
+        else
+        {
+          return m_fileReader->SetFilePointer(llDistanceToMove, dwMoveMethod);
+        }
     }
 }

@@ -1477,7 +1477,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size
   count++;
 
   if (count > maxsize)
-	  return PVR_ERROR_NO_ERROR;
+      return PVR_ERROR_NO_ERROR;
 
   /* Kodi specific 'Manual' schedule type */
   memset(&types[count], 0, sizeof(types[count]));
@@ -1883,6 +1883,12 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
     return -1;
   }
 
+  if ((m_tsreader->State() == State_Paused) && (g_bUseRTSP))
+  {
+    //KODI->Log(LOG_ERROR, "ReadLiveStream: failed. Stream is paused");
+    return 0;
+  }
+
   while (read_done < static_cast<size_t>(iBufferSize))
   {
     read_wanted = iBufferSize - read_done;
@@ -2266,10 +2272,10 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
   return PVR_ERROR_NO_ERROR;
 }
 
-void cPVRClientMediaPortal::PauseStream(bool UNUSED(bPaused))
+void cPVRClientMediaPortal::PauseStream(bool bPaused)
 {
   if (m_tsreader)
-    m_tsreader->Pause();
+    m_tsreader->Pause(bPaused);
 }
 
 bool cPVRClientMediaPortal::CanPauseAndSeek()
@@ -2416,6 +2422,12 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
   *stream_times = { 0 };
 
   return PVR_ERROR_NOT_IMPLEMENTED;
+}
+
+PVR_ERROR  cPVRClientMediaPortal::GetStreamReadChunkSize(int* chunksize)
+{
+  *chunksize = 32 * 1024;
+  return PVR_ERROR_NO_ERROR;
 }
 
 void cPVRClientMediaPortal::AddStreamProperty(PVR_NAMED_VALUE* properties,

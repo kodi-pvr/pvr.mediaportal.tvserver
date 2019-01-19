@@ -1,8 +1,12 @@
+v3.5.17:
+- Added: GetStreamReadChunkSize support (Refs #92)
+- Fixed: TSReader (RTSP): pause hangs Kodi
+
 v3.5.16:
 - Fixed: skin background for the custom DialogRecordSettings on unsupported skins
 - Fixed: DialogRecordSettings for skin.estuary
 - Fixed: DialogRecordSettings for skin.transparency
-- Fixed: TSReader RTSP playback
+- Fixed: TSReader RTSP playback (regression bug introduced in v3.5.14)
 
 v3.5.15:
 - Fixed: recording playback when the description contains text with a return

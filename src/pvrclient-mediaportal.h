@@ -94,9 +94,6 @@ public:
   PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
   long long SeekLiveStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthLiveStream(void);
-  bool CanPauseAndSeek(void);
-  void PauseStream(bool bPaused);
-  bool IsRealTimeStream(void);
 
   /* Record stream handling */
   bool OpenRecordedStream(const PVR_RECORDING &recording);
@@ -105,6 +102,12 @@ public:
   long long SeekRecordedStream(long long iPosition, int iWhence = SEEK_SET);
   long long LengthRecordedStream(void);
   PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING* recording, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
+
+  /* Common stream handing functions */
+  bool CanPauseAndSeek(void);
+  void PauseStream(bool bPaused);
+  bool IsRealTimeStream(void);
+  PVR_ERROR GetStreamReadChunkSize(int* chunksize);
   PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES* stream_times);
 
 protected:
