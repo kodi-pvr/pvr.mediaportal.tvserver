@@ -58,7 +58,7 @@ bool CMemoryBuffer::IsRunning()
 
 void CMemoryBuffer::Clear()
 {
-	P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
   std::vector<BufferItem *>::iterator it = m_Array.begin();
 
   for ( ; it != m_Array.end(); ++it )
@@ -110,7 +110,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
 
   // KODI->Log(LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
   size_t bytesWritten = 0;
-	P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
 
   while (bytesWritten < lDataLength)
   {
@@ -170,7 +170,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
   memcpy(item->data, pbData, lDataLength);
   bool sleep = false;
   {
-		P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+    P8PLATFORM::CLockObject BufferLock(m_BufferLock);
     m_Array.push_back(item);
     m_BytesInBuffer += lDataLength;
 

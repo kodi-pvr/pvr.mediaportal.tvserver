@@ -93,7 +93,7 @@ CGUIDialogRecordSettings::~CGUIDialogRecordSettings()
 
 bool CGUIDialogRecordSettings::OnInit()
 {
-	// Display the recording details in the window
+  // Display the recording details in the window
   m_window->SetControlLabel(LABEL_PROGRAM_TITLE, m_title.c_str());
   string strTimeSlot = m_startDate + " " + m_startTime + " - " + m_endTime;
   m_window->SetControlLabel(LABEL_PROGRAM_START_TIME, strTimeSlot.c_str());

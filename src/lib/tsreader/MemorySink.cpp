@@ -87,7 +87,7 @@ void CMemorySink::addData(unsigned char* data, size_t dataSize, struct timeval U
     return;
   }
 
-	P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
 
   m_bReEntrant = true;
   m_buffer.PutBuffer(data, dataSize);
