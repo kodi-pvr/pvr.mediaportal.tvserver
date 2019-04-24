@@ -539,7 +539,7 @@ PVR_ERROR cPVRClientMediaPortal::GetBackendTime(time_t *localTime, int *gmtOffse
 /************************************************************/
 /** EPG handling */
 
-PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
 {
   vector<string> lines;
   char           command[256];
@@ -557,7 +557,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
 
   // Request (extended) EPG data for the given period
   snprintf(command, 256, "GetEPG:%i|%04d-%02d-%02dT%02d:%02d:%02d.0Z|%04d-%02d-%02dT%02d:%02d:%02d.0Z\n",
-          channel.iUniqueId,                                                 //Channel id
+          iChannelUid,                                                       //Channel id
           starttime.tm_year + 1900, starttime.tm_mon + 1, starttime.tm_mday, //Start date     [2..4]
           starttime.tm_hour, starttime.tm_min, starttime.tm_sec,             //Start time     [5..7]
           endtime.tm_year + 1900, endtime.tm_mon + 1, endtime.tm_mday,       //End date       [8..10]
@@ -574,7 +574,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
 
       Tokenize(result, lines, ",");
 
-      KODI->Log(LOG_DEBUG, "Found %i EPG items for channel %i\n", lines.size(), channel.iUniqueId);
+      KODI->Log(LOG_DEBUG, "Found %i EPG items for channel %i\n", lines.size(), iChannelUid);
 
       for (vector<string>::iterator it = lines.begin(); it < lines.end(); ++it)
       {
@@ -590,7 +590,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
           {
             broadcast.iUniqueBroadcastId  = epg.UniqueId();
             broadcast.strTitle            = epg.Title();
-            broadcast.iUniqueChannelId    = channel.iUniqueId;
+            broadcast.iUniqueChannelId    = iChannelUid;
             broadcast.startTime           = epg.StartTime();
             broadcast.endTime             = epg.EndTime();
             broadcast.strPlotOutline      = epg.PlotOutline();
@@ -602,7 +602,6 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
             broadcast.firstAired          = epg.OriginalAirDate();
             broadcast.iParentalRating     = epg.ParentalRating();
             broadcast.iStarRating         = epg.StarRating();
-            broadcast.bNotify             = false;
             broadcast.iSeriesNumber       = epg.SeriesNumber();
             broadcast.iEpisodeNumber      = epg.EpisodeNumber();
             broadcast.iEpisodePartNumber  = atoi(epg.EpisodePart());
@@ -617,12 +616,12 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, const PVR_CHANNEL &
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "No EPG items found for channel %i", channel.iUniqueId);
+      KODI->Log(LOG_DEBUG, "No EPG items found for channel %i", iChannelUid);
     }
   }
   else
   {
-    KODI->Log(LOG_DEBUG, "RequestEPGForChannel(%i) %s", channel.iUniqueId, result.c_str());
+    KODI->Log(LOG_DEBUG, "RequestEPGForChannel(%i) %s", iChannelUid, result.c_str());
   }
 
   return PVR_ERROR_NO_ERROR;
