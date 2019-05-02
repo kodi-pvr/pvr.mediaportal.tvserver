@@ -1,4 +1,5 @@
 v4.0.1
+- Fixed: TSReader: reset the timeshift start time after a successful channel switch
 - Fixed: radio webstream support (was broken since Kodi v18 streaming API changes)
 
 v4.0.0
