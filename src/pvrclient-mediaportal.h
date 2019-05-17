@@ -27,6 +27,7 @@
 #include "Socket.h"
 #include "Cards.h"
 #include "epg.h"
+#include "channels.h"
 #include "p8-platform/threads/mutex.h"
 #include "p8-platform/threads/threads.h"
 
@@ -144,7 +145,7 @@ private:
   P8PLATFORM::CMutex      m_connectionMutex;
   int64_t                 m_iLastRecordingUpdate;
   MPTV::CTsReader*        m_tsreader;
-  std::map<int,std::string> m_channelNames;
+  std::map<int,cChannel>  m_channels;
   int                     m_signalStateCounter;
   int                     m_iSignal;
   int                     m_iSNR;
