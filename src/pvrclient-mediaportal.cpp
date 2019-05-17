@@ -82,6 +82,7 @@ cPVRClientMediaPortal::~cPVRClientMediaPortal()
 {
   KODI->Log(LOG_DEBUG, "->~cPVRClientMediaPortal()");
   Disconnect();
+
   SAFE_DELETE(Timer::lifetimeValues);
   SAFE_DELETE(m_tcpclient);
   SAFE_DELETE(m_genretable);
@@ -740,7 +741,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
     {
       // Cache this channel in our local uid-channel list
       // This cache is used for the GUIDialogRecordSettings
-      m_channelNames[channel.UID()] = channel.Name();
+      m_channels[channel.UID()] = channel;
 
       // Prepare the PVR_CHANNEL struct to transfer this channel to Kodi
       tag.iUniqueId = channel.UID();
@@ -1516,7 +1517,7 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
     std::string strChannelName;
     if (timerinfo.iClientChannelUid >= 0)
     {
-      strChannelName = m_channelNames[timerinfo.iClientChannelUid];
+      strChannelName = m_channels[timerinfo.iClientChannelUid].Name();
     }
     CGUIDialogRecordSettings dlgRecSettings( timerinfo, timer, strChannelName);
 
@@ -2230,7 +2231,33 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
                                                             PVR_NAMED_VALUE* properties,
                                                             unsigned int* iPropertiesCount)
 {
+  if ((channel == nullptr) || (properties == nullptr))
+  {
+    return PVR_ERROR_FAILED;
+  }
+
   *iPropertiesCount = 0;
+
+  // Is this a webstream?
+  try
+  {
+    cChannel& selectedChannel = m_channels.at(channel->iUniqueId);
+
+    if (selectedChannel.IsWebstream())
+    {
+      KODI->Log(LOG_DEBUG, "GetChannelStreamProperties (webstream) for uid=%i is '%s'",
+                channel->iUniqueId, selectedChannel.URL());
+      AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL,
+                        selectedChannel.URL());
+      AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
+      return PVR_ERROR_NO_ERROR;
+    }
+  }
+  catch (const std::out_of_range& oor)
+  {
+    // channel not found in our plugin channel cache
+  }
+
   if (g_eStreamingMethod == ffmpeg)
   {
     // GetChannelStreamProperties is called before OpenLiveStream by Kodi, so we should already open the stream here...

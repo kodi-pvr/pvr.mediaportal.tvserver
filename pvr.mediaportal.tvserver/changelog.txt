@@ -1,3 +1,6 @@
+v4.0.1
+- Fixed: radio webstream support (was broken since Kodi v18 streaming API changes)
+
 v4.0.0
 - Update to PVR addon API v6.0.0
 
