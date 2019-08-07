@@ -1,3 +1,6 @@
+v4.1.0
+- Update to GUI addon API v5.14.0
+
 v4.0.1
 - Fixed: TSReader: reset the timeshift start time after a successful channel switch
 - Fixed: radio webstream support (was broken since Kodi v18 streaming API changes)
