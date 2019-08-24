@@ -19,7 +19,7 @@
 
 #include <p8-platform/util/StringUtils.h>
 #include "client.h"
-#include "xbmc_pvr_dll.h"
+#include "kodi/xbmc_pvr_dll.h"
 #include "pvrclient-mediaportal.h"
 #include "utils.h"
 #include "timers.h"
