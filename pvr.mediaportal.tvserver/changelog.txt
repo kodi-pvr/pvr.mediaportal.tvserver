@@ -1,6 +1,12 @@
+v3.5.19:
+- Update: Build system version
+- Fixed: Package check for JsonCpp
+- Added: AppVeyor for Windows related build tests
+
 v3.5.18:
 - Fixed: TSReader: reset the timeshift start time after a successful channel switch
 - Fixed: radio webstream support (was broken since Kodi v18 streaming API changes)
+
 v3.5.17:
 - Added: GetStreamReadChunkSize support (Refs #92)
 - Fixed: TSReader (RTSP): pause hangs Kodi
