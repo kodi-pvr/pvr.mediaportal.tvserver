@@ -1,10 +1,7 @@
+cmake_minimum_required(VERSION 3.5)
 project(pvr.mediaportal.tvserver)
 
-cmake_minimum_required(VERSION 2.6)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
-
-enable_language(CXX)
 
 find_package(Kodi REQUIRED)
 find_package(p8-platform REQUIRED)
@@ -22,7 +19,7 @@ set(LIVE555_DEFINES -DLIVE555 -D_WINSOCK_DEPRECATED_NO_WARNINGS -DSOCKLEN_T=sock
 
 include_directories(${p8-platform_INCLUDE_DIRS}
                     ${TINYXML_INCLUDE_DIR}
-                    ${KODI_INCLUDE_DIR}
+                    ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${PROJECT_SOURCE_DIR}/src
                     ${PROJECT_BINARY_DIR}
                     ${LIVE555_INCLUDE_DIR}
