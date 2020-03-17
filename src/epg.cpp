@@ -53,8 +53,8 @@ void cEpg::Reset()
   m_duration        = 0;
   m_genre_type      = 0;
   m_genre_subtype   = 0;
-  m_seriesNumber    = 0;
-  m_episodeNumber   = 0;
+  m_seriesNumber    = EPG_TAG_INVALID_SERIES_EPISODE;
+  m_episodeNumber   = EPG_TAG_INVALID_SERIES_EPISODE;
   m_starRating      = 0;
   m_parentalRating  = 0;
 }

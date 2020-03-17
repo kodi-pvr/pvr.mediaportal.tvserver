@@ -540,6 +540,20 @@ PVR_ERROR cPVRClientMediaPortal::GetBackendTime(time_t *localTime, int *gmtOffse
 /************************************************************/
 /** EPG handling */
 
+namespace
+{
+
+std::string ParseAsW3CDateString(time_t time)
+{
+  std::tm* tm = std::localtime(&time);
+  char buffer[16];
+  std::strftime(buffer, 16, "%Y-%m-%d", tm);
+
+  return buffer;
+}
+
+} // unnamed namespace
+
 PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
 {
   vector<string> lines;
@@ -571,6 +585,7 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, ti
     if( result.length() != 0)
     {
       memset(&broadcast, 0, sizeof(EPG_TAG));
+      broadcast.iEpisodePartNumber = EPG_TAG_INVALID_SERIES_EPISODE;
       epg.SetGenreTable(m_genretable);
 
       Tokenize(result, lines, ",");
@@ -600,7 +615,8 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, ti
             broadcast.iGenreType          = epg.GenreType();
             broadcast.iGenreSubType       = epg.GenreSubType();
             broadcast.strGenreDescription = epg.Genre();
-            broadcast.firstAired          = epg.OriginalAirDate();
+            std::string strFirstAired(epg.OriginalAirDate() > 0 ? ParseAsW3CDateString(epg.OriginalAirDate()) : "");
+            broadcast.strFirstAired = strFirstAired.c_str();
             broadcast.iParentalRating     = epg.ParentalRating();
             broadcast.iStarRating         = epg.StarRating();
             broadcast.iSeriesNumber       = epg.SeriesNumber();
