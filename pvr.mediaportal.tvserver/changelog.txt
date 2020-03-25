@@ -1,3 +1,9 @@
+v4.2.4:
+- Update Debian build code
+- Update with some minor cleanups
+- Add license name forum url and source url to addon.xml
+- Add GPL2+ license file and show GPL2+ on README.md
+
 v4.2.3:
 - Set default invalid season/episode numbers to -1
 
