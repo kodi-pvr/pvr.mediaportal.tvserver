@@ -5,7 +5,7 @@
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # MediaPortal TVServer PVR
-MediaPortal TVServer PVR client addon for [Kodi] (https://kodi.tv)
+MediaPortal TVServer PVR client addon for [Kodi](https://kodi.tv)
 
 ## Build instructions
 
@@ -19,5 +19,5 @@ MediaPortal TVServer PVR client addon for [Kodi] (https://kodi.tv)
 
 ##### Useful links
 
-* [Kodi's PVR user support] (https://forum.kodi.tv/forumdisplay.php?fid=171)
-* [Kodi's PVR development support] (https://forum.kodi.tv/forumdisplay.php?fid=136)
+* [Kodi's PVR user support](https://forum.kodi.tv/forumdisplay.php?fid=171)
+* [Kodi's PVR development support](https://forum.kodi.tv/forumdisplay.php?fid=136)
