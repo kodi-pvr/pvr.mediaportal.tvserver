@@ -22,7 +22,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
     return false;
   }
 
-  KODI->Log(LOG_NOTICE, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
+  KODI->Log(LOG_INFO, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
 
   TiXmlHandle hDoc(&xmlDoc);
   TiXmlElement* pElem;

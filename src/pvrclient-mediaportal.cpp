@@ -1647,7 +1647,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
   const char* sResolveRTSPHostname = booltostring(g_bResolveRTSPHostname);
   vector<string> timeshiftfields;
 
-  KODI->Log(LOG_NOTICE, "Open Live stream for channel uid=%i", channelinfo.iUniqueId);
+  KODI->Log(LOG_INFO, "Open Live stream for channel uid=%i", channelinfo.iUniqueId);
   if (!IsUp())
   {
     m_iCurrentChannel = -1;
@@ -1660,7 +1660,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
   if (((int)channelinfo.iUniqueId) == m_iCurrentChannel)
   {
-    KODI->Log(LOG_NOTICE, "New channel uid equal to the already streaming channel. Skipping re-tune.");
+    KODI->Log(LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
     return true;
   }
 
@@ -1757,7 +1757,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     m_PlaybackURL = timeshiftfields[0];
     if (g_eStreamingMethod == TSReader)
     {
-      KODI->Log(LOG_NOTICE, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
+      KODI->Log(LOG_INFO, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
       if (channelinfo.bIsRadio)
       {
         usleep(100000); // 100 ms sleep to allow the buffer to fill
@@ -1765,12 +1765,12 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     }
     else
     {
-      KODI->Log(LOG_NOTICE, "Channel stream URL: %s", m_PlaybackURL.c_str());
+      KODI->Log(LOG_INFO, "Channel stream URL: %s", m_PlaybackURL.c_str());
     }
 
     if (g_iSleepOnRTSPurl > 0)
     {
-      KODI->Log(LOG_NOTICE, "Sleeping %i ms before opening stream: %s", g_iSleepOnRTSPurl, timeshiftfields[0].c_str());
+      KODI->Log(LOG_INFO, "Sleeping %i ms before opening stream: %s", g_iSleepOnRTSPurl, timeshiftfields[0].c_str());
       usleep(g_iSleepOnRTSPurl * 1000);
     }
 
@@ -1790,7 +1790,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         bool bReturn = false;
 
         // Continue with the existing TsReader.
-        KODI->Log(LOG_NOTICE, "Re-using existing TsReader...");
+        KODI->Log(LOG_INFO, "Re-using existing TsReader...");
         //if(g_bDirectTSFileRead)
         if(g_bUseRTSP == false)
         {
@@ -1804,7 +1804,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         else
         {
           // RTSP url
-          KODI->Log(LOG_NOTICE, "Skipping OnZap for TSReader RTSP");
+          KODI->Log(LOG_INFO, "Skipping OnZap for TSReader RTSP");
           bReturn = true; //Fast forward seek (OnZap) does not work for RTSP
         }
 
@@ -1824,7 +1824,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       }
       else
       {
-        KODI->Log(LOG_NOTICE, "Creating a new TsReader...");
+        KODI->Log(LOG_INFO, "Creating a new TsReader...");
         m_tsreader = new CTsReader();
       }
 
@@ -1862,7 +1862,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     m_iCurrentCard = atoi(timeshiftfields[3].c_str());
     m_bCurrentChannelIsRadio = channelinfo.bIsRadio;
   }
-  KODI->Log(LOG_NOTICE, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.strChannelName, m_iCurrentCard);
+  KODI->Log(LOG_INFO, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.strChannelName, m_iCurrentCard);
 
   return true;
 }
@@ -1911,7 +1911,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
       {
         if (m_bCurrentChannelIsRadio == false || read_done == 0)
         {
-          KODI->Log(LOG_NOTICE, "Kodi requested %u bytes, but the TSReader got only %lu bytes in 2 seconds", iBufferSize, read_done);
+          KODI->Log(LOG_INFO, "Kodi requested %u bytes, but the TSReader got only %lu bytes in 2 seconds", iBufferSize, read_done);
         }
         read_timeouts = 0;
 
@@ -1946,7 +1946,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
       SAFE_DELETE(m_tsreader);
     }
     result = SendCommand("StopTimeshift:\n");
-    KODI->Log(LOG_NOTICE, "CloseLiveStream: %s", result.c_str());
+    KODI->Log(LOG_INFO, "CloseLiveStream: %s", result.c_str());
     m_bTimeShiftStarted = false;
     m_iCurrentChannel = -1;
     m_iCurrentCard = -1;
@@ -2049,7 +2049,7 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 
 bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 {
-  KODI->Log(LOG_NOTICE, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
+  KODI->Log(LOG_INFO, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
 
   m_bTimeShiftStarted = false;
 
@@ -2080,7 +2080,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
       recfile = myrecording->Stream();
       if (!recfile.empty())
       {
-        KODI->Log(LOG_NOTICE, "Trying to use the recording RTSP stream URL name instead.");
+        KODI->Log(LOG_INFO, "Trying to use the recording RTSP stream URL name instead.");
       }
     }
   }
@@ -2093,7 +2093,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
       recfile = myrecording->FilePath();
       if (!recfile.empty())
       {
-        KODI->Log(LOG_NOTICE, "Trying to use the filename instead.");
+        KODI->Log(LOG_INFO, "Trying to use the filename instead.");
       }
     }
   }
@@ -2123,7 +2123,7 @@ void cPVRClientMediaPortal::CloseRecordedStream(void)
 
   if (m_tsreader)
   {
-    KODI->Log(LOG_NOTICE, "CloseRecordedStream: Stop TSReader...");
+    KODI->Log(LOG_INFO, "CloseRecordedStream: Stop TSReader...");
     m_tsreader->Close();
     SAFE_DELETE(m_tsreader);
   }
@@ -2425,7 +2425,7 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & record
     KODI->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command.c_str(), result.c_str());
     return nullptr;
   }
-  KODI->Log(LOG_NOTICE, "RECORDING: %s", result.c_str());
+  KODI->Log(LOG_INFO, "RECORDING: %s", result.c_str());
   return m_lastSelectedRecording;
 }
 

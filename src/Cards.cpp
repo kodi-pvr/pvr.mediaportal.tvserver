@@ -83,11 +83,11 @@ bool CCards::ParseLines(vector<string>& lines)
         card.TimeshiftFolderUNC = fields[18];
         if (card.RecordingFolderUNC.empty())
         {
-          KODI->Log(LOG_NOTICE, "Warning: no recording share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
+          KODI->Log(LOG_WARNING, "no recording share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
         if (card.TimeshiftFolderUNC.empty())
         {
-          KODI->Log(LOG_NOTICE, "Warning: no timeshift share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
+          KODI->Log(LOG_WARNING, "no timeshift share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
       }
       else
