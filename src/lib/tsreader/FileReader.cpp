@@ -106,7 +106,7 @@ namespace MPTV
         // Is the file already opened
         if (!IsFileInvalid())
         {
-            KODI->Log(LOG_NOTICE, "FileReader::OpenFile() file already open");
+            KODI->Log(LOG_INFO, "FileReader::OpenFile() file already open");
             return S_OK;
         }
 
@@ -216,7 +216,7 @@ namespace MPTV
 
         if (*dwReadBytes < lDataLength)
         {
-            KODI->Log(LOG_NOTICE, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
+            KODI->Log(LOG_INFO, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
             return S_FALSE;
         }
         return S_OK;

@@ -86,7 +86,7 @@ namespace MPTV
             KODI->Log(LOG_DEBUG, "Found the timeshift buffer at: %s\n", pszFileName);
             return ToKodiPath(sFileName);
         }
-        KODI->Log(LOG_NOTICE, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
+        KODI->Log(LOG_INFO, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
 #elif defined (TARGET_WINDOWS_STORE)
         KODI->Log(LOG_DEBUG, "WindowsStore: need to translate '%s' to UNC filename.", pszFileName);
 #else
@@ -142,7 +142,7 @@ namespace MPTV
 
         if (bFound)
         {
-            KODI->Log(LOG_NOTICE, "Translate path %s -> %s", pszFileName, sFileName.c_str());
+            KODI->Log(LOG_INFO, "Translate path %s -> %s", pszFileName, sFileName.c_str());
         }
         else
         {
@@ -200,7 +200,7 @@ namespace MPTV
 
     long CTsReader::Open(const char* pszFileName)
     {
-        KODI->Log(LOG_NOTICE, "TsReader open '%s'", pszFileName);
+        KODI->Log(LOG_INFO, "TsReader open '%s'", pszFileName);
 
         m_fileName = pszFileName;
 
@@ -316,7 +316,7 @@ namespace MPTV
             if (m_bIsRTSP)
             {
 #ifdef LIVE555
-                KODI->Log(LOG_NOTICE, "TsReader: closing RTSP client");
+                KODI->Log(LOG_INFO, "TsReader: closing RTSP client");
                 m_rtspClient->Stop();
                 SAFE_DELETE(m_rtspClient);
                 SAFE_DELETE(m_buffer);
@@ -324,7 +324,7 @@ namespace MPTV
             }
             else
             {
-                KODI->Log(LOG_NOTICE, "TsReader: closing file");
+                KODI->Log(LOG_INFO, "TsReader: closing file");
                 m_fileReader->CloseFile();
             }
             SAFE_DELETE(m_fileReader);
@@ -336,7 +336,7 @@ namespace MPTV
     {
         string newFileName;
 
-        KODI->Log(LOG_NOTICE, "TsReader: OnZap(%s)", pszFileName);
+        KODI->Log(LOG_INFO, "TsReader: OnZap(%s)", pszFileName);
 
         // Check whether the new channel url/timeshift buffer is changed
         // In case of a new url/timeshift buffer file, close the old one first
