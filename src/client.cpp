@@ -477,12 +477,12 @@ void OnPowerSavingDeactivated()
 {
 }
 
-//-- GetAddonCapabilities -----------------------------------------------------
+//-- GetCapabilities -----------------------------------------------------
 // Tell Kodi our requirements
 //-----------------------------------------------------------------------------
-PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
+PVR_ERROR GetCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
 {
-  KODI->Log(LOG_DEBUG, "->GetAddonCapabilities()");
+  KODI->Log(LOG_DEBUG, "->GetCapabilities()");
 
   memset(pCapabilities, 0, sizeof(PVR_ADDON_CAPABILITIES));
 
