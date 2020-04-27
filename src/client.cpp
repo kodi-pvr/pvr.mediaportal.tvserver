@@ -69,7 +69,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return m_curStatus;
   }
 
-  PVR_PROPERTIES* pvrprops = (PVR_PROPERTIES*)props;
+  AddonProperties_PVR* pvrprops = (AddonProperties_PVR*)props;
 
   KODI = new CHelper_libXBMC_addon;
   if (!KODI->RegisterMe(hdl))
