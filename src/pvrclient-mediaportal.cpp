@@ -1985,7 +1985,7 @@ bool cPVRClientMediaPortal::IsRealTimeStream(void)
   return m_bTimeShiftStarted;
 }
 
-PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
+PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(PVR_SIGNAL_STATUS *signalStatus)
 {
   if (g_iTVServerKodiBuild < 108 || (m_iCurrentChannel == -1))
   {
@@ -2018,10 +2018,10 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   if (m_signalStateCounter > 10)
     m_signalStateCounter = 0;
 
-  signalStatus.iSignal = m_iSignal;
-  signalStatus.iSNR = m_iSNR;
-  signalStatus.iBER = m_signalStateCounter;
-  PVR_STRCPY(signalStatus.strAdapterStatus, "timeshifting"); // hardcoded for now...
+  signalStatus->iSignal = m_iSignal;
+  signalStatus->iSNR = m_iSNR;
+  signalStatus->iBER = m_signalStateCounter;
+  PVR_STRCPY(signalStatus->strAdapterStatus, "timeshifting"); // hardcoded for now...
 
 
   if (m_iCurrentCard >= 0)
@@ -2030,12 +2030,12 @@ PVR_ERROR cPVRClientMediaPortal::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
     Card currentCard;
     if (m_cCards.GetCard(m_iCurrentCard, currentCard) == true)
     {
-      PVR_STRCPY(signalStatus.strAdapterName, currentCard.Name.c_str());
+      PVR_STRCPY(signalStatus->strAdapterName, currentCard.Name.c_str());
       return PVR_ERROR_NO_ERROR;
     }
   }
 
-  PVR_STRCLR(signalStatus.strAdapterName);
+  PVR_STRCLR(signalStatus->strAdapterName);
 
   return PVR_ERROR_NO_ERROR;
 }

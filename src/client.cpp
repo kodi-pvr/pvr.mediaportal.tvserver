@@ -69,7 +69,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return m_curStatus;
   }
 
-  PVR_PROPERTIES* pvrprops = (PVR_PROPERTIES*)props;
+  AddonProperties_PVR* pvrprops = (AddonProperties_PVR*)props;
 
   KODI = new CHelper_libXBMC_addon;
   if (!KODI->RegisterMe(hdl))
@@ -477,12 +477,12 @@ void OnPowerSavingDeactivated()
 {
 }
 
-//-- GetAddonCapabilities -----------------------------------------------------
+//-- GetCapabilities -----------------------------------------------------
 // Tell Kodi our requirements
 //-----------------------------------------------------------------------------
-PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
+PVR_ERROR GetCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities)
 {
-  KODI->Log(LOG_DEBUG, "->GetAddonCapabilities()");
+  KODI->Log(LOG_DEBUG, "->GetCapabilities()");
 
   memset(pCapabilities, 0, sizeof(PVR_ADDON_CAPABILITIES));
 
@@ -826,12 +826,12 @@ bool IsRealTimeStream(void)
   return g_client->IsRealTimeStream();
 }
 
-PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
+PVR_ERROR GetSignalStatus(int channelUid, PVR_SIGNAL_STATUS *signalStatus)
 {
   if (!g_client)
     return PVR_ERROR_SERVER_ERROR;
   else
-    return g_client->SignalStatus(signalStatus);
+    return g_client->GetSignalStatus(signalStatus);
 }
 
 /*******************************************/
@@ -952,7 +952,7 @@ PVR_ERROR UndeleteRecording(const PVR_RECORDING& UNUSED(recording)) { return PVR
 PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetRecordingSize(const PVR_RECORDING* recording, int64_t* sizeInBytes) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetDescrambleInfo(int, PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
