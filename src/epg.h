@@ -12,10 +12,10 @@
 
 #include <stdlib.h>
 #include <string>
-#include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_pvr.h"
 #include "GenreTable.h"
 #include "DateTime.h"
+
+#include <kodi/addon-instance/pvr/Timers.h>
 
 const int cKodiEpgIndexOffset = (PVR_TIMER_NO_EPG_UID + 1); ///> Offset used to map the MediaPortal schedule id's to the iClientIndex values
 

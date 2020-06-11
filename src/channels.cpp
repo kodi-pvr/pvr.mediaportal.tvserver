@@ -51,7 +51,7 @@ bool cChannel::Parse(const std::string& data)
     external_id = atoi(fields[1].c_str());
     name = fields[2];
     encrypted = (strncmp(fields[3].c_str(), "1", 1) == 0);
-    
+
     if (fields.size() >= 6)
     {
       iswebstream = (strncmp(fields[4].c_str(), "1", 1) == 0);

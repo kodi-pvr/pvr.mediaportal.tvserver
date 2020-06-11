@@ -9,14 +9,13 @@
 #pragma warning(disable:4244) //wchar to char = loss of data
 #endif
 
-#include "client.h"
 #include "utils.h"
+#include "settings.h"
 #include <string>
 #include <stdio.h>
 #include "p8-platform/util/StringUtils.h"
 
 using namespace std;
-using namespace ADDON;
 
 void Tokenize(const string& str, vector<string>& tokens, const string& delimiters = " ")
 {
@@ -105,12 +104,12 @@ std::string ToKodiPath(const std::string& strFileName)
   {
     std::string SMBPrefix = "smb://";
 
-    if (g_szSMBusername.length() > 0)
+    if (!CSettings::Get().GetSMBusername().empty())
     {
-      SMBPrefix += g_szSMBusername;
-      if (g_szSMBpassword.length() > 0)
+      SMBPrefix += CSettings::Get().GetSMBusername();
+      if (!CSettings::Get().GetSMBpassword().empty())
       {
-        SMBPrefix += ":" + g_szSMBpassword;
+        SMBPrefix += ":" + CSettings::Get().GetSMBpassword();
       }
       SMBPrefix += "@";
     }

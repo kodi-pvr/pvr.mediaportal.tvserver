@@ -45,7 +45,7 @@ public:
    * @param strDate     the date string (return value)
    */
   void GetAsLocalizedTime(std::string& strTime) const;
-  
+
   /**
    * @brief Sets the date and time from a C# DateTime string
    * Assumes the usage of somedatetimeval.ToString("u") in C#

@@ -13,10 +13,7 @@ using namespace std;
 
 #include "epg.h"
 #include "utils.h"
-#include "client.h"
 #include "DateTime.h"
-
-using namespace ADDON;
 
 cEpg::cEpg()
 {
@@ -57,7 +54,7 @@ bool cEpg::ParseLine(string& data)
 
     if( epgfields.size() >= 5 )
     {
-      //KODI->Log(LOG_DEBUG, "%s: %s", epgfields[0].c_str(), epgfields[2].c_str());
+      //kodi::Log(ADDON_LOG_DEBUG, "%s: %s", epgfields[0].c_str(), epgfields[2].c_str());
       // field 0 = start date + time
       // field 1 = end   date + time
       // field 2 = title
@@ -76,13 +73,13 @@ bool cEpg::ParseLine(string& data)
 
       if( m_startTime.SetFromDateTime(epgfields[0]) == false )
       {
-        KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert start time '%s' into date+time", epgfields[0].c_str());
+        kodi::Log(ADDON_LOG_ERROR, "cEpg::ParseLine: Unable to convert start time '%s' into date+time", epgfields[0].c_str());
         return false;
       }
 
       if( m_endTime.SetFromDateTime(epgfields[1]) == false )
       {
-        KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert end time '%s' into date+time", epgfields[1].c_str());
+        kodi::Log(ADDON_LOG_ERROR, "cEpg::ParseLine: Unable to convert end time '%s' into date+time", epgfields[1].c_str());
         return false;
       }
 
@@ -97,17 +94,17 @@ bool cEpg::ParseLine(string& data)
       {
         // Since TVServerKodi v1.x.x.104
         m_uid = (unsigned int) cKodiEpgIndexOffset + atol(epgfields[5].c_str());
-        m_seriesNumber = atoi(epgfields[7].c_str());
-        m_episodeNumber = atoi(epgfields[8].c_str());
+        m_seriesNumber = !epgfields[7].empty() ? std::stoi(epgfields[7]) : EPG_TAG_INVALID_SERIES_EPISODE;
+        m_episodeNumber = !epgfields[8].empty() ? std::stoi(epgfields[8]) : EPG_TAG_INVALID_SERIES_EPISODE;
         m_episodeName = epgfields[9];
         m_episodePart = epgfields[10];
-        m_starRating = atoi(epgfields[13].c_str());
-        m_parentalRating = atoi(epgfields[14].c_str());
+        m_starRating = !epgfields[13].empty() ? std::stoi(epgfields[13]) : 0;
+        m_parentalRating = !epgfields[14].empty() ? std::stoi(epgfields[14]) : 0;
 
         //originalAirDate
         if( m_originalAirDate.SetFromDateTime(epgfields[11]) == false )
         {
-          KODI->Log(LOG_ERROR, "cEpg::ParseLine: Unable to convert original air date '%s' into date+time", epgfields[11].c_str());
+          kodi::Log(ADDON_LOG_ERROR, "cEpg::ParseLine: Unable to convert original air date '%s' into date+time", epgfields[11].c_str());
           return false;
         }
       }
@@ -117,7 +114,7 @@ bool cEpg::ParseLine(string& data)
   }
   catch(std::exception &e)
   {
-    KODI->Log(LOG_ERROR, "Exception '%s' during parse EPG data string.", e.what());
+    kodi::Log(ADDON_LOG_ERROR, "Exception '%s' during parse EPG data string.", e.what());
   }
 
   return false;

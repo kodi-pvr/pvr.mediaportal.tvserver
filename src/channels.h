@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "kodi/libXBMC_pvr.h"
 #include <string>
 
 namespace TvDatabase

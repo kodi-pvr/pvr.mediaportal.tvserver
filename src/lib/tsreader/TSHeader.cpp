@@ -1,4 +1,4 @@
-/* 
+/*
  *  Copyright (C) 2006-2008 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
@@ -6,12 +6,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
@@ -20,14 +20,12 @@
  *
  */
 #include "os-dependent.h"
-#include "client.h" //KODI->Log
-#include "TSHeader.h" 
+#include <kodi/General.h> //for kodi::Log
+#include "TSHeader.h"
 
 #define PAYLOADONLY             1
 #define ADAPTIONFIELDONLY       2
 #define ADAPTIONFIELDANDPAYLOAD 3
-
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -125,20 +123,20 @@ namespace MPTV
 
     void CTsHeader::LogHeader()
     {
-        KODI->Log(LOG_DEBUG, "tsheader:%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x",
+        kodi::Log(ADDON_LOG_DEBUG, "tsheader:%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x%02.2x",
             m_packet[0], m_packet[1], m_packet[2], m_packet[3], m_packet[4], m_packet[5], m_packet[6], m_packet[7], m_packet[8], m_packet[9]);
-        KODI->Log(LOG_DEBUG, "  SyncByte           :%x", SyncByte);
-        KODI->Log(LOG_DEBUG, "  TransportError     :%x", TransportError);
-        KODI->Log(LOG_DEBUG, "  PayloadUnitStart   :%d", PayloadUnitStart);
-        KODI->Log(LOG_DEBUG, "  TransportPriority  :%x", TransportPriority);
-        KODI->Log(LOG_DEBUG, "  Pid                :%x", Pid);
-        KODI->Log(LOG_DEBUG, "  TScrambling        :%x", TScrambling);
-        KODI->Log(LOG_DEBUG, "  AdaptionControl    :%x", AdaptionControl);
-        KODI->Log(LOG_DEBUG, "  ContinuityCounter  :%x", ContinuityCounter);
-        KODI->Log(LOG_DEBUG, "  AdaptionFieldLength:%d", AdaptionFieldLength);
-        KODI->Log(LOG_DEBUG, "  PayLoadStart       :%d", PayLoadStart);
-        KODI->Log(LOG_DEBUG, "  PayLoadOnly            :%d", PayLoadOnly());
-        KODI->Log(LOG_DEBUG, "  AdaptionFieldOnly      :%d", AdaptionFieldOnly());
-        KODI->Log(LOG_DEBUG, "  AdaptionFieldAndPayLoad:%d", AdaptionFieldAndPayLoad());
+        kodi::Log(ADDON_LOG_DEBUG, "  SyncByte           :%x", SyncByte);
+        kodi::Log(ADDON_LOG_DEBUG, "  TransportError     :%x", TransportError);
+        kodi::Log(ADDON_LOG_DEBUG, "  PayloadUnitStart   :%d", PayloadUnitStart);
+        kodi::Log(ADDON_LOG_DEBUG, "  TransportPriority  :%x", TransportPriority);
+        kodi::Log(ADDON_LOG_DEBUG, "  Pid                :%x", Pid);
+        kodi::Log(ADDON_LOG_DEBUG, "  TScrambling        :%x", TScrambling);
+        kodi::Log(ADDON_LOG_DEBUG, "  AdaptionControl    :%x", AdaptionControl);
+        kodi::Log(ADDON_LOG_DEBUG, "  ContinuityCounter  :%x", ContinuityCounter);
+        kodi::Log(ADDON_LOG_DEBUG, "  AdaptionFieldLength:%d", AdaptionFieldLength);
+        kodi::Log(ADDON_LOG_DEBUG, "  PayLoadStart       :%d", PayLoadStart);
+        kodi::Log(ADDON_LOG_DEBUG, "  PayLoadOnly            :%d", PayLoadOnly());
+        kodi::Log(ADDON_LOG_DEBUG, "  AdaptionFieldOnly      :%d", AdaptionFieldOnly());
+        kodi::Log(ADDON_LOG_DEBUG, "  AdaptionFieldAndPayLoad:%d", AdaptionFieldAndPayLoad());
     }
 }

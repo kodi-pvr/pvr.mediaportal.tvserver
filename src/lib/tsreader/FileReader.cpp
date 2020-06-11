@@ -33,7 +33,7 @@
  */
 
 #include "FileReader.h"
-#include "client.h" //for KODI->Log
+#include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
 #include "p8-platform/threads/threads.h"
 #include <algorithm> //std::min, std::max
@@ -42,7 +42,6 @@
 #include "utils.h"
 #include <errno.h>
 
-using namespace ADDON;
 
 /* indicate that caller can handle truncated reads, where function returns before entire buffer has been filled */
 #define READ_TRUNCATED 0x01
@@ -62,7 +61,6 @@ using namespace ADDON;
 namespace MPTV
 {
     FileReader::FileReader() :
-        m_hFile(NULL),
         m_fileSize(0),
         m_fileName("")
     {
@@ -106,37 +104,35 @@ namespace MPTV
         // Is the file already opened
         if (!IsFileInvalid())
         {
-            KODI->Log(LOG_INFO, "FileReader::OpenFile() file already open");
+            kodi::Log(ADDON_LOG_INFO, "FileReader::OpenFile() file already open");
             return S_OK;
         }
 
         // Has a filename been set yet
         if (m_fileName.empty())
         {
-            KODI->Log(LOG_ERROR, "FileReader::OpenFile() no filename");
+            kodi::Log(ADDON_LOG_ERROR, "FileReader::OpenFile() no filename");
             return ERROR_INVALID_NAME;
         }
 
         do
         {
-            KODI->Log(LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
-            void* fileHandle = KODI->OpenFile(m_fileName.c_str(), READ_CHUNKED);
-            if (fileHandle)
+            kodi::Log(ADDON_LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
+            if (m_hFile.OpenFile(m_fileName, READ_CHUNKED))
             {
-                m_hFile = fileHandle;
                 break;
             }
             else
             {
-                struct __stat64 buffer;
-                int statResult = KODI->StatFile(m_fileName.c_str(), &buffer);
+                kodi::vfs::FileStatus buffer;
+                bool statResult = kodi::vfs::StatFile(m_fileName, buffer);
 
-                if (statResult < 0)
+                if (!statResult)
                 {
                     if (errno == EACCES)
                     {
-                        KODI->Log(LOG_ERROR, "Permission denied. Check the file or share access rights for '%s'", m_fileName.c_str());
-                        KODI->QueueNotification(QUEUE_ERROR, "Permission denied");
+                        kodi::Log(ADDON_LOG_ERROR, "Permission denied. Check the file or share access rights for '%s'", m_fileName.c_str());
+                        kodi::QueueNotification(QUEUE_ERROR, "", "Permission denied");
                         Tmo = 0;
                         break;
                     }
@@ -148,15 +144,15 @@ namespace MPTV
         if (Tmo)
         {
             if (Tmo < 4) // 1 failed + 1 succeded is quasi-normal, more is a bit suspicious ( disk drive too slow or problem ? )
-                KODI->Log(LOG_DEBUG, "FileReader::OpenFile(), %d tries to succeed opening %ws.", 6 - Tmo, m_fileName.c_str());
+                kodi::Log(ADDON_LOG_DEBUG, "FileReader::OpenFile(), %d tries to succeed opening %ws.", 6 - Tmo, m_fileName.c_str());
         }
         else
         {
-            KODI->Log(LOG_ERROR, "FileReader::OpenFile(), open file %s failed.", m_fileName.c_str());
+            kodi::Log(ADDON_LOG_ERROR, "FileReader::OpenFile(), open file %s failed.", m_fileName.c_str());
             return S_FALSE;
         }
 
-        KODI->Log(LOG_DEBUG, "%s: OpenFile(%s) succeeded.", __FUNCTION__, m_fileName.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "%s: OpenFile(%s) succeeded.", __FUNCTION__, m_fileName.c_str());
 
         SetFilePointer(0, SEEK_SET);
 
@@ -171,10 +167,9 @@ namespace MPTV
     //
     long FileReader::CloseFile()
     {
-        if (m_hFile)
+        if (m_hFile.IsOpen())
         {
-            KODI->CloseFile(m_hFile);
-            m_hFile = NULL;
+            m_hFile.Close();
         }
 
         return S_OK;
@@ -183,40 +178,40 @@ namespace MPTV
 
     inline bool FileReader::IsFileInvalid()
     {
-        return (m_hFile == NULL);
+        return !m_hFile.IsOpen();
     }
 
 
     int64_t FileReader::SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod)
     {
-        TSDEBUG(LOG_DEBUG, "%s: distance %d method %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod);
-        int64_t rc = KODI->SeekFile(m_hFile, llDistanceToMove, dwMoveMethod);
-        TSDEBUG(LOG_DEBUG, "%s: distance %d method %d returns %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod, rc);
+        TSDEBUG(ADDON_LOG_DEBUG, "%s: distance %d method %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod);
+        int64_t rc = m_hFile.Seek(llDistanceToMove, dwMoveMethod);
+        TSDEBUG(ADDON_LOG_DEBUG, "%s: distance %d method %d returns %d.", __FUNCTION__, llDistanceToMove, dwMoveMethod, rc);
         return rc;
     }
 
 
     int64_t FileReader::GetFilePointer()
     {
-        return KODI->GetFilePosition(m_hFile);
+        return m_hFile.GetPosition();
     }
 
 
     long FileReader::Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes)
     {
-        ssize_t read_bytes = KODI->ReadFile(m_hFile, (void*)pbData, lDataLength);//Read file data into buffer
+        ssize_t read_bytes = m_hFile.Read((void*)pbData, lDataLength);//Read file data into buffer
         if (read_bytes < 0)
         {
-            TSDEBUG(LOG_DEBUG, "%s: ReadFile function failed.", __FUNCTION__);
+            TSDEBUG(ADDON_LOG_DEBUG, "%s: ReadFile function failed.", __FUNCTION__);
             *dwReadBytes = 0;
             return S_FALSE;
         }
         *dwReadBytes = static_cast<size_t>(read_bytes);
-        TSDEBUG(LOG_DEBUG, "%s: requested read length %d actually read %d.", __FUNCTION__, lDataLength, *dwReadBytes);
+        TSDEBUG(ADDON_LOG_DEBUG, "%s: requested read length %d actually read %d.", __FUNCTION__, lDataLength, *dwReadBytes);
 
         if (*dwReadBytes < lDataLength)
         {
-            KODI->Log(LOG_INFO, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
+            kodi::Log(ADDON_LOG_INFO, "%s: requested %d bytes, read only %d bytes.", __FUNCTION__, lDataLength, *dwReadBytes);
             return S_FALSE;
         }
         return S_OK;
@@ -225,11 +220,11 @@ namespace MPTV
 
     int64_t FileReader::GetFileSize()
     {
-        return KODI->GetFileLength(m_hFile);
+        return m_hFile.GetLength();
     }
 
     int64_t FileReader::OnChannelChange(void)
     {
-        return KODI->GetFilePosition(m_hFile);
+        return m_hFile.GetPosition();
     }
 }

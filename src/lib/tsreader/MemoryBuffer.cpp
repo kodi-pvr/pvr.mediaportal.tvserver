@@ -33,10 +33,8 @@
 #include "p8-platform/threads/mutex.h"
 #include "p8-platform/util/util.h"
 #include "MemoryBuffer.h"
-#include "client.h"
+#include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
-
-using namespace ADDON;
 
 #define MAX_MEMORY_BUFFER_SIZE (1024L*1024L*12L)
 
@@ -79,7 +77,7 @@ size_t CMemoryBuffer::Size()
 
 void CMemoryBuffer::Run(bool onOff)
 {
-  TSDEBUG(LOG_DEBUG, "memorybuffer: run:%d %d", onOff, m_bRunning);
+  TSDEBUG(ADDON_LOG_DEBUG, "memorybuffer: run:%d %d", onOff, m_bRunning);
 
   if (m_bRunning != onOff)
   {
@@ -91,7 +89,7 @@ void CMemoryBuffer::Run(bool onOff)
     }
   }
 
-  TSDEBUG(LOG_DEBUG, "memorybuffer: running:%d", onOff);
+  TSDEBUG(ADDON_LOG_DEBUG, "memorybuffer: running:%d", onOff);
 }
 
 size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
@@ -108,7 +106,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
       return 0;
   }
 
-  // KODI->Log(LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
+  // kodi::Log(ADDON_LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
   size_t bytesWritten = 0;
   P8PLATFORM::CLockObject BufferLock(m_BufferLock);
 
@@ -116,14 +114,14 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
   {
     if (m_Array.empty())
     {
-      KODI->Log(LOG_DEBUG, "memorybuffer: read:empty buffer\n");
+      kodi::Log(ADDON_LOG_DEBUG, "memorybuffer: read:empty buffer\n");
       return 0;
     }
     BufferItem *item = m_Array.at(0);
 
     if (NULL == item)
     {
-      KODI->Log(LOG_DEBUG, "memorybuffer: item==NULL\n");
+      kodi::Log(ADDON_LOG_DEBUG, "memorybuffer: item==NULL\n");
       return 0;
     }
 
@@ -139,7 +137,7 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
 
     if (NULL == item->data)
     {
-      KODI->Log(LOG_DEBUG, "memorybuffer: item->data==NULL\n");
+      kodi::Log(ADDON_LOG_DEBUG, "memorybuffer: item->data==NULL\n");
       return 0;
     }
 
@@ -174,11 +172,11 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
     m_Array.push_back(item);
     m_BytesInBuffer += lDataLength;
 
-    //KODI->Log(LOG_DEBUG, "add..%d/%d",lDataLength,m_BytesInBuffer);
+    //kodi::Log(ADDON_LOG_DEBUG, "add..%d/%d",lDataLength,m_BytesInBuffer);
     while (m_BytesInBuffer > MAX_MEMORY_BUFFER_SIZE)
     {
       sleep = true;
-      KODI->Log(LOG_DEBUG, "memorybuffer:put full buffer (%d)", (unsigned long) m_BytesInBuffer);
+      kodi::Log(ADDON_LOG_DEBUG, "memorybuffer:put full buffer (%d)", (unsigned long) m_BytesInBuffer);
       BufferItem *item2 = m_Array.at(0);
       size_t copyLength = item2->nDataLength - item2->nOffset;
 

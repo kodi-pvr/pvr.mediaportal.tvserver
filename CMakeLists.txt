@@ -32,15 +32,16 @@ if (NOT WIN32)
 endif()
 
 # Source files
-set(MPTV_SOURCES src/Cards.cpp
+set(MPTV_SOURCES src/addon.cpp
+                 src/Cards.cpp
                  src/channels.cpp
-                 src/client.cpp
                  src/DateTime.cpp
                  src/epg.cpp
                  src/GenreTable.cpp
                  src/GUIDialogRecordSettings.cpp
                  src/pvrclient-mediaportal.cpp
                  src/recordings.cpp
+                 src/settings.cpp
                  src/Socket.cpp
                  src/timers.cpp
                  src/uri.cpp
@@ -54,9 +55,9 @@ if(WIN32)
 endif(WIN32)
 
 # Header files
-set(MPTV_HEADERS src/Cards.h
+set(MPTV_HEADERS src/addon.h
+                 src/Cards.h
                  src/channels.h
-                 src/client.h
                  src/DateTime.h
                  src/epg.h
                  src/GenreTable.h
@@ -64,6 +65,7 @@ set(MPTV_HEADERS src/Cards.h
                  src/os-dependent.h
                  src/pvrclient-mediaportal.h
                  src/recordings.h
+                 src/settings.h
                  src/Socket.h
                  src/timers.h
                  src/uri.h

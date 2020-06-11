@@ -1,4 +1,4 @@
-/* 
+/*
  *  Copyright (C) 2006-2009 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
@@ -21,10 +21,8 @@
  */
 
 #include "PidTable.h"
-#include "client.h" //KODI->Log
+#include <kodi/General.h> //for kodi::Log
 #include "utils.h"
-
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -47,7 +45,7 @@ namespace MPTV
 
     bool CPidTable::operator ==(const CPidTable& other) const
     {
-        // Not all members are compared, this is how DeMultiplexer class has 
+        // Not all members are compared, this is how DeMultiplexer class has
         // been comparing "PMTs" to detect channel changes.
         if (subtitlePids != other.subtitlePids
             || audioPids != other.audioPids
@@ -66,7 +64,7 @@ namespace MPTV
 
     void CPidTable::Reset()
     {
-        //KODI->Log(LOG_DEBUG, "Pid table reset");
+        //kodi::Log(ADDON_LOG_DEBUG, "Pid table reset");
         PcrPid = 0;
         PmtPid = 0;
         ServiceId = -1;
@@ -93,7 +91,7 @@ namespace MPTV
 
     void CPidTable::Copy(const CPidTable &pids)
     {
-        //KODI->Log(LOG_DEBUG, "Pid table copy");
+        //kodi::Log(ADDON_LOG_DEBUG, "Pid table copy");
         ServiceId = pids.ServiceId;
 
         PcrPid = pids.PcrPid;
@@ -126,13 +124,13 @@ namespace MPTV
 
     void CPidTable::LogPIDs()
     {
-        KODI->Log(LOG_DEBUG, " pcr      pid: %4x ", PcrPid);
-        KODI->Log(LOG_DEBUG, " pmt      pid: %4x ", PmtPid);
+        kodi::Log(ADDON_LOG_DEBUG, " pcr      pid: %4x ", PcrPid);
+        kodi::Log(ADDON_LOG_DEBUG, " pmt      pid: %4x ", PmtPid);
 
         // Log all video streams (Blu-ray can have multiple video streams)
         for (unsigned int i(0); i < videoPids.size(); i++)
         {
-            KODI->Log(LOG_DEBUG, " video    pid: %4x type: %s",
+            kodi::Log(ADDON_LOG_DEBUG, " video    pid: %4x type: %s",
                 videoPids[i].Pid,
                 StreamFormatAsString(videoPids[i].VideoServiceType));
         }
@@ -140,7 +138,7 @@ namespace MPTV
         // Log all audio streams
         for (unsigned int i(0); i < audioPids.size(); i++)
         {
-            KODI->Log(LOG_DEBUG, " audio    pid: %4x language: %3s type: %s",
+            kodi::Log(ADDON_LOG_DEBUG, " audio    pid: %4x language: %3s type: %s",
                 audioPids[i].Pid,
                 audioPids[i].Lang,
                 StreamFormatAsString(audioPids[i].AudioServiceType));
@@ -149,7 +147,7 @@ namespace MPTV
         // Log all subtitle streams
         for (unsigned int i(0); i < subtitlePids.size(); i++)
         {
-            KODI->Log(LOG_DEBUG, " Subtitle pid: %4x language: %3s type: %s",
+            kodi::Log(ADDON_LOG_DEBUG, " Subtitle pid: %4x language: %3s type: %s",
                 subtitlePids[i].Pid,
                 subtitlePids[i].Lang,
                 StreamFormatAsString(subtitlePids[i].SubtitleServiceType));

@@ -34,15 +34,13 @@
 
 #include "DeMultiplexer.h"
 #include "utils.h" //UNUSED()
-#include "client.h" //KODI->Log()
+#include <kodi/General.h>  //for kodi::Log
 #include "TSReader.h"
 
 #define MAX_BUF_SIZE 8000
 #define BUFFER_LENGTH 0x1000
 #define READ_SIZE (1316*30)
 #define INITIAL_READ_SIZE (READ_SIZE * 1024)
-
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -142,18 +140,18 @@ namespace MPTV
               }
               else
               {
-                KODI->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
+                kodi::Log(ADDON_LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
               }
             }
             else
             {
                 if (!m_filter.IsTimeShifting())
                 {
-                    KODI->Log(LOG_DEBUG, "%s: endoffile... %llu", __FUNCTION__, GetTickCount64() - m_LastDataFromRtsp);
+                    kodi::Log(ADDON_LOG_DEBUG, "%s: endoffile... %llu", __FUNCTION__, GetTickCount64() - m_LastDataFromRtsp);
                     //set EOF flag and return
                     if (GetTickCount64() - m_LastDataFromRtsp > 2000 && m_filter.State() != State_Paused) // A bit crappy, but no better idea...
                     {
-                        KODI->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
+                        kodi::Log(ADDON_LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
                         m_bEndOfFile = true;
                         return 0;
                     }
@@ -183,7 +181,7 @@ namespace MPTV
                     if (!m_filter.IsTimeShifting())
                     {
                         // set EOF flag and return
-                        KODI->Log(LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
+                        kodi::Log(ADDON_LOG_DEBUG, "%s: endoffile!", __FUNCTION__);
                         m_bEndOfFile = true;
                         return 0;
                     }
@@ -194,7 +192,7 @@ namespace MPTV
             }
             else
             {
-                KODI->Log(LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
+                kodi::Log(ADDON_LOG_DEBUG, "%s: Read failed...", __FUNCTION__);
             }
         }
         return 0;
@@ -220,9 +218,9 @@ namespace MPTV
         if ((m_iPatVersion & 0x0F) != (m_ReqPatVersion & 0x0F))
         {
             if (m_ReqPatVersion == -1)
-            {                                     // Now, unless channel change, 
+            {                                     // Now, unless channel change,
                 m_ReqPatVersion = m_iPatVersion;    // Initialize Pat Request.
-                m_WaitNewPatTmo = GetTickCount64();   // Now, unless channel change request,timeout will be always true. 
+                m_WaitNewPatTmo = GetTickCount64();   // Now, unless channel change request,timeout will be always true.
             }
             if (GetTickCount64() < m_WaitNewPatTmo)
             {
@@ -238,7 +236,7 @@ namespace MPTV
       {
         m_ReqPatVersion++;
         m_ReqPatVersion &= 0x0F;
-        KODI->Log(LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
+        kodi::Log(ADDON_LOG_DEBUG, "Request new PAT = %d", m_ReqPatVersion);
         m_WaitNewPatTmo = GetTickCount64() + 10000;
 
         size_t dwBytesProcessed = 0;
@@ -254,7 +252,7 @@ namespace MPTV
             dwBytesProcessed += BytesRead;
         }
 
-        KODI->Log(LOG_DEBUG, "Found a new channel after processing %li bytes. File position: %I64d\n", dwBytesProcessed, m_reader->GetFilePointer());
+        kodi::Log(ADDON_LOG_DEBUG, "Found a new channel after processing %li bytes. File position: %I64d\n", dwBytesProcessed, m_reader->GetFilePointer());
       }
     }
 

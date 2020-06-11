@@ -131,7 +131,7 @@ void CDateTime::GetAsLocalizedDate(std::string & strDate) const
 {
   const unsigned int bufSize = 64;
   char buffer[bufSize];
-  
+
   strftime(buffer, bufSize, "%x", &m_time);
   strDate = buffer;
 }
@@ -140,7 +140,7 @@ void CDateTime::GetAsLocalizedTime(std::string & strTime) const
 {
   const unsigned int bufSize = 64;
   char buffer[bufSize];
-  
+
   strftime(buffer, bufSize, "%H:%M", &m_time);
   strTime = buffer;
 }

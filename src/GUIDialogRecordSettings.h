@@ -8,41 +8,37 @@
 
 #pragma once
 
-#include "client.h"
 #include "timers.h"
 
-class CGUIDialogRecordSettings
+#include <kodi/addon-instance/pvr/Timers.h>
+#include <kodi/gui/Window.h>
+#include <kodi/gui/controls/Spin.h>
+
+class CGUIDialogRecordSettings : public kodi::gui::CWindow
 {
 public:
-  CGUIDialogRecordSettings(const PVR_TIMER &timerinfo, cTimer& timer, const std::string& channelName);
-  virtual ~CGUIDialogRecordSettings();
+  CGUIDialogRecordSettings(const kodi::addon::PVRTimer& timerinfo, cTimer& timer, const std::string& channelName);
+  virtual ~CGUIDialogRecordSettings() = default;
 
   bool Show();
   void Close();
   int DoModal();  // returns -1 => load failed, 0 => cancel, 1 => ok
 
 private:
-  // Following is needed for every dialog:
-  CAddonGUIWindow* m_window;
   int m_retVal;  // -1 => load failed, 0 => cancel, 1 => ok
 
-  bool OnClick(int controlId);
-  bool OnFocus(int controlId);
-  bool OnInit();
-  bool OnAction(int actionId);
-
-  static bool OnClickCB(GUIHANDLE cbhdl, int controlId);
-  static bool OnFocusCB(GUIHANDLE cbhdl, int controlId);
-  static bool OnInitCB(GUIHANDLE cbhdl);
-  static bool OnActionCB(GUIHANDLE cbhdl, int actionId);
+  bool OnClick(int controlId) override;
+  bool OnFocus(int controlId) override;
+  bool OnInit() override;
+  bool OnAction(int actionId, uint32_t buttoncode, wchar_t unicode) override;
 
   // Specific for this dialog:
-  CAddonGUISpinControl* m_spinFrequency;
-  CAddonGUISpinControl* m_spinAirtime;
-  CAddonGUISpinControl* m_spinChannels;
-  CAddonGUISpinControl* m_spinKeep;
-  CAddonGUISpinControl* m_spinPreRecord;
-  CAddonGUISpinControl* m_spinPostRecord;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinFrequency;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinAirtime;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinChannels;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinKeep;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinPreRecord;
+  std::shared_ptr<kodi::gui::controls::CSpin> m_spinPostRecord;
 
   void UpdateTimerSettings(void);
 
@@ -79,7 +75,7 @@ private:
   RecordingAirtime   m_airtime;
   RecordingChannels  m_channels;
 
-  const PVR_TIMER &m_timerinfo;
+  const kodi::addon::PVRTimer& m_timerinfo;
   cTimer& m_timer;
 };
 

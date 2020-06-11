@@ -5,13 +5,14 @@
  *  See LICENSE.md for more information.
  */
 
-#include "client.h"
 #include "GUIDialogRecordSettings.h"
-#include "kodi/libKODI_guilib.h"
 #include "timers.h"
 #include "utils.h"
 #include "DateTime.h"
 #include "p8-platform/util/StringUtils.h"
+
+#include <kodi/General.h>
+#include <kodi/ActionIDs.h>
 
 /* Dialog item identifiers */
 #define BUTTON_OK                       1
@@ -28,126 +29,102 @@
 #define LABEL_PROGRAM_START_TIME       21
 #define LABEL_PROGRAM_CHANNEL          22
 
-using namespace std;
 using namespace MPTV;
 
-CGUIDialogRecordSettings::CGUIDialogRecordSettings(const PVR_TIMER &timerinfo, cTimer& timer, const std::string& channelName) :
-  m_spinFrequency(NULL),
-  m_spinAirtime(NULL),
-  m_spinChannels(NULL),
-  m_spinKeep(NULL),
-  m_spinPreRecord(NULL),
-  m_spinPostRecord(NULL),
+CGUIDialogRecordSettings::CGUIDialogRecordSettings(const kodi::addon::PVRTimer& timerinfo, cTimer& timer, const std::string& channelName) :
+  kodi::gui::CWindow("DialogRecordSettings.xml", "skin.fallback", true, true),
 	m_frequency(Once),
   m_airtime(ThisTime),
   m_channels(ThisChannel),
   m_timerinfo(timerinfo),
   m_timer(timer)
 {
-  CDateTime startTime(m_timerinfo.startTime);
-  CDateTime endTime(m_timerinfo.endTime);
+  CDateTime startTime(m_timerinfo.GetStartTime());
+  CDateTime endTime(m_timerinfo.GetEndTime());
   startTime.GetAsLocalizedTime(m_startTime);
   startTime.GetAsLocalizedDate(m_startDate);
   endTime.GetAsLocalizedTime(m_endTime);
 
-  m_title = m_timerinfo.strTitle;
+  m_title = m_timerinfo.GetTitle();
   m_channel = channelName;
 
   // needed for every dialog
-  m_retVal = -1;				// init to failed load value (due to xml file not being found)
-  // Default skin should actually be "skin.estuary", but the fallback mechanism will only
-  // find the xml file and not the used image files. This will result in a transparent window
-  // which is basically useless. Therefore, it is better to let the dialog fail by using the
-  // incorrect fallback skin name "Confluence"
-  m_window = GUI->Window_create("DialogRecordSettings.xml", "skin.fallback", false, true);
-  if (m_window)
-  {
-    m_window->m_cbhdl = this;
-    m_window->CBOnInit = OnInitCB;
-    m_window->CBOnFocus = OnFocusCB;
-    m_window->CBOnClick = OnClickCB;
-    m_window->CBOnAction = OnActionCB;
-  }
+  m_retVal = -1; // init to failed load value (due to xml file not being found)
 }
-
-CGUIDialogRecordSettings::~CGUIDialogRecordSettings()
-{
-  GUI->Window_destroy(m_window);
-}
-
 
 bool CGUIDialogRecordSettings::OnInit()
 {
+  m_spinFrequency = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_FREQUENCY);
+  m_spinAirtime = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_AIRTIME);
+  m_spinChannels = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_CHANNELS);
+  m_spinKeep = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_KEEP);
+  m_spinPreRecord = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_PRERECORD);
+  m_spinPostRecord = std::make_shared<kodi::gui::controls::CSpin>(this, SPIN_CONTROL_POSTRECORD);
+
   // Display the recording details in the window
-  m_window->SetControlLabel(LABEL_PROGRAM_TITLE, m_title.c_str());
-  string strTimeSlot = m_startDate + " " + m_startTime + " - " + m_endTime;
-  m_window->SetControlLabel(LABEL_PROGRAM_START_TIME, strTimeSlot.c_str());
-  m_window->SetControlLabel(LABEL_PROGRAM_CHANNEL, m_channel.c_str());
-
-  // Init spin controls
-  m_spinFrequency = GUI->Control_getSpin(m_window, SPIN_CONTROL_FREQUENCY);
-  m_spinAirtime = GUI->Control_getSpin(m_window, SPIN_CONTROL_AIRTIME);
-  m_spinChannels = GUI->Control_getSpin(m_window, SPIN_CONTROL_CHANNELS);
-  m_spinKeep = GUI->Control_getSpin(m_window, SPIN_CONTROL_KEEP);
-  m_spinPreRecord = GUI->Control_getSpin(m_window, SPIN_CONTROL_PRERECORD);
-  m_spinPostRecord = GUI->Control_getSpin(m_window, SPIN_CONTROL_POSTRECORD);
-
-  if (!m_spinFrequency || !m_spinAirtime || !m_spinChannels || !m_spinKeep || !m_spinPreRecord || !m_spinPostRecord)
-    return false;
+  SetControlLabel(LABEL_PROGRAM_TITLE, m_title);
+  std::string strTimeSlot = m_startDate + " " + m_startTime + " - " + m_endTime;
+  SetControlLabel(LABEL_PROGRAM_START_TIME, strTimeSlot);
+  SetControlLabel(LABEL_PROGRAM_CHANNEL, m_channel);
 
   // Populate Frequency spin control
+  m_spinFrequency->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 5; i++)
   { // show localized recording options
-    m_spinFrequency->AddLabel(KODI->GetLocalizedString(30110 + i), i);
+    m_spinFrequency->AddLabel(kodi::GetLocalizedString(30110 + i), i);
   }
   // set the default value
-  m_spinFrequency->SetValue(CGUIDialogRecordSettings::Once);
+  m_spinFrequency->SetIntValue(CGUIDialogRecordSettings::Once);
 
   // Populate Airtime spin control
-  string strThisTime = KODI->GetLocalizedString(30120);
+  std::string strThisTime = kodi::GetLocalizedString(30120);
   strThisTime += "(" + m_startTime + ")";
-  m_spinAirtime->AddLabel(strThisTime.c_str(), CGUIDialogRecordSettings::ThisTime);
-  m_spinAirtime->AddLabel(KODI->GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
+  m_spinAirtime->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
+  m_spinAirtime->AddLabel(strThisTime, CGUIDialogRecordSettings::ThisTime);
+  m_spinAirtime->AddLabel(kodi::GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
   // Set the default values
-  m_spinAirtime->SetValue(CGUIDialogRecordSettings::ThisTime);
+  m_spinAirtime->SetIntValue(CGUIDialogRecordSettings::ThisTime);
   m_spinAirtime->SetVisible(false);
 
   // Populate Channels spin control
+  m_spinChannels->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 2; i++)
   { // show localized recording options
-    m_spinChannels->AddLabel(KODI->GetLocalizedString(30125 + i), i);
+    m_spinChannels->AddLabel(kodi::GetLocalizedString(30125 + i), i);
   }
   // Set the default values
-  m_spinChannels->SetValue(CGUIDialogRecordSettings::ThisChannel);
+  m_spinChannels->SetIntValue(CGUIDialogRecordSettings::ThisChannel);
   m_spinChannels->SetVisible(false);
 
   // Populate Keep spin control
+  m_spinKeep->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 4; i++)
   { // show localized recording options
-    m_spinKeep->AddLabel(KODI->GetLocalizedString(30130 + i), i);
+    m_spinKeep->AddLabel(kodi::GetLocalizedString(30130 + i), i);
   }
   // Set the default values
-  m_spinKeep->SetValue(TvDatabase::Always);
+  m_spinKeep->SetIntValue(TvDatabase::Always);
 
   // Populate PreRecord spin control
   std::string marginStart;
-  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.iMarginStart, KODI->GetLocalizedString(30136));
-  m_spinPreRecord->AddLabel(KODI->GetLocalizedString(30135), -1);
-  m_spinPreRecord->AddLabel(marginStart.c_str(), m_timerinfo.iMarginStart); //value from XBMC
-  m_spinPreRecord->SetValue(m_timerinfo.iMarginStart);  // Set the default value
+  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.GetMarginStart(), kodi::GetLocalizedString(30136).c_str());
+  m_spinPreRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
+  m_spinPreRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
+  m_spinPreRecord->AddLabel(marginStart, m_timerinfo.GetMarginStart()); //value from XBMC
   m_spinPreRecord->AddLabel("0", 0);
   m_spinPreRecord->AddLabel("3", 3);
   m_spinPreRecord->AddLabel("5", 5);
   m_spinPreRecord->AddLabel("7", 7);
   m_spinPreRecord->AddLabel("10", 10);
   m_spinPreRecord->AddLabel("15", 15);
+  m_spinPreRecord->SetIntValue(m_timerinfo.GetMarginStart());  // Set the default value
 
   // Populate PostRecord spin control
   std::string marginEnd;
-  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.iMarginEnd, KODI->GetLocalizedString(30136));
-  m_spinPostRecord->AddLabel(KODI->GetLocalizedString(30135), -1);
-  m_spinPostRecord->AddLabel(marginEnd.c_str(), m_timerinfo.iMarginEnd); //value from XBMC
-  m_spinPostRecord->SetValue(m_timerinfo.iMarginEnd);   // Set the default value
+  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.GetMarginEnd(), kodi::GetLocalizedString(30136).c_str());
+  m_spinPostRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
+  m_spinPostRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
+  m_spinPostRecord->AddLabel(marginEnd, m_timerinfo.GetMarginEnd()); //value from XBMC
   m_spinPostRecord->AddLabel("0", 0);
   m_spinPostRecord->AddLabel("3", 3);
   m_spinPostRecord->AddLabel("5", 5);
@@ -158,6 +135,7 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinPostRecord->AddLabel("30", 30);
   m_spinPostRecord->AddLabel("45", 45);
   m_spinPostRecord->AddLabel("60", 60);
+  m_spinPostRecord->SetIntValue(m_timerinfo.GetMarginEnd());   // Set the default value
 
   return true;
 }
@@ -167,9 +145,9 @@ bool CGUIDialogRecordSettings::OnClick(int controlId)
   switch(controlId)
   {
     case BUTTON_OK:				// save value from GUI, then FALLS THROUGH TO CANCEL
-      m_frequency = (RecordingFrequency) m_spinFrequency->GetValue();
-      m_airtime = (RecordingAirtime) m_spinAirtime->GetValue();
-      m_channels = (RecordingChannels) m_spinChannels->GetValue();
+      m_frequency = (RecordingFrequency) m_spinFrequency->GetIntValue();
+      m_airtime = (RecordingAirtime) m_spinAirtime->GetIntValue();
+      m_channels = (RecordingChannels) m_spinChannels->GetIntValue();
 
       /* Update the Timer settings */
       UpdateTimerSettings();
@@ -185,7 +163,7 @@ bool CGUIDialogRecordSettings::OnClick(int controlId)
     * MediaPortal does not support all combinations
     */
     case SPIN_CONTROL_FREQUENCY:
-      m_frequency = (RecordingFrequency) m_spinFrequency->GetValue();
+      m_frequency = (RecordingFrequency) m_spinFrequency->GetIntValue();
 
       switch (m_frequency)
       {
@@ -206,7 +184,7 @@ bool CGUIDialogRecordSettings::OnClick(int controlId)
       }
       break;
     case SPIN_CONTROL_CHANNELS:
-      m_channels = (RecordingChannels) m_spinChannels->GetValue();
+      m_channels = (RecordingChannels) m_spinChannels->GetIntValue();
 
       //switch (m_frequency)
       //{
@@ -221,72 +199,35 @@ bool CGUIDialogRecordSettings::OnClick(int controlId)
 
       /* This time on any channel is not supported by MediaPortal */
       if (m_channels == AnyChannel)
-        m_spinAirtime->SetValue(AnyTime);
+        m_spinAirtime->SetIntValue(AnyTime);
       break;
     case SPIN_CONTROL_AIRTIME:
-      m_airtime = (RecordingAirtime) m_spinAirtime->GetValue();
+      m_airtime = (RecordingAirtime) m_spinAirtime->GetIntValue();
 
       if (m_airtime == ThisTime)
-        m_spinChannels->SetValue(ThisChannel);
+        m_spinChannels->SetIntValue(ThisChannel);
       break;
   }
 
   return true;
 }
 
-bool CGUIDialogRecordSettings::OnInitCB(GUIHANDLE cbhdl)
-{
-  CGUIDialogRecordSettings* dialog = static_cast<CGUIDialogRecordSettings*>(cbhdl);
-  return dialog->OnInit();
-}
-
-bool CGUIDialogRecordSettings::OnClickCB(GUIHANDLE cbhdl, int controlId)
-{
-  CGUIDialogRecordSettings* dialog = static_cast<CGUIDialogRecordSettings*>(cbhdl);
-  return dialog->OnClick(controlId);
-}
-
-bool CGUIDialogRecordSettings::OnFocusCB(GUIHANDLE cbhdl, int controlId)
-{
-  CGUIDialogRecordSettings* dialog = static_cast<CGUIDialogRecordSettings*>(cbhdl);
-  return dialog->OnFocus(controlId);
-}
-
-bool CGUIDialogRecordSettings::OnActionCB(GUIHANDLE cbhdl, int actionId)
-{
-  CGUIDialogRecordSettings* dialog = static_cast<CGUIDialogRecordSettings*>(cbhdl);
-  return dialog->OnAction(actionId);
-}
-
 bool CGUIDialogRecordSettings::Show()
 {
-  if (m_window)
-    return m_window->Show();
-
+  kodi::gui::CWindow::Show();
   return false;
 }
 
 void CGUIDialogRecordSettings::Close()
 {
-  if (m_window)
-  {
-    GUI->Control_releaseSpin(m_spinFrequency);
-    GUI->Control_releaseSpin(m_spinAirtime);
-    GUI->Control_releaseSpin(m_spinChannels);
-    GUI->Control_releaseSpin(m_spinKeep);
-    GUI->Control_releaseSpin(m_spinPreRecord);
-    GUI->Control_releaseSpin(m_spinPostRecord);
-    m_window->Close();
-  }
+  kodi::gui::CWindow::Close();
 }
 
 int CGUIDialogRecordSettings::DoModal()
 {
-  if (m_window)
-    m_window->DoModal();
+  kodi::gui::CWindow::DoModal();
   return m_retVal;
 }
-
 
 bool CGUIDialogRecordSettings::OnFocus(int controlId)
 {
@@ -298,10 +239,10 @@ bool CGUIDialogRecordSettings::OnFocus(int controlId)
  * Returning "true" tells XBMC that we already handled the action, returing "false"
  * passes action to the XBMC internal OnAction() function
  */
-bool CGUIDialogRecordSettings::OnAction(int actionId)
+bool CGUIDialogRecordSettings::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
 {
-  //KODI->Log(ADDON::LOG_DEBUG, "%s: action = %i\n", __FUNCTION__, actionId);
-  if (actionId == ADDON_ACTION_CLOSE_DIALOG || actionId == ADDON_ACTION_PREVIOUS_MENU || actionId == 92 /* Back */)
+  //kodi::Log(ADDON_ADDON::LOG_DEBUG, "%s: action = %i\n", __FUNCTION__, actionId);
+  if (actionId == ACTION_PREVIOUS_MENU || actionId == ACTION_NAV_BACK)
     return OnClick(BUTTON_CANCEL);
   else
     /* return false to tell XBMC that it should take over */
@@ -342,7 +283,7 @@ void CGUIDialogRecordSettings::UpdateTimerSettings(void)
       }
   }
 
-  m_timer.SetKeepMethod((TvDatabase::KeepMethodType)  m_spinKeep->GetValue());
-  m_timer.SetPreRecordInterval(m_spinPreRecord->GetValue());
-  m_timer.SetPostRecordInterval(m_spinPostRecord->GetValue());
+  m_timer.SetKeepMethod((TvDatabase::KeepMethodType)  m_spinKeep->GetIntValue());
+  m_timer.SetPreRecordInterval(m_spinPreRecord->GetIntValue());
+  m_timer.SetPostRecordInterval(m_spinPostRecord->GetIntValue());
 }
