@@ -1,4 +1,4 @@
-/* 
+/*
  *  Copyright (C) 2006-2008 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
@@ -20,15 +20,13 @@
  *
  */
 #include "os-dependent.h"
-#include "client.h" //KODI->Log
+#include <kodi/General.h> //for kodi::Log
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "SectionDecoder.h"
 #include "TSHeader.h"
 #include "utils.h"
-
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -190,7 +188,7 @@ namespace MPTV
                     if (m_section.section_length == 0)
                     {
                         if (m_bLog)
-                            KODI->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket got a section with section length: 0 on pid: 0x%X tableid: 0x%X bufferpos: %d start: %d - Discarding whole packet.", header.Pid, m_section.Data[0], m_section.BufferPos, start);
+                            kodi::Log(ADDON_LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket got a section with section length: 0 on pid: 0x%X tableid: 0x%X bufferpos: %d start: %d - Discarding whole packet.", header.Pid, m_section.Data[0], m_section.BufferPos, start);
                         m_section.Reset();
                         return;
                     }
@@ -233,7 +231,7 @@ namespace MPTV
                 pointer_field = 0;
                 if (numloops > 100)
                 {
-                    KODI->Log(LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket Entered infinite loop. pid: %X start: %d BufferPos: %d SectionLength: %d - Discarding section and moving to next packet",
+                    kodi::Log(ADDON_LOG_DEBUG, "!!! CSectionDecoder::OnTsPacket Entered infinite loop. pid: %X start: %d BufferPos: %d SectionLength: %d - Discarding section and moving to next packet",
                         header.Pid, start, m_section.BufferPos, m_section.section_length);
                     m_section.Reset();
                     return;
@@ -242,7 +240,7 @@ namespace MPTV
         }
         catch (...)
         {
-            KODI->Log(LOG_DEBUG, "exception in CSectionDecoder::OnTsPacket");
+            kodi::Log(ADDON_LOG_DEBUG, "exception in CSectionDecoder::OnTsPacket");
         }
     }
 

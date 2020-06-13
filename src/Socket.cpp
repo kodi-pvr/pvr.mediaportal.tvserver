@@ -5,15 +5,14 @@
  *  See LICENSE.md for more information.
  */
 
-#include "kodi/libXBMC_addon.h"
 #include "utils.h"
 #include <string>
 #include "p8-platform/os.h"
-#include "client.h"
 #include "Socket.h"
 
+#include <kodi/General.h>
+
 using namespace std;
-using namespace ADDON;
 using namespace MPTV;
 
 namespace MPTV
@@ -189,13 +188,13 @@ int Socket::send ( const char* data, const unsigned int len )
 
   if (result < 0)
   {
-    KODI->Log(LOG_ERROR, "Socket::send  - select failed");
+    kodi::Log(ADDON_LOG_ERROR, "Socket::send  - select failed");
     close();
     return 0;
   }
   if (FD_ISSET(_sd, &set_w))
   {
-    KODI->Log(LOG_ERROR, "Socket::send  - failed to send data");
+    kodi::Log(ADDON_LOG_ERROR, "Socket::send  - failed to send data");
     close();
     return 0;
   }
@@ -205,7 +204,7 @@ int Socket::send ( const char* data, const unsigned int len )
   if (status == -1)
   {
     errormessage( getLastError(), "Socket::send");
-    KODI->Log(LOG_ERROR, "Socket::send  - failed to send data");
+    kodi::Log(ADDON_LOG_ERROR, "Socket::send  - failed to send data");
     close();
     return 0;
   }
@@ -289,7 +288,7 @@ bool Socket::ReadLine (string& line)
 
     if (result < 0)
     {
-      KODI->Log(LOG_DEBUG, "%s: select failed", __FUNCTION__);
+      kodi::Log(ADDON_LOG_DEBUG, "%s: select failed", __FUNCTION__);
       errormessage(getLastError(), __FUNCTION__);
       close();
       return false;
@@ -299,11 +298,11 @@ bool Socket::ReadLine (string& line)
     {
       if (retries != 0)
       {
-         KODI->Log(LOG_DEBUG, "%s: timeout waiting for response, retrying... (%i)", __FUNCTION__, retries);
+         kodi::Log(ADDON_LOG_DEBUG, "%s: timeout waiting for response, retrying... (%i)", __FUNCTION__, retries);
          retries--;
         continue;
       } else {
-         KODI->Log(LOG_DEBUG, "%s: timeout waiting for response. Aborting after 10 retries.", __FUNCTION__);
+         kodi::Log(ADDON_LOG_DEBUG, "%s: timeout waiting for response. Aborting after 10 retries.", __FUNCTION__);
          return false;
       }
     }
@@ -311,7 +310,7 @@ bool Socket::ReadLine (string& line)
     result = recv(_sd, buffer, sizeof(buffer) - 1, 0);
     if (result < 0)
     {
-      KODI->Log(LOG_DEBUG, "%s: recv failed", __FUNCTION__);
+      kodi::Log(ADDON_LOG_DEBUG, "%s: recv failed", __FUNCTION__);
       errormessage(getLastError(), __FUNCTION__);
       close();
       return false;
@@ -382,7 +381,7 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
 
   if ( !setHostname( host ) )
   {
-    KODI->Log(LOG_ERROR, "Socket::setHostname(%s) failed.\n", host.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Socket::setHostname(%s) failed.\n", host.c_str());
     return false;
   }
   _port = port;
@@ -407,7 +406,7 @@ bool Socket::connect ( const std::string& host, const unsigned short port )
   }
   if (result == NULL)
   {
-    KODI->Log(LOG_ERROR, "Socket::connect %s:%u: no address info found\n", host.c_str(), port);
+    kodi::Log(ADDON_LOG_ERROR, "Socket::connect %s:%u: no address info found\n", host.c_str(), port);
     return false;
   }
 
@@ -470,7 +469,7 @@ bool Socket::set_non_blocking ( const bool b )
 
   if (ioctlsocket(_sd, FIONBIO, &iMode) == -1)
   {
-    KODI->Log(LOG_ERROR, "Socket::set_non_blocking - Can't set socket condition to: %i", iMode);
+    kodi::Log(ADDON_LOG_ERROR, "Socket::set_non_blocking - Can't set socket condition to: %i", iMode);
     return false;
   }
 
@@ -561,7 +560,7 @@ void Socket::errormessage( int errnum, const char* functionname) const
   default:
     errmsg = "WSA Error";
   }
-  KODI->Log(LOG_ERROR, "%s: (Winsock error=%i) %s\n", functionname, errnum, errmsg);
+  kodi::Log(ADDON_LOG_ERROR, "%s: (Winsock error=%i) %s\n", functionname, errnum, errmsg);
 }
 
 int Socket::getLastError() const
@@ -619,7 +618,7 @@ bool Socket::set_non_blocking ( const bool b )
 
   if(fcntl (_sd , F_SETFL, opts) == -1)
   {
-    KODI->Log(LOG_ERROR, "Socket::set_non_blocking - Can't set socket flags to: %i", opts);
+    kodi::Log(ADDON_LOG_ERROR, "Socket::set_non_blocking - Can't set socket flags to: %i", opts);
     return false;
   }
   return true;
@@ -694,7 +693,7 @@ void Socket::errormessage( int errnum, const char* functionname) const
     default:
       break;
   }
-  KODI->Log(LOG_ERROR, "%s: (errno=%i) %s\n", functionname, errnum, errmsg);
+  kodi::Log(ADDON_LOG_ERROR, "%s: (errno=%i) %s\n", functionname, errnum, errmsg);
 }
 
 int Socket::getLastError() const

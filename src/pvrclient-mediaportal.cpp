@@ -13,11 +13,11 @@
 #include "p8-platform/util/timeutils.h"
 #include "p8-platform/util/StringUtils.h"
 
-#include "client.h"
 #include "timers.h"
 #include "channels.h"
 #include "recordings.h"
 #include "epg.h"
+#include "settings.h"
 #include "utils.h"
 #include "pvrclient-mediaportal.h"
 #include "lib/tsreader/TSReader.h"
@@ -26,8 +26,10 @@
 #endif
 #include "GUIDialogRecordSettings.h"
 
+#include <kodi/General.h>
+#include <kodi/Filesystem.h>
+
 using namespace std;
-using namespace ADDON;
 using namespace MPTV;
 
 /* Globals */
@@ -42,7 +44,8 @@ int g_iTVServerKodiBuild = 0;
 /************************************************************/
 /** Class interface */
 
-cPVRClientMediaPortal::cPVRClientMediaPortal() :
+cPVRClientMediaPortal::cPVRClientMediaPortal(KODI_HANDLE instance, const std::string& kodiVersion) :
+  kodi::addon::CInstancePVRClient(instance, kodiVersion),
   m_state(PVR_CONNECTION_STATE_UNKNOWN)
 {
   m_iCurrentChannel        = -1;
@@ -68,7 +71,7 @@ cPVRClientMediaPortal::cPVRClientMediaPortal() :
 
 cPVRClientMediaPortal::~cPVRClientMediaPortal()
 {
-  KODI->Log(LOG_DEBUG, "->~cPVRClientMediaPortal()");
+  kodi::Log(ADDON_LOG_DEBUG, "->~cPVRClientMediaPortal()");
   Disconnect();
 
   SAFE_DELETE(Timer::lifetimeValues);
@@ -99,13 +102,13 @@ string cPVRClientMediaPortal::SendCommand(const string& command)
         // Resend the command
         if (!m_tcpclient->send(command))
         {
-          KODI->Log(LOG_ERROR, "SendCommand('%s') failed.", command.c_str());
+          kodi::Log(ADDON_LOG_ERROR, "SendCommand('%s') failed.", command.c_str());
           return "";
         }
       }
       else
       {
-        KODI->Log(LOG_ERROR, "SendCommand: reconnect failed.");
+        kodi::Log(ADDON_LOG_ERROR, "SendCommand: reconnect failed.");
         return "";
       }
     }
@@ -115,13 +118,13 @@ string cPVRClientMediaPortal::SendCommand(const string& command)
 
   if ( !m_tcpclient->ReadLine( result ) )
   {
-    KODI->Log(LOG_ERROR, "SendCommand - Failed.");
+    kodi::Log(ADDON_LOG_ERROR, "SendCommand - Failed.");
     return "";
   }
 
   if (result.find("[ERROR]:") != std::string::npos)
   {
-    KODI->Log(LOG_ERROR, "TVServerKodi error: %s", result.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "TVServerKodi error: %s", result.c_str());
   }
 
   return result;
@@ -145,10 +148,10 @@ bool cPVRClientMediaPortal::SendCommand2(const string& command, vector<string>& 
 ADDON_STATUS cPVRClientMediaPortal::TryConnect()
 {
   /* Open Connection to MediaPortal Backend TV Server via the TVServerKodi plugin */
-  KODI->Log(LOG_INFO, "Mediaportal pvr addon " STR(MPTV_VERSION) " connecting to %s:%i", g_szHostname.c_str(), g_iPort);
+  kodi::Log(ADDON_LOG_INFO, "Mediaportal pvr addon " STR(MPTV_VERSION) " connecting to %s:%i", CSettings::Get().GetHostname().c_str(), CSettings::Get().GetPort());
 
   PVR_CONNECTION_STATE result = Connect();
-  
+
   switch (result)
   {
     case PVR_CONNECTION_STATE_ACCESS_DENIED:
@@ -158,11 +161,11 @@ ADDON_STATUS cPVRClientMediaPortal::TryConnect()
       return ADDON_STATUS_PERMANENT_FAILURE;
     case PVR_CONNECTION_STATE_DISCONNECTED:
     case PVR_CONNECTION_STATE_SERVER_UNREACHABLE:
-      KODI->Log(LOG_ERROR, "Could not connect to MediaPortal TV Server backend.");
+      kodi::Log(ADDON_LOG_ERROR, "Could not connect to MediaPortal TV Server backend.");
       // Start background thread for connecting to the backend
       if (!IsRunning())
       {
-        KODI->Log(LOG_INFO, "Waiting for a connection in the background.");
+        kodi::Log(ADDON_LOG_INFO, "Waiting for a connection in the background.");
         CreateThread();
       }
       return ADDON_STATUS_LOST_CONNECTION;
@@ -182,7 +185,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
 
   if (!m_tcpclient->create())
   {
-    KODI->Log(LOG_ERROR, "Could not connect create socket");
+    kodi::Log(ADDON_LOG_ERROR, "Could not connect create socket");
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_UNKNOWN);
@@ -194,7 +197,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
     SetConnectionState(PVR_CONNECTION_STATE_CONNECTING);
   }
 
-  if (!m_tcpclient->connect(g_szHostname, (unsigned short) g_iPort))
+  if (!m_tcpclient->connect(CSettings::Get().GetHostname(), (unsigned short) CSettings::Get().GetPort()))
   {
     if (updateConnectionState)
     {
@@ -204,7 +207,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   }
 
   m_tcpclient->set_non_blocking(1);
-  KODI->Log(LOG_INFO, "Connected to %s:%i", g_szHostname.c_str(), g_iPort);
+  kodi::Log(ADDON_LOG_INFO, "Connected to %s:%i", CSettings::Get().GetHostname().c_str(), CSettings::Get().GetPort());
 
   result = SendCommand("PVRclientXBMC:0-1\n");
 
@@ -219,7 +222,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
 
   if(result.find("Unexpected protocol") != std::string::npos)
   {
-    KODI->Log(LOG_ERROR, "TVServer does not accept protocol: PVRclientXBMC:0-1");
+    kodi::Log(ADDON_LOG_ERROR, "TVServer does not accept protocol: PVRclientXBMC:0-1");
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_SERVER_MISMATCH);
@@ -234,8 +237,8 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   Tokenize(result, fields, "|");
   if(fields.size() < 2)
   {
-    KODI->Log(LOG_ERROR, "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!", TVSERVERKODI_MIN_VERSION_STRING);
-    KODI->QueueNotification(QUEUE_ERROR, KODI->GetLocalizedString(30051), TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::Log(ADDON_LOG_ERROR, "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!", TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::GetLocalizedString(30051).c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
@@ -247,7 +250,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   int count = sscanf(fields[1].c_str(), "%5d.%5d.%5d.%5d", &major, &minor, &revision, &g_iTVServerKodiBuild);
   if( count < 4 )
   {
-    KODI->Log(LOG_ERROR, "Could not parse the TVServerKodi version string '%s'", fields[1].c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Could not parse the TVServerKodi version string '%s'", fields[1].c_str());
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
@@ -258,8 +261,8 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   // Check for the minimal requirement: 1.1.0.70
   if( g_iTVServerKodiBuild < TVSERVERKODI_MIN_VERSION_BUILD ) //major < 1 || minor < 1 || revision < 0 || build < 70
   {
-    KODI->Log(LOG_ERROR, "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
-    KODI->QueueNotification(QUEUE_ERROR, KODI->GetLocalizedString(30050), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::Log(ADDON_LOG_ERROR, "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::GetLocalizedString(30051).c_str(), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
@@ -268,18 +271,18 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   }
   else
   {
-    KODI->Log(LOG_INFO, "Your TVServerKodi version is '%s'", fields[1].c_str());
-        
+    kodi::Log(ADDON_LOG_INFO, "Your TVServerKodi version is '%s'", fields[1].c_str());
+
     // Advice to upgrade:
     if( g_iTVServerKodiBuild < TVSERVERKODI_RECOMMENDED_VERSION_BUILD )
     {
-      KODI->Log(LOG_INFO, "It is adviced to upgrade your TVServerKodi version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_RECOMMENDED_VERSION_STRING);
+      kodi::Log(ADDON_LOG_INFO, "It is adviced to upgrade your TVServerKodi version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_RECOMMENDED_VERSION_STRING);
     }
   }
 
   /* Store connection string */
   char buffer[512];
-  snprintf(buffer, 512, "%s:%i", g_szHostname.c_str(), g_iPort);
+  snprintf(buffer, 512, "%s:%i", CSettings::Get().GetHostname().c_str(), CSettings::Get().GetPort());
   m_ConnectionString = buffer;
 
   if (updateConnectionState)
@@ -301,7 +304,7 @@ void cPVRClientMediaPortal::Disconnect()
 {
   string result;
 
-  KODI->Log(LOG_INFO, "Disconnect");
+  kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
   if (IsRunning())
   {
@@ -314,7 +317,7 @@ void cPVRClientMediaPortal::Disconnect()
 
     if (result.find("True") != std::string::npos )
     {
-      if ((g_eStreamingMethod==TSReader) && (m_tsreader != NULL))
+      if ((CSettings::Get().GetStreamingMethod()==TSReader) && (m_tsreader != NULL))
       {
         m_tsreader->Close();
         SAFE_DELETE(m_tsreader);
@@ -349,7 +352,7 @@ bool cPVRClientMediaPortal::IsUp()
 
 void* cPVRClientMediaPortal::Process(void)
 {
-  KODI->Log(LOG_DEBUG, "Background thread started.");
+  kodi::Log(ADDON_LOG_DEBUG, "Background thread started.");
 
   bool keepWaiting = true;
   PVR_CONNECTION_STATE state;
@@ -357,7 +360,7 @@ void* cPVRClientMediaPortal::Process(void)
   while (!IsStopped() && keepWaiting)
   {
     state = Connect(false);
-    
+
     switch (state)
     {
     case PVR_CONNECTION_STATE_ACCESS_DENIED:
@@ -381,7 +384,7 @@ void* cPVRClientMediaPortal::Process(void)
   }
   SetConnectionState(state);
 
-  KODI->Log(LOG_DEBUG, "Background thread finished.");
+  kodi::Log(ADDON_LOG_DEBUG, "Background thread finished.");
 
   return NULL;
 }
@@ -390,15 +393,43 @@ void* cPVRClientMediaPortal::Process(void)
 /************************************************************/
 /** General handling */
 
+PVR_ERROR cPVRClientMediaPortal::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
+{
+  kodi::Log(ADDON_LOG_DEBUG, "->GetCapabilities()");
+
+  capabilities.SetSupportsEPG(true);
+  capabilities.SetSupportsEPGEdl(false);
+  capabilities.SetSupportsTV(true);
+  capabilities.SetSupportsRadio(CSettings::Get().GetRadioEnabled());
+  capabilities.SetSupportsRecordings(true);
+  capabilities.SetSupportsRecordingsUndelete(false);
+  capabilities.SetSupportsTimers(true);
+  capabilities.SetSupportsChannelGroups(true);
+  capabilities.SetSupportsChannelScan(false);
+  capabilities.SetSupportsChannelSettings(false);
+  capabilities.SetHandlesInputStream(true);
+  capabilities.SetHandlesDemuxing(false);
+  capabilities.SetSupportsRecordingPlayCount((g_iTVServerKodiBuild < 117) ? false : true);
+  capabilities.SetSupportsLastPlayedPosition((g_iTVServerKodiBuild < 121) ? false : true);
+  capabilities.SetSupportsRecordingEdl(false);
+  capabilities.SetSupportsRecordingsRename(true);
+  capabilities.SetSupportsRecordingsLifetimeChange(false);
+  capabilities.SetSupportsDescrambleInfo(false);
+  capabilities.SetSupportsAsyncEPGTransfer(false);
+
+  return PVR_ERROR_NO_ERROR;
+}
+
 // Used among others for the server name string in the "Recordings" view
-const char* cPVRClientMediaPortal::GetBackendName(void)
+PVR_ERROR cPVRClientMediaPortal::GetBackendName(std::string& name)
 {
   if (!IsUp())
   {
-    return g_szHostname.c_str();
+    name = CSettings::Get().GetHostname();
+    return PVR_ERROR_NO_ERROR;
   }
 
-  KODI->Log(LOG_DEBUG, "->GetBackendName()");
+  kodi::Log(ADDON_LOG_DEBUG, "->GetBackendName()");
 
   if (m_BackendName.length() == 0)
   {
@@ -407,40 +438,43 @@ const char* cPVRClientMediaPortal::GetBackendName(void)
     m_BackendName += ")";
   }
 
-  return m_BackendName.c_str();
+  name = m_BackendName;
+  return PVR_ERROR_NO_ERROR;
 }
 
-const char* cPVRClientMediaPortal::GetBackendVersion(void)
+PVR_ERROR cPVRClientMediaPortal::GetBackendVersion(std::string& version)
 {
   if (!IsUp())
-    return "0.0";
+    return PVR_ERROR_SERVER_ERROR;
 
   if(m_BackendVersion.length() == 0)
   {
     m_BackendVersion = SendCommand("GetVersion:\n");
   }
 
-  KODI->Log(LOG_DEBUG, "GetBackendVersion: %s", m_BackendVersion.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "GetBackendVersion: %s", m_BackendVersion.c_str());
 
-  return m_BackendVersion.c_str();
+  version = m_BackendVersion;
+  return PVR_ERROR_NO_ERROR;
 }
 
-const char* cPVRClientMediaPortal::GetConnectionString(void)
+PVR_ERROR cPVRClientMediaPortal::GetConnectionString(std::string& connection)
 {
   if (m_ConnectionString.empty())
-    return "";
+    return PVR_ERROR_NO_ERROR;
 
-  KODI->Log(LOG_DEBUG, "GetConnectionString: %s", m_ConnectionString.c_str());
-  return m_ConnectionString.c_str();
+  kodi::Log(ADDON_LOG_DEBUG, "GetConnectionString: %s", m_ConnectionString.c_str());
+  connection = m_ConnectionString;
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetDriveSpace(long long *iTotal, long long *iUsed)
+PVR_ERROR cPVRClientMediaPortal::GetDriveSpace(uint64_t& total, uint64_t& used)
 {
   string result;
   vector<string> fields;
 
-  *iTotal = 0;
-  *iUsed = 0;
+  total = 0;
+  used = 0;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
@@ -451,8 +485,8 @@ PVR_ERROR cPVRClientMediaPortal::GetDriveSpace(long long *iTotal, long long *iUs
 
   if(fields.size() >= 2)
   {
-    *iTotal = (long long) atoi(fields[0].c_str());
-    *iUsed = (long long) atoi(fields[1].c_str());
+    total = std::stoll(fields[0]);
+    used = std::stoll(fields[1]);
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -482,14 +516,14 @@ PVR_ERROR cPVRClientMediaPortal::GetBackendTime(time_t *localTime, int *gmtOffse
     //[1] UTC offset hours
     //[2] UTC offset minutes
     //From CPVREpg::CPVREpg(): Expected PVREpg GMT offset is in seconds
-    m_BackendUTCoffset = ((atoi(fields[1].c_str()) * 60) + atoi(fields[2].c_str())) * 60;
+    m_BackendUTCoffset = ((std::stoi(fields[1]) * 60) + std::stoi(fields[2])) * 60;
 
     int count = sscanf(fields[0].c_str(), "%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second);
 
     if(count == 6)
     {
       //timeinfo = *localtime ( &rawtime );
-      KODI->Log(LOG_DEBUG, "GetMPTVTime: time from MP TV Server: %d-%d-%d %d:%d:%d, offset %d seconds", year, month, day, hour, minute, second, m_BackendUTCoffset );
+      kodi::Log(ADDON_LOG_DEBUG, "GetMPTVTime: time from MP TV Server: %d-%d-%d %d:%d:%d, offset %d seconds", year, month, day, hour, minute, second, m_BackendUTCoffset );
       timeinfo.tm_hour = hour;
       timeinfo.tm_min = minute;
       timeinfo.tm_sec = second;
@@ -505,12 +539,12 @@ PVR_ERROR cPVRClientMediaPortal::GetBackendTime(time_t *localTime, int *gmtOffse
 
       if(m_BackendTime < 0)
       {
-        KODI->Log(LOG_DEBUG, "GetMPTVTime: Unable to convert string '%s' into date+time", fields[0].c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "GetMPTVTime: Unable to convert string '%s' into date+time", fields[0].c_str());
         return PVR_ERROR_SERVER_ERROR;
       }
 
-      KODI->Log(LOG_DEBUG, "GetMPTVTime: localtime %s", asctime(localtime(&m_BackendTime)));
-      KODI->Log(LOG_DEBUG, "GetMPTVTime: gmtime    %s", asctime(gmtime(&m_BackendTime)));
+      kodi::Log(ADDON_LOG_DEBUG, "GetMPTVTime: localtime %s", asctime(localtime(&m_BackendTime)));
+      kodi::Log(ADDON_LOG_DEBUG, "GetMPTVTime: gmtime    %s", asctime(gmtime(&m_BackendTime)));
 
       *localTime = m_BackendTime;
       *gmtOffset = m_BackendUTCoffset;
@@ -542,43 +576,39 @@ std::string ParseAsW3CDateString(time_t time)
 
 } // unnamed namespace
 
-PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
+PVR_ERROR cPVRClientMediaPortal::GetEPGForChannel(int channelUid, time_t start, time_t end, kodi::addon::PVREPGTagsResultSet& results)
 {
   vector<string> lines;
   char           command[256];
   string         result;
   cEpg           epg;
-  EPG_TAG        broadcast;
   struct tm      starttime;
   struct tm      endtime;
 
-  starttime = *gmtime( &iStart );
-  endtime = *gmtime( &iEnd );
+  starttime = *gmtime( &start );
+  endtime = *gmtime( &end );
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
   // Request (extended) EPG data for the given period
   snprintf(command, 256, "GetEPG:%i|%04d-%02d-%02dT%02d:%02d:%02d.0Z|%04d-%02d-%02dT%02d:%02d:%02d.0Z\n",
-          iChannelUid,                                                       //Channel id
+          channelUid,                                                       //Channel id
           starttime.tm_year + 1900, starttime.tm_mon + 1, starttime.tm_mday, //Start date     [2..4]
           starttime.tm_hour, starttime.tm_min, starttime.tm_sec,             //Start time     [5..7]
           endtime.tm_year + 1900, endtime.tm_mon + 1, endtime.tm_mday,       //End date       [8..10]
           endtime.tm_hour, endtime.tm_min, endtime.tm_sec);                  //End time       [11..13]
 
   result = SendCommand(command);
-
   if(result.compare(0,5, "ERROR") != 0)
   {
     if( result.length() != 0)
     {
-      memset(&broadcast, 0, sizeof(EPG_TAG));
-      broadcast.iEpisodePartNumber = EPG_TAG_INVALID_SERIES_EPISODE;
       epg.SetGenreTable(m_genretable);
 
       Tokenize(result, lines, ",");
 
-      KODI->Log(LOG_DEBUG, "Found %i EPG items for channel %i\n", lines.size(), iChannelUid);
+      kodi::Log(ADDON_LOG_DEBUG, "Found %i EPG items for channel %i\n", lines.size(), channelUid);
 
       for (vector<string>::iterator it = lines.begin(); it < lines.end(); ++it)
       {
@@ -592,28 +622,30 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, ti
 
           if (isEnd && epg.StartTime() != 0)
           {
-            broadcast.iUniqueBroadcastId  = epg.UniqueId();
-            broadcast.strTitle            = epg.Title();
-            broadcast.iUniqueChannelId    = iChannelUid;
-            broadcast.startTime           = epg.StartTime();
-            broadcast.endTime             = epg.EndTime();
-            broadcast.strPlotOutline      = epg.PlotOutline();
-            broadcast.strPlot             = epg.Description();
-            broadcast.strIconPath         = "";
-            broadcast.iGenreType          = epg.GenreType();
-            broadcast.iGenreSubType       = epg.GenreSubType();
-            broadcast.strGenreDescription = epg.Genre();
-            std::string strFirstAired(epg.OriginalAirDate() > 0 ? ParseAsW3CDateString(epg.OriginalAirDate()) : "");
-            broadcast.strFirstAired = strFirstAired.c_str();
-            broadcast.iParentalRating     = epg.ParentalRating();
-            broadcast.iStarRating         = epg.StarRating();
-            broadcast.iSeriesNumber       = epg.SeriesNumber();
-            broadcast.iEpisodeNumber      = epg.EpisodeNumber();
-            broadcast.iEpisodePartNumber  = atoi(epg.EpisodePart());
-            broadcast.strEpisodeName      = epg.EpisodeName();
-            broadcast.iFlags              = EPG_TAG_FLAG_UNDEFINED;
+            kodi::addon::PVREPGTag broadcast;
 
-            PVR->TransferEpgEntry(handle, &broadcast);
+            broadcast.SetUniqueBroadcastId(epg.UniqueId());
+            broadcast.SetTitle(epg.Title());
+            broadcast.SetUniqueChannelId(channelUid);
+            broadcast.SetStartTime(epg.StartTime());
+            broadcast.SetEndTime(epg.EndTime());
+            broadcast.SetPlotOutline(epg.PlotOutline());
+            broadcast.SetPlot(epg.Description());
+            broadcast.SetIconPath("");
+            broadcast.SetGenreType(epg.GenreType());
+            broadcast.SetGenreSubType(epg.GenreSubType());
+            broadcast.SetGenreDescription(epg.Genre());
+            std::string strFirstAired(epg.OriginalAirDate() > 0 ? ParseAsW3CDateString(epg.OriginalAirDate()) : "");
+            broadcast.SetFirstAired(strFirstAired.c_str());
+            broadcast.SetParentalRating(epg.ParentalRating());
+            broadcast.SetStarRating(epg.StarRating());
+            broadcast.SetSeriesNumber(epg.SeriesNumber());
+            broadcast.SetEpisodeNumber(epg.EpisodeNumber());
+            broadcast.SetEpisodePartNumber(atoi(epg.EpisodePart()));
+            broadcast.SetEpisodeName(epg.EpisodeName());
+            broadcast.SetFlags(EPG_TAG_FLAG_UNDEFINED);
+
+            results.Add(broadcast);
           }
           epg.Reset();
         }
@@ -621,12 +653,12 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, ti
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "No EPG items found for channel %i", iChannelUid);
+      kodi::Log(ADDON_LOG_DEBUG, "No EPG items found for channel %i", channelUid);
     }
   }
   else
   {
-    KODI->Log(LOG_DEBUG, "RequestEPGForChannel(%i) %s", iChannelUid, result.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "RequestEPGForChannel(%i) %s", channelUid, result.c_str());
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -636,63 +668,63 @@ PVR_ERROR cPVRClientMediaPortal::GetEpg(ADDON_HANDLE handle, int iChannelUid, ti
 /************************************************************/
 /** Channel handling */
 
-int cPVRClientMediaPortal::GetNumChannels(void)
+PVR_ERROR cPVRClientMediaPortal::GetChannelsAmount(int& amount)
 {
   string result;
 
   if (!IsUp())
-    return -1;
+    return PVR_ERROR_SERVER_ERROR;
 
   // Get the total channel count (radio+tv)
   // It is only used to check whether Kodi should request the channel list
   result = SendCommand("GetChannelCount:\n");
 
-  return atol(result.c_str());
+  amount = atol(result.c_str());
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR cPVRClientMediaPortal::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
 {
   vector<string>  lines;
   std::string     command;
   const char *    baseCommand;
-  PVR_CHANNEL     tag;
   std::string     stream;
   std::string     groups;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  if(bRadio)
+  if(radio)
   {
-    if(!g_bRadioEnabled)
+    if(!CSettings::Get().GetRadioEnabled())
     {
-      KODI->Log(LOG_INFO, "Fetching radio channels is disabled.");
+      kodi::Log(ADDON_LOG_INFO, "Fetching radio channels is disabled.");
       return PVR_ERROR_NO_ERROR;
     }
 
     baseCommand = "ListRadioChannels";
-    if (g_szRadioGroup.empty())
+    if (CSettings::Get().GetRadioGroup().empty())
     {
-      KODI->Log(LOG_DEBUG, "GetChannels(radio) all channels");
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannels(radio) all channels");
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "GetChannels(radio) for radio group(s): '%s'", g_szRadioGroup.c_str());
-      groups = uri::encode(uri::PATH_TRAITS, g_szRadioGroup);
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannels(radio) for radio group(s): '%s'", CSettings::Get().GetRadioGroup().c_str());
+      groups = uri::encode(uri::PATH_TRAITS, CSettings::Get().GetRadioGroup());
       StringUtils::Replace(groups, "%7C","|");
     }
   }
   else
   {
     baseCommand = "ListTVChannels";
-    if (g_szTVGroup.empty())
+    if (CSettings::Get().GetTVGroup().empty())
     {
-      KODI->Log(LOG_DEBUG, "GetChannels(tv) all channels");
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannels(tv) all channels");
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "GetChannels(tv) for TV group(s): '%s'", g_szTVGroup.c_str());
-      groups = uri::encode(uri::PATH_TRAITS, g_szTVGroup);
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannels(tv) for TV group(s): '%s'", CSettings::Get().GetTVGroup().c_str());
+      groups = uri::encode(uri::PATH_TRAITS, CSettings::Get().GetTVGroup());
       StringUtils::Replace(groups, "%7C","|");
     }
   }
@@ -714,7 +746,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
   if (OS::GetProgramData(strProgramData) == true)
   {
     strThumbPath = strProgramData + "\\Team MediaPortal\\MediaPortal\\Thumbs\\";
-    if (bRadio)
+    if (radio)
       strThumbPath += "Radio\\";
     else
       strThumbPath += "TV\\logos\\";
@@ -723,7 +755,6 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
   }
 #endif // TARGET_WINDOWS_DESKTOP
 
-  memset(&tag, 0, sizeof(PVR_CHANNEL));
 
   for (vector<string>::iterator it = lines.begin(); it < lines.end(); ++it)
   {
@@ -731,10 +762,10 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
     if (data.length() == 0)
     {
-      if(bRadio)
-        KODI->Log(LOG_DEBUG, "TVServer returned no data. Empty/non existing radio group '%s'?", g_szRadioGroup.c_str());
+      if(radio)
+        kodi::Log(ADDON_LOG_DEBUG, "TVServer returned no data. Empty/non existing radio group '%s'?", CSettings::Get().GetRadioGroup().c_str());
       else
-        KODI->Log(LOG_DEBUG, "TVServer returned no data. Empty/non existing tv group '%s'?", g_szTVGroup.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "TVServer returned no data. Empty/non existing tv group '%s'?", CSettings::Get().GetTVGroup().c_str());
       break;
     }
 
@@ -747,19 +778,21 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
       // This cache is used for the GUIDialogRecordSettings
       m_channels[channel.UID()] = channel;
 
+      kodi::addon::PVRChannel tag;
+
       // Prepare the PVR_CHANNEL struct to transfer this channel to Kodi
-      tag.iUniqueId = channel.UID();
+      tag.SetUniqueId(channel.UID());
       if (channel.MajorChannelNr() == -1)
       {
-        tag.iChannelNumber = channel.ExternalID();
+        tag.SetChannelNumber(channel.ExternalID());
       }
       else
       {
-        tag.iChannelNumber = channel.MajorChannelNr();
-        tag.iSubChannelNumber = channel.MinorChannelNr();
+        tag.SetChannelNumber(channel.MajorChannelNr());
+        tag.SetSubChannelNumber(channel.MinorChannelNr());
       }
-      PVR_STRCPY(tag.strChannelName, channel.Name());
-      PVR_STRCLR(tag.strIconPath);
+      tag.SetChannelName(channel.Name());
+      tag.SetIconPath("");
 #ifdef TARGET_WINDOWS_DESKTOP
       if (bCheckForThumbs)
       {
@@ -768,7 +801,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
         string strIconName;
         string strIconBaseName;
 
-        KODI->Log(LOG_DEBUG, "Checking for a channel thumbnail for channel %s in %s", channel.Name(), strThumbPath.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "Checking for a channel thumbnail for channel %s in %s", channel.Name(), strThumbPath.c_str());
 
         strIconBaseName = strThumbPath + ToThumbFileName(channel.Name());
 
@@ -777,44 +810,44 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
           strIconName = strIconBaseName + strIconExt[i];
           if ( OS::CFile::Exists(strIconName) )
           {
-            PVR_STRCPY(tag.strIconPath, strIconName.c_str());
-            KODI->Log(LOG_DEBUG, "Found channel thumb: %s", tag.strIconPath);
+            tag.SetIconPath(strIconName);
+            kodi::Log(ADDON_LOG_DEBUG, "Found channel thumb: %s", tag.GetIconPath().c_str());
             break;
           }
         }
       }
 #endif
-      tag.iEncryptionSystem = channel.Encrypted();
-      tag.bIsRadio = bRadio;
-      tag.bIsHidden = !channel.VisibleInGuide();
+      tag.SetEncryptionSystem(channel.Encrypted());
+      tag.SetIsRadio(radio);
+      tag.SetIsHidden(!channel.VisibleInGuide());
 
       if(channel.IsWebstream())
       {
-        KODI->Log(LOG_DEBUG, "Channel '%s' has a webstream: %s. TODO fixme.", channel.Name(), channel.URL());
-        PVR_STRCLR(tag.strInputFormat);
+        kodi::Log(ADDON_LOG_DEBUG, "Channel '%s' has a webstream: %s. TODO fixme.", channel.Name(), channel.URL());
+        tag.SetMimeType("");
       }
       else
       {
-        if (g_eStreamingMethod==TSReader)
+        if (CSettings::Get().GetStreamingMethod()==TSReader)
         {
           // TSReader
           //Use OpenLiveStream to read from the timeshift .ts file or an rtsp stream
-          if (!bRadio)
-            PVR_STRCPY(tag.strInputFormat, "video/mp2t");
+          if (!radio)
+            tag.SetMimeType("video/mp2t");
           else
-            PVR_STRCLR(tag.strInputFormat);
+            tag.SetMimeType("");
         }
         else
         {
           //Use GetLiveStreamURL to fetch an rtsp stream
-          KODI->Log(LOG_DEBUG, "Channel '%s' has a rtsp stream: %s. TODO fixme.", channel.Name(), channel.URL());
-          PVR_STRCLR(tag.strInputFormat);
+          kodi::Log(ADDON_LOG_DEBUG, "Channel '%s' has a rtsp stream: %s. TODO fixme.", channel.Name(), channel.URL());
+          tag.SetMimeType("");
         }
       }
 
-      if( (!g_bOnlyFTA) || (tag.iEncryptionSystem==0))
+      if( (!CSettings::Get().GetOnlyFTA()) || (tag.GetEncryptionSystem()==0))
       {
-        PVR->TransferChannelEntry(handle, &tag);
+        results.Add(tag);
       }
     }
   }
@@ -826,51 +859,49 @@ PVR_ERROR cPVRClientMediaPortal::GetChannels(ADDON_HANDLE handle, bool bRadio)
 /************************************************************/
 /** Channel group handling **/
 
-int cPVRClientMediaPortal::GetChannelGroupsAmount(void)
+PVR_ERROR cPVRClientMediaPortal::GetChannelGroupsAmount(int& amount)
 {
   // Not directly possible at the moment
-  KODI->Log(LOG_DEBUG, "GetChannelGroupsAmount: TODO");
+  kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroupsAmount: TODO");
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
   // just tell Kodi that we have groups
-  return 1;
+  amount = 1;
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR cPVRClientMediaPortal::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results)
 {
   vector<string>  lines;
   std::string   filters;
-  PVR_CHANNEL_GROUP tag;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  if(bRadio)
+  if(radio)
   {
-    if (!g_bRadioEnabled)
+    if (!CSettings::Get().GetRadioEnabled())
     {
-      KODI->Log(LOG_DEBUG, "Skipping GetChannelGroups for radio. Radio support is disabled.");
+      kodi::Log(ADDON_LOG_DEBUG, "Skipping GetChannelGroups for radio. Radio support is disabled.");
       return PVR_ERROR_NO_ERROR;
     }
 
-    filters = g_szRadioGroup;
+    filters = CSettings::Get().GetRadioGroup();
 
-    KODI->Log(LOG_DEBUG, "GetChannelGroups for radio");
+    kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroups for radio");
     if (!SendCommand2("ListRadioGroups\n", lines))
       return PVR_ERROR_SERVER_ERROR;
   }
   else
   {
-    filters = g_szTVGroup;
+    filters = CSettings::Get().GetTVGroup();
 
-    KODI->Log(LOG_DEBUG, "GetChannelGroups for TV");
+    kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroups for TV");
     if (!SendCommand2("ListGroups\n", lines))
       return PVR_ERROR_SERVER_ERROR;
   }
-
-  memset(&tag, 0, sizeof(PVR_CHANNEL_GROUP));
 
   for (vector<string>::iterator it = lines.begin(); it < lines.end(); ++it)
   {
@@ -878,7 +909,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroups(ADDON_HANDLE handle, bool bRad
 
     if (data.length() == 0)
     {
-      KODI->Log(LOG_DEBUG, "TVServer returned no data. No %s groups found?", ((bRadio) ? "radio" : "tv"));
+      kodi::Log(ADDON_LOG_DEBUG, "TVServer returned no data. No %s groups found?", ((radio) ? "radio" : "tv"));
       break;
     }
 
@@ -886,7 +917,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroups(ADDON_HANDLE handle, bool bRad
 
     if (data.compare("All Channels") == 0)
     {
-      KODI->Log(LOG_DEBUG, "Skipping All Channels (%s) group", ((bRadio) ? "radio" : "tv"), tag.strGroupName);
+      kodi::Log(ADDON_LOG_DEBUG, "Skipping All Channels (%s) group", ((radio) ? "radio" : "tv"));
     }
     else
     {
@@ -899,49 +930,47 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroups(ADDON_HANDLE handle, bool bRad
         }
       }
 
-      tag.bIsRadio = bRadio;
-      PVR_STRCPY(tag.strGroupName, data.c_str());
-      KODI->Log(LOG_DEBUG, "Adding %s group: %s", ((bRadio) ? "radio" : "tv"), tag.strGroupName);
-      PVR->TransferChannelGroup(handle, &tag);
+      kodi::addon::PVRChannelGroup tag;
+      tag.SetIsRadio(radio);
+      tag.SetGroupName(data);
+      kodi::Log(ADDON_LOG_DEBUG, "Adding %s group: %s", ((radio) ? "radio" : "tv"), tag.GetGroupName().c_str());
+      results.Add(tag);
     }
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
+PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
   //TODO: code below is similar to GetChannels code. Refactor and combine...
   vector<string>           lines;
   std::string              command;
-  PVR_CHANNEL_GROUP_MEMBER tag;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  if (group.bIsRadio)
+  if (group.GetIsRadio())
   {
-    if (g_bRadioEnabled)
+    if (CSettings::Get().GetRadioEnabled())
     {
-      KODI->Log(LOG_DEBUG, "GetChannelGroupMembers: for radio group '%s'", group.strGroupName);
-      command = StringUtils::Format("ListRadioChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroupMembers: for radio group '%s'", group.GetGroupName().c_str());
+      command = StringUtils::Format("ListRadioChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.GetGroupName()).c_str());
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "Skipping GetChannelGroupMembers for radio. Radio support is disabled.");
+      kodi::Log(ADDON_LOG_DEBUG, "Skipping GetChannelGroupMembers for radio. Radio support is disabled.");
       return PVR_ERROR_NO_ERROR;
     }
   }
   else
   {
-    KODI->Log(LOG_DEBUG, "GetChannelGroupMembers: for tv group '%s'", group.strGroupName);
-    command = StringUtils::Format("ListTVChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.strGroupName).c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroupMembers: for tv group '%s'", group.GetGroupName().c_str());
+    command = StringUtils::Format("ListTVChannels:%s\n", uri::encode(uri::PATH_TRAITS, group.GetGroupName()).c_str());
   }
 
   if (!SendCommand2(command, lines))
     return PVR_ERROR_SERVER_ERROR;
-
-  memset(&tag, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
 
   for (vector<string>::iterator it = lines.begin(); it < lines.end(); ++it)
   {
@@ -949,10 +978,10 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
 
     if (data.length() == 0)
     {
-      if(group.bIsRadio)
-        KODI->Log(LOG_DEBUG, "TVServer returned no data. Empty/non existing radio group '%s'?", g_szRadioGroup.c_str());
+      if(group.GetIsRadio())
+        kodi::Log(ADDON_LOG_DEBUG, "TVServer returned no data. Empty/non existing radio group '%s'?", CSettings::Get().GetRadioGroup().c_str());
       else
-        KODI->Log(LOG_DEBUG, "TVServer returned no data. Empty/non existing tv group '%s'?", g_szTVGroup.c_str());
+        kodi::Log(ADDON_LOG_DEBUG, "TVServer returned no data. Empty/non existing tv group '%s'?", CSettings::Get().GetTVGroup().c_str());
       break;
     }
 
@@ -961,25 +990,27 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
     cChannel channel;
     if( channel.Parse(data) )
     {
-      tag.iChannelUniqueId = channel.UID();
+      kodi::addon::PVRChannelGroupMember tag;
+
+      tag.SetChannelUniqueId(channel.UID());
       if (channel.MajorChannelNr() == -1)
       {
-        tag.iChannelNumber = channel.ExternalID();
+        tag.SetChannelNumber(channel.ExternalID());
       }
       else
       {
-        tag.iChannelNumber = channel.MajorChannelNr();
-        tag.iSubChannelNumber = channel.MinorChannelNr();
+        tag.SetChannelNumber(channel.MajorChannelNr());
+        tag.SetSubChannelNumber(channel.MinorChannelNr());
       }
-      PVR_STRCPY(tag.strGroupName, group.strGroupName);
+      tag.SetGroupName(group.GetGroupName());
 
 
       // Don't add encrypted channels when FTA only option is turned on
-      if( (!g_bOnlyFTA) || (channel.Encrypted()==false))
+      if( (!CSettings::Get().GetOnlyFTA()) || (channel.Encrypted()==false))
       {
-        KODI->Log(LOG_DEBUG, "GetChannelGroupMembers: add channel %s to group '%s' (Backend channel uid=%d, channelnr=%d)",
-          channel.Name(), group.strGroupName, tag.iChannelUniqueId, tag.iChannelNumber);
-        PVR->TransferChannelGroupMember(handle, &tag);
+        kodi::Log(ADDON_LOG_DEBUG, "GetChannelGroupMembers: add channel %s to group '%s' (Backend channel uid=%d, channelnr=%d)",
+          channel.Name(), group.GetGroupName().c_str(), tag.GetChannelUniqueId(), tag.GetChannelNumber());
+        results.Add(tag);
       }
     }
   }
@@ -990,7 +1021,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelGroupMembers(ADDON_HANDLE handle, con
 /************************************************************/
 /** Record handling **/
 
-int cPVRClientMediaPortal::GetNumRecordings(void)
+PVR_ERROR cPVRClientMediaPortal::GetRecordingsAmount(bool deleted, int& amount)
 {
   string            result;
 
@@ -999,19 +1030,19 @@ int cPVRClientMediaPortal::GetNumRecordings(void)
 
   result = SendCommand("GetRecordingCount:\n");
 
-  return atol(result.c_str());
+  amount = atol(result.c_str());
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
+PVR_ERROR cPVRClientMediaPortal::GetRecordings(bool deleted, kodi::addon::PVRRecordingsResultSet& results)
 {
   vector<string>  lines;
   string          result;
-  PVR_RECORDING   tag;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  if(g_bResolveRTSPHostname == false)
+  if(CSettings::Get().GetResolveRTSPHostname() == false)
   {
     result = SendCommand("ListRecordings:False\n");
   }
@@ -1022,20 +1053,18 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
 
   if( result.length() == 0 )
   {
-    KODI->Log(LOG_DEBUG, "Backend returned no recordings" );
+    kodi::Log(ADDON_LOG_DEBUG, "Backend returned no recordings" );
     return PVR_ERROR_NO_ERROR;
   }
 
   Tokenize(result, lines, ",");
-
-  memset(&tag, 0, sizeof(PVR_RECORDING));
 
   for (vector<string>::iterator it = lines.begin(); it != lines.end(); ++it)
   {
     string& data(*it);
     uri::decode(data);
 
-    KODI->Log(LOG_DEBUG, "RECORDING: %s", data.c_str() );
+    kodi::Log(ADDON_LOG_DEBUG, "RECORDING: %s", data.c_str() );
 
     std::string strRecordingId;
     std::string strDirectory;
@@ -1050,57 +1079,59 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
       strRecordingId = StringUtils::Format("%i", recording.Index());
       strEpisodeName = recording.EpisodeName();
 
-      PVR_STRCPY(tag.strRecordingId, strRecordingId.c_str());
-      PVR_STRCPY(tag.strTitle, recording.Title());
-      PVR_STRCPY(tag.strEpisodeName, recording.EpisodeName());
-      PVR_STRCPY(tag.strPlot, recording.Description());
-      PVR_STRCPY(tag.strChannelName, recording.ChannelName());
-      tag.iChannelUid    = recording.ChannelID();
-      tag.recordingTime  = recording.StartTime();
-      tag.iDuration      = (int) recording.Duration();
-      tag.iPriority      = 0; // only available for schedules, not for recordings
-      tag.iLifetime      = recording.Lifetime();
-      tag.iGenreType     = recording.GenreType();
-      tag.iGenreSubType  = recording.GenreSubType();
-      PVR_STRCPY(tag.strGenreDescription, recording.GetGenre());
-      tag.iPlayCount     = recording.TimesWatched();
-      tag.iLastPlayedPosition = recording.LastPlayedPosition();
-      tag.iEpisodeNumber = recording.GetEpisodeNumber();
-      tag.iSeriesNumber  = recording.GetSeriesNumber();
-      tag.iEpgEventId    = EPG_TAG_INVALID_UID;
-      tag.channelType    = recording.GetChannelType();
+      kodi::addon::PVRRecording tag;
+
+      tag.SetRecordingId(strRecordingId);
+      tag.SetTitle(recording.Title());
+      tag.SetEpisodeName(recording.EpisodeName());
+      tag.SetPlot(recording.Description());
+      tag.SetChannelName(recording.ChannelName());
+      tag.SetChannelUid(recording.ChannelID());
+      tag.SetRecordingTime(recording.StartTime());
+      tag.SetDuration((int) recording.Duration());
+      tag.SetPriority(0); // only available for schedules, not for recordings
+      tag.SetLifetime(recording.Lifetime());
+      tag.SetGenreType(recording.GenreType());
+      tag.SetGenreSubType(recording.GenreSubType());
+      tag.SetGenreDescription(recording.GetGenre());
+      tag.SetPlayCount(recording.TimesWatched());
+      tag.SetLastPlayedPosition(recording.LastPlayedPosition());
+      tag.SetEpisodeNumber(recording.GetEpisodeNumber());
+      tag.SetSeriesNumber(recording.GetSeriesNumber());
+      tag.SetEPGEventId(EPG_TAG_INVALID_UID);
+      tag.SetChannelType(recording.GetChannelType());
 
       strDirectory = recording.Directory();
       if (strDirectory.length() > 0)
       {
         StringUtils::Replace(strDirectory, "\\", " - "); // Kodi supports only 1 sublevel below Recordings, so flatten the MediaPortal directory structure
-        PVR_STRCPY(tag.strDirectory, strDirectory.c_str()); // used in Kodi as directory structure below "Recordings"
-        if ((StringUtils::EqualsNoCase(strDirectory, tag.strTitle)) && (strEpisodeName.length() > 0))
+        tag.SetDirectory(strDirectory); // used in Kodi as directory structure below "Recordings"
+        if ((StringUtils::EqualsNoCase(strDirectory, tag.GetTitle())) && (strEpisodeName.length() > 0))
         {
           strEpisodeName = recording.Title();
           strEpisodeName+= " - ";
           strEpisodeName+= recording.EpisodeName();
-          PVR_STRCPY(tag.strTitle, strEpisodeName.c_str());
+          tag.SetTitle(strEpisodeName);
         }
       }
       else
       {
-        PVR_STRCLR(tag.strDirectory);
+        tag.SetDirectory("");
       }
 
-      PVR_STRCLR(tag.strThumbnailPath);
+      tag.SetThumbnailPath("");
 
 #ifdef TARGET_WINDOWS_DESKTOP
       std::string recordingUri(ToKodiPath(recording.FilePath()));
-      if (g_bUseRTSP == false)
+      if (CSettings::Get().GetUseRTSP() == false)
       {
         /* Recording thumbnail */
         std::string strThumbnailName(recordingUri);
         StringUtils::Replace(strThumbnailName, ".ts", ".jpg");
         /* Check if it exists next to the recording */
-        if (KODI->FileExists(strThumbnailName.c_str(), false))
+        if (kodi::vfs::FileExists(strThumbnailName, false))
         {
-          PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+          tag.SetThumbnailPath(strThumbnailName);
         }
         else
         {
@@ -1114,9 +1145,9 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
             strThumbnailName = strProgramData +
                                "\\Team MediaPortal\\MediaPortal TV Server\\thumbs\\" +
                                strThumbnailFilename;
-            if (KODI->FileExists(strThumbnailName.c_str(), false))
+            if (kodi::vfs::FileExists(strThumbnailName, false))
             {
-              PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+              tag.SetThumbnailPath(strThumbnailName);
             }
             else
             {
@@ -1124,25 +1155,25 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
               strThumbnailName = strProgramData +
                                  "\\Team MediaPortal\\MP2-Server\\SlimTVCore\\v3.0\\thumbs\\" +
                                  strThumbnailFilename;
-              if (KODI->FileExists(strThumbnailName.c_str(), false))
+              if (kodi::vfs::FileExists(strThumbnailName, false))
               {
-                PVR_STRCPY(tag.strThumbnailPath, strThumbnailName.c_str());
+                tag.SetThumbnailPath(strThumbnailName);
               }
             }
           }
           else
-            PVR_STRCLR(tag.strThumbnailPath);
+            tag.SetThumbnailPath("");
         }
       }
 #endif /* TARGET_WINDOWS_DESKTOP */
 
-      if (g_eStreamingMethod!=TSReader)
+      if (CSettings::Get().GetStreamingMethod()!=TSReader)
       {
         // Use rtsp url and Kodi's internal FFMPeg playback
-        KODI->Log(LOG_DEBUG, "Recording '%s' has a rtsp url '%s'. TODO Fix me. ", recording.Title(), recording.Stream());
+        kodi::Log(ADDON_LOG_DEBUG, "Recording '%s' has a rtsp url '%s'. TODO Fix me. ", recording.Title(), recording.Stream());
       }
 
-      PVR->TransferRecordingEntry(handle, &tag);
+      results.Add(tag);
     }
   }
 
@@ -1151,7 +1182,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
+PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const kodi::addon::PVRRecording& recording)
 {
   char            command[1200];
   string          result;
@@ -1159,25 +1190,25 @@ PVR_ERROR cPVRClientMediaPortal::DeleteRecording(const PVR_RECORDING &recording)
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
 
-  snprintf(command, 1200, "DeleteRecordedTV:%s\n", recording.strRecordingId);
+  snprintf(command, 1200, "DeleteRecordedTV:%s\n", recording.GetRecordingId().c_str());
 
   result = SendCommand(command);
 
   if(result.find("True") ==  string::npos)
   {
-    KODI->Log(LOG_ERROR, "Deleting recording %s [failed]", recording.strRecordingId);
+    kodi::Log(ADDON_LOG_ERROR, "Deleting recording %s [failed]", recording.GetRecordingId().c_str());
     return PVR_ERROR_FAILED;
   }
-  KODI->Log(LOG_DEBUG, "Deleting recording %s [done]", recording.strRecordingId);
+  kodi::Log(ADDON_LOG_DEBUG, "Deleting recording %s [done]", recording.GetRecordingId().c_str());
 
   // Although Kodi initiates the deletion of this recording, we still have to trigger Kodi to update its
   // recordings list to remove the recording at the Kodi side
-  PVR->TriggerRecordingUpdate();
+  kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::RenameRecording(const PVR_RECORDING &recording)
+PVR_ERROR cPVRClientMediaPortal::RenameRecording(const kodi::addon::PVRRecording& recording)
 {
   char           command[1200];
   string         result;
@@ -1186,26 +1217,26 @@ PVR_ERROR cPVRClientMediaPortal::RenameRecording(const PVR_RECORDING &recording)
     return PVR_ERROR_SERVER_ERROR;
 
   snprintf(command, 1200, "UpdateRecording:%s|%s\n",
-    recording.strRecordingId,
-    uri::encode(uri::PATH_TRAITS, recording.strTitle).c_str());
+    recording.GetRecordingId().c_str(),
+    uri::encode(uri::PATH_TRAITS, recording.GetTitle()).c_str());
 
   result = SendCommand(command);
 
   if(result.find("True") == string::npos)
   {
-    KODI->Log(LOG_ERROR, "RenameRecording(%s) to %s [failed]", recording.strRecordingId, recording.strTitle);
+    kodi::Log(ADDON_LOG_ERROR, "RenameRecording(%s) to %s [failed]", recording.GetRecordingId().c_str(), recording.GetTitle().c_str());
     return PVR_ERROR_FAILED;
   }
-  KODI->Log(LOG_DEBUG, "RenameRecording(%s) to %s [done]", recording.strRecordingId, recording.strTitle);
+  kodi::Log(ADDON_LOG_DEBUG, "RenameRecording(%s) to %s [done]", recording.GetRecordingId().c_str(), recording.GetTitle().c_str());
 
   // Although Kodi initiates the rename of this recording, we still have to trigger Kodi to update its
   // recordings list to see the renamed recording at the Kodi side
-  PVR->TriggerRecordingUpdate();
+  kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const PVR_RECORDING &recording, int count)
+PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count)
 {
   if ( g_iTVServerKodiBuild < 117 )
     return PVR_ERROR_NOT_IMPLEMENTED;
@@ -1216,23 +1247,23 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const PVR_RECORDING &reco
   char           command[512];
   string         result;
 
-  snprintf(command, 512, "SetRecordingTimesWatched:%i|%i\n", atoi(recording.strRecordingId), count);
+  snprintf(command, 512, "SetRecordingTimesWatched:%i|%i\n", std::stoi(recording.GetRecordingId()), count);
 
   result = SendCommand(command);
 
   if(result.find("True") == string::npos)
   {
-    KODI->Log(LOG_ERROR, "%s: id=%s to %i [failed]", __FUNCTION__, recording.strRecordingId, count);
+    kodi::Log(ADDON_LOG_ERROR, "%s: id=%s to %i [failed]", __FUNCTION__, recording.GetRecordingId().c_str(), count);
     return PVR_ERROR_FAILED;
   }
 
-  KODI->Log(LOG_DEBUG, "%s: id=%s to %i [successful]", __FUNCTION__, recording.strRecordingId, count);
-  PVR->TriggerRecordingUpdate();
+  kodi::Log(ADDON_LOG_DEBUG, "%s: id=%s to %i [successful]", __FUNCTION__, recording.GetRecordingId().c_str(), count);
+  kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORDING &recording, int lastplayedposition)
+PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition)
 {
   if ( g_iTVServerKodiBuild < 121 )
     return PVR_ERROR_NOT_IMPLEMENTED;
@@ -1248,23 +1279,23 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const PVR_RECORD
     lastplayedposition = 0;
   }
 
-  snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", atoi(recording.strRecordingId), lastplayedposition);
+  snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", std::stoi(recording.GetRecordingId()), lastplayedposition);
 
   result = SendCommand(command);
 
   if(result.find("True") == string::npos)
   {
-    KODI->Log(LOG_ERROR, "%s: id=%s to %i [failed]", __FUNCTION__, recording.strRecordingId, lastplayedposition);
+    kodi::Log(ADDON_LOG_ERROR, "%s: id=%s to %i [failed]", __FUNCTION__, recording.GetRecordingId().c_str(), lastplayedposition);
     return PVR_ERROR_FAILED;
   }
 
-  KODI->Log(LOG_DEBUG, "%s: id=%s to %i [successful]", __FUNCTION__, recording.strRecordingId, lastplayedposition);
-  PVR->TriggerRecordingUpdate();
+  kodi::Log(ADDON_LOG_DEBUG, "%s: id=%s to %i [successful]", __FUNCTION__, recording.GetRecordingId().c_str(), lastplayedposition);
+  kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
 
-int cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const PVR_RECORDING &recording)
+PVR_ERROR cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
 {
   if ( g_iTVServerKodiBuild < 121 )
     return PVR_ERROR_NOT_IMPLEMENTED;
@@ -1274,29 +1305,28 @@ int cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const PVR_RECORDING &r
 
   char           command[512];
   string         result;
-  int            lastplayedposition;
 
-  snprintf(command, 512, "GetRecordingStopTime:%i\n", atoi(recording.strRecordingId));
+  snprintf(command, 512, "GetRecordingStopTime:%i\n", std::stoi(recording.GetRecordingId()));
 
   result = SendCommand(command);
 
   if(result.find("-1") != string::npos)
   {
-    KODI->Log(LOG_ERROR, "%s: id=%s fetching stoptime [failed]", __FUNCTION__, recording.strRecordingId);
-    return 0;
+    kodi::Log(ADDON_LOG_ERROR, "%s: id=%s fetching stoptime [failed]", __FUNCTION__, recording.GetRecordingId().c_str());
+    return PVR_ERROR_UNKNOWN;
   }
 
-  lastplayedposition = atoi(result.c_str());
+  position = std::stoi(result);
 
-  KODI->Log(LOG_DEBUG, "%s: id=%s stoptime=%i {s} [successful]", __FUNCTION__, recording.strRecordingId, lastplayedposition);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: id=%s stoptime=%i {s} [successful]", __FUNCTION__, recording.GetRecordingId().c_str(), position);
 
-  return lastplayedposition;
+  return PVR_ERROR_NO_ERROR;
 }
 
 /************************************************************/
 /** Timer handling */
 
-int cPVRClientMediaPortal::GetNumTimers(void)
+PVR_ERROR cPVRClientMediaPortal::GetTimersAmount(int& amount)
 {
   string            result;
 
@@ -1305,14 +1335,14 @@ int cPVRClientMediaPortal::GetNumTimers(void)
 
   result = SendCommand("GetScheduleCount:\n");
 
-  return atol(result.c_str());
+  amount = std::stol(result);
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetTimers(ADDON_HANDLE handle)
+PVR_ERROR cPVRClientMediaPortal::GetTimers(kodi::addon::PVRTimersResultSet& results)
 {
   vector<string>  lines;
   string          result;
-  PVR_TIMER       tag;
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
@@ -1323,40 +1353,39 @@ PVR_ERROR cPVRClientMediaPortal::GetTimers(ADDON_HANDLE handle)
   {
     Tokenize(result, lines, ",");
 
-    memset(&tag, 0, sizeof(PVR_TIMER));
-
     for (vector<string>::iterator it = lines.begin(); it != lines.end(); ++it)
     {
       string& data(*it);
       uri::decode(data);
 
-      KODI->Log(LOG_DEBUG, "SCHEDULED: %s", data.c_str() );
+      kodi::Log(ADDON_LOG_DEBUG, "SCHEDULED: %s", data.c_str() );
 
       cTimer timer;
       timer.SetGenreTable(m_genretable);
 
       if(timer.ParseLine(data.c_str()) == true)
       {
+        kodi::addon::PVRTimer tag;
         timer.GetPVRtimerinfo(tag);
-        PVR->TransferTimerEntry(handle, &tag);
+        results.Add(tag);
       }
     }
   }
 
   if ( P8PLATFORM::GetTimeMs() >  m_iLastRecordingUpdate + 15000)
   {
-    PVR->TriggerRecordingUpdate();
+    kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIMER &timerinfo)
+PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, kodi::addon::PVRTimer& timerinfo)
 {
   string         result;
   char           command[256];
 
-  KODI->Log(LOG_DEBUG, "->GetTimerInfo(%u)", timernumber);
+  kodi::Log(ADDON_LOG_DEBUG, "->GetTimerInfo(%u)", timernumber);
 
   if (!IsUp())
     return PVR_ERROR_SERVER_ERROR;
@@ -1371,7 +1400,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIME
   cTimer timer;
   if( timer.ParseLine(result.c_str()) == false )
   {
-    KODI->Log(LOG_DEBUG, "GetTimerInfo(%i) parsing server response failed. Response: %s", timernumber, result.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "GetTimerInfo(%i) parsing server response failed. Response: %s", timernumber, result.c_str());
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -1379,130 +1408,116 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerInfo(unsigned int timernumber, PVR_TIME
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
+PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types)
 {
-  int maxsize = *size; // the size of the types[] array when this functon is called
-  int& count = *size;  // the amount of filled items in the types[] array
-  count = 0;
-
   if (Timer::lifetimeValues == NULL)
     return PVR_ERROR_FAILED;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
 
   //Note: schedule priority support is not implemented here
   //      The MediaPortal TV Server database has a priority field but their wiki
   //      says: "This feature is yet to be enabled".
 
   // One-shot epg-based (maps to MediaPortal 'Once')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Once;
-  types[count].iAttributes = MPTV_RECORD_ONCE;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30110)); /* Record once */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::Once);
+    type.SetAttributes(MPTV_RECORD_ONCE);
+    type.SetDescription(kodi::GetLocalizedString(30110)); /* Record once */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series weekly epg-based (maps to MediaPortal 'EveryTimeOnThisChannel')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::EveryTimeOnThisChannel;
-  types[count].iAttributes = MPTV_RECORD_EVERY_TIME_ON_THIS_CHANNEL;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30115)); /* Record every time on this channel */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::EveryTimeOnThisChannel);
+    type.SetAttributes(MPTV_RECORD_EVERY_TIME_ON_THIS_CHANNEL);
+    type.SetDescription(kodi::GetLocalizedString(30115)); /* Record every time on this channel */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series weekly epg-based (maps to MediaPortal 'EveryTimeOnEveryChannel')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::EveryTimeOnEveryChannel;
-  types[count].iAttributes = MPTV_RECORD_EVERY_TIME_ON_EVERY_CHANNEL;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30116)); /* Record every time on every channel */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::EveryTimeOnEveryChannel);
+    type.SetAttributes(MPTV_RECORD_EVERY_TIME_ON_EVERY_CHANNEL);
+    type.SetDescription(kodi::GetLocalizedString(30116)); /* Record every time on every channel */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series weekly epg-based (maps to MediaPortal 'Weekly')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Weekly;
-  types[count].iAttributes = MPTV_RECORD_WEEKLY;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30117)); /* "Record every week at this time" */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::Weekly);
+    type.SetAttributes(MPTV_RECORD_WEEKLY);
+    type.SetDescription(kodi::GetLocalizedString(30117)); /* "Record every week at this time" */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series daily epg-based (maps to MediaPortal 'Daily')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Daily;
-  types[count].iAttributes = MPTV_RECORD_DAILY;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30118)); /* Record every day at this time */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::Daily);
+    type.SetAttributes(MPTV_RECORD_DAILY);
+    type.SetDescription(kodi::GetLocalizedString(30118)); /* Record every day at this time */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series Weekends epg-based (maps to MediaPortal 'WorkingDays')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::WorkingDays;
-  types[count].iAttributes = MPTV_RECORD_WORKING_DAYS;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30114)); /* Record weekdays */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::WorkingDays);
+    type.SetAttributes(MPTV_RECORD_WORKING_DAYS);
+    type.SetDescription(kodi::GetLocalizedString(30114)); /* Record weekdays */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series Weekends epg-based (maps to MediaPortal 'Weekends')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::Weekends;
-  types[count].iAttributes = MPTV_RECORD_WEEEKENDS;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30113)); /* Record Weekends */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-    return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::Weekends);
+    type.SetAttributes(MPTV_RECORD_WEEEKENDS);
+    type.SetDescription(kodi::GetLocalizedString(30113)); /* Record Weekends */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   // Series weekly epg-based (maps to MediaPortal 'WeeklyEveryTimeOnThisChannel')
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::WeeklyEveryTimeOnThisChannel;
-  types[count].iAttributes = MPTV_RECORD_WEEKLY_EVERY_TIME_ON_THIS_CHANNEL;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30119)); /* Weekly on this channel */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
-
-  if (count > maxsize)
-      return PVR_ERROR_NO_ERROR;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::WeeklyEveryTimeOnThisChannel);
+    type.SetAttributes(MPTV_RECORD_WEEKLY_EVERY_TIME_ON_THIS_CHANNEL);
+    type.SetDescription(kodi::GetLocalizedString(30119)); /* Weekly on this channel */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   /* Kodi specific 'Manual' schedule type */
-  memset(&types[count], 0, sizeof(types[count]));
-  types[count].iId = cKodiTimerTypeOffset + TvDatabase::KodiManual;
-  types[count].iAttributes = MPTV_RECORD_MANUAL;
-  PVR_STRCPY(types[count].strDescription, KODI->GetLocalizedString(30122)); /* Manual */
-  Timer::lifetimeValues->SetLifeTimeValues(types[count]);
-  count++;
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(cKodiTimerTypeOffset + TvDatabase::KodiManual);
+    type.SetAttributes(MPTV_RECORD_MANUAL);
+    type.SetDescription(kodi::GetLocalizedString(30122)); /* Manual */
+    Timer::lifetimeValues->SetLifeTimeValues(type);
+    types.emplace_back(type);
+  }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-
-PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
+PVR_ERROR cPVRClientMediaPortal::AddTimer(const kodi::addon::PVRTimer& timerinfo)
 {
   string         result;
 
 #ifdef _TIME32_T_DEFINED
-  KODI->Log(LOG_DEBUG, "->AddTimer Channel: %i, starttime: %i endtime: %i program: %s", timerinfo.iClientChannelUid, timerinfo.startTime, timerinfo.endTime, timerinfo.strTitle);
+  kodi::Log(ADDON_LOG_DEBUG, "->AddTimer Channel: %i, starttime: %i endtime: %i program: %s", timerinfo.GetClientChannelUid(), timerinfo.GetStartTime(), timerinfo.GetEndTime(), timerinfo.GetTitle().c_str());
 #else
-  KODI->Log(LOG_DEBUG, "->AddTimer Channel: %i, 64 bit times not yet supported!", timerinfo.iClientChannelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "->AddTimer Channel: %i, 64 bit times not yet supported!", timerinfo.GetClientChannelUid());
 #endif
 
   if (!IsUp())
@@ -1510,18 +1525,18 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 
   cTimer timer(timerinfo);
 
-  if (g_bEnableOldSeriesDlg && (timerinfo.startTime > 0) &&
-      (timerinfo.iEpgUid != PVR_TIMER_NO_EPG_UID) &&
-      ((timerinfo.iTimerType - cKodiTimerTypeOffset) == (unsigned int) TvDatabase::Once)
+  if (CSettings::Get().GetEnableOldSeriesDlg() && (timerinfo.GetStartTime() > 0) &&
+      (timerinfo.GetEPGUid() != PVR_TIMER_NO_EPG_UID) &&
+      ((timerinfo.GetTimerType() - cKodiTimerTypeOffset) == (unsigned int) TvDatabase::Once)
       )
   {
     /* New scheduled recording, not an instant or manual recording
      * Present a custom dialog with advanced recording settings
      */
     std::string strChannelName;
-    if (timerinfo.iClientChannelUid >= 0)
+    if (timerinfo.GetClientChannelUid() >= 0)
     {
-      strChannelName = m_channels[timerinfo.iClientChannelUid].Name();
+      strChannelName = m_channels[timerinfo.GetClientChannelUid()].Name();
     }
     CGUIDialogRecordSettings dlgRecSettings( timerinfo, timer, strChannelName);
 
@@ -1535,25 +1550,25 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const PVR_TIMER &timerinfo)
 
   if(result.find("True") ==  string::npos)
   {
-    KODI->Log(LOG_DEBUG, "AddTimer for channel: %i [failed]", timerinfo.iClientChannelUid);
+    kodi::Log(ADDON_LOG_DEBUG, "AddTimer for channel: %i [failed]", timerinfo.GetClientChannelUid());
     return PVR_ERROR_FAILED;
   }
-  KODI->Log(LOG_DEBUG, "AddTimer for channel: %i [done]", timerinfo.iClientChannelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "AddTimer for channel: %i [done]", timerinfo.GetClientChannelUid());
 
   // Although Kodi adds this timer, we still have to trigger Kodi to update its timer list to
   // see this new timer at the Kodi side
-  PVR->TriggerTimerUpdate();
-  if ( timerinfo.startTime <= 0)
+  kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
+  if (timerinfo.GetStartTime() <= 0)
   {
     // Refresh the recordings list to see the newly created recording
     usleep(100000);
-    PVR->TriggerRecordingUpdate();
+    kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::DeleteTimer(const PVR_TIMER &timer, bool UNUSED(bForceDelete))
+PVR_ERROR cPVRClientMediaPortal::DeleteTimer(const kodi::addon::PVRTimer& timer, bool UNUSED(forceDelete))
 {
   char           command[256];
   string         result;
@@ -1564,11 +1579,11 @@ PVR_ERROR cPVRClientMediaPortal::DeleteTimer(const PVR_TIMER &timer, bool UNUSED
   // Check if this timer has a parent schedule and a program id
   // When true, it has no real schedule at the Mediaportal side.
   // The best we can do in that case is disable the timer for this program only
-  if ((timer.iParentClientIndex > 0) && (timer.iEpgUid > 0))
+  if ((timer.GetParentClientIndex() > 0) && (timer.GetEPGUid() > 0))
   {
     // Don't delete this timer, but disable it only
-    PVR_TIMER disableMe = timer;
-    disableMe.state = PVR_TIMER_STATE_DISABLED;
+    kodi::addon::PVRTimer disableMe = timer;
+    disableMe.SetState(PVR_TIMER_STATE_DISABLED);
     return UpdateTimer(disableMe);
   }
 
@@ -1576,31 +1591,31 @@ PVR_ERROR cPVRClientMediaPortal::DeleteTimer(const PVR_TIMER &timer, bool UNUSED
 
   snprintf(command, 256, "DeleteSchedule:%i\n", mepotimer.Index());
 
-  KODI->Log(LOG_DEBUG, "DeleteTimer: About to delete MediaPortal schedule index=%i", mepotimer.Index());
+  kodi::Log(ADDON_LOG_DEBUG, "DeleteTimer: About to delete MediaPortal schedule index=%i", mepotimer.Index());
   result = SendCommand(command);
 
   if(result.find("True") ==  string::npos)
   {
-    KODI->Log(LOG_DEBUG, "DeleteTimer %i [failed]", mepotimer.Index());
+    kodi::Log(ADDON_LOG_DEBUG, "DeleteTimer %i [failed]", mepotimer.Index());
     return PVR_ERROR_FAILED;
   }
-  KODI->Log(LOG_DEBUG, "DeleteTimer %i [done]", mepotimer.Index());
+  kodi::Log(ADDON_LOG_DEBUG, "DeleteTimer %i [done]", mepotimer.Index());
 
   // Although Kodi deletes this timer, we still have to trigger Kodi to update its timer list to
   // remove the timer from the Kodi list
-  PVR->TriggerTimerUpdate();
+  kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::UpdateTimer(const PVR_TIMER &timerinfo)
+PVR_ERROR cPVRClientMediaPortal::UpdateTimer(const kodi::addon::PVRTimer& timerinfo)
 {
   string         result;
 
 #ifdef _TIME32_T_DEFINED
-  KODI->Log(LOG_DEBUG, "->UpdateTimer Index: %i Channel: %i, starttime: %i endtime: %i program: %s", timerinfo.iClientIndex, timerinfo.iClientChannelUid, timerinfo.startTime, timerinfo.endTime, timerinfo.strTitle);
+  kodi::Log(ADDON_LOG_DEBUG, "->UpdateTimer Index: %i Channel: %i, starttime: %i endtime: %i program: %s", timerinfo.GetClientIndex(), timerinfo.GetClientChannelUid(), timerinfo.GetStartTime(), timerinfo.GetEndTime(), timerinfo.GetTitle());
 #else
-  KODI->Log(LOG_DEBUG, "->UpdateTimer Channel: %i, 64 bit times not yet supported!", timerinfo.iClientChannelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "->UpdateTimer Channel: %i, 64 bit times not yet supported!", timerinfo.GetClientChannelUid());
 #endif
 
   if (!IsUp())
@@ -1611,14 +1626,14 @@ PVR_ERROR cPVRClientMediaPortal::UpdateTimer(const PVR_TIMER &timerinfo)
   result = SendCommand(timer.UpdateScheduleCommand());
   if(result.find("True") ==  string::npos)
   {
-    KODI->Log(LOG_DEBUG, "UpdateTimer for channel: %i [failed]", timerinfo.iClientChannelUid);
+    kodi::Log(ADDON_LOG_DEBUG, "UpdateTimer for channel: %i [failed]", timerinfo.GetClientChannelUid());
     return PVR_ERROR_FAILED;
   }
-  KODI->Log(LOG_DEBUG, "UpdateTimer for channel: %i [done]", timerinfo.iClientChannelUid);
+  kodi::Log(ADDON_LOG_DEBUG, "UpdateTimer for channel: %i [done]", timerinfo.GetClientChannelUid());
 
   // Although Kodi changes this timer, we still have to trigger Kodi to update its timer list to
   // see the timer changes at the Kodi side
-  PVR->TriggerTimerUpdate();
+  kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -1640,27 +1655,27 @@ PVR_ERROR cPVRClientMediaPortal::UpdateTimer(const PVR_TIMER &timerinfo)
 // The rtsp code from ffmpeg does not function well enough for this addon.
 // Therefore the new TSReader version uses the Live555 library here to open rtsp
 // urls or it can read directly from the timeshift buffer file.
-bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
+bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channelinfo)
 {
   string result;
   char   command[256] = "";
-  const char* sResolveRTSPHostname = booltostring(g_bResolveRTSPHostname);
+  const char* sResolveRTSPHostname = booltostring(CSettings::Get().GetResolveRTSPHostname());
   vector<string> timeshiftfields;
 
-  KODI->Log(LOG_INFO, "Open Live stream for channel uid=%i", channelinfo.iUniqueId);
+  kodi::Log(ADDON_LOG_INFO, "Open Live stream for channel uid=%i", channelinfo.GetUniqueId());
   if (!IsUp())
   {
     m_iCurrentChannel = -1;
     m_bTimeShiftStarted = false;
     m_bSkipCloseLiveStream = false; //initialization
     m_signalStateCounter = 0;
-    KODI->Log(LOG_ERROR, "Open Live stream failed. No connection to backend.");
+    kodi::Log(ADDON_LOG_ERROR, "Open Live stream failed. No connection to backend.");
     return false;
   }
 
-  if (((int)channelinfo.iUniqueId) == m_iCurrentChannel)
+  if (((int)channelinfo.GetUniqueId()) == m_iCurrentChannel)
   {
-    KODI->Log(LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
+    kodi::Log(ADDON_LOG_INFO, "New channel uid equal to the already streaming channel. Skipping re-tune.");
     return true;
   }
 
@@ -1671,12 +1686,12 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
   // Start the timeshift
   // Use the optimized TimeshiftChannel call (don't stop a running timeshift)
-  snprintf(command, 256, "TimeshiftChannel:%i|%s|False\n", channelinfo.iUniqueId, sResolveRTSPHostname);
+  snprintf(command, 256, "TimeshiftChannel:%i|%s|False\n", channelinfo.GetUniqueId(), sResolveRTSPHostname);
   result = SendCommand(command);
 
   if (result.find("ERROR") != std::string::npos || result.length() == 0)
   {
-    KODI->Log(LOG_ERROR, "Could not start the timeshift for channel uid=%i. Reason: %s", channelinfo.iUniqueId, result.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Could not start the timeshift for channel uid=%i. Reason: %s", channelinfo.GetUniqueId(), result.c_str());
     if (g_iTVServerKodiBuild>=109)
     {
       Tokenize(result, timeshiftfields, "|");
@@ -1707,13 +1722,13 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         //  NoPmtFound = 16,
         //};
 
-        int tvresult = atoi(timeshiftfields[1].c_str());
+        int tvresult = std::stoi(timeshiftfields[1]);
         // Display one of the localized error messages 30060-30075
-        KODI->QueueNotification(QUEUE_ERROR, KODI->GetLocalizedString(30059 + tvresult));
+        kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(30059 + tvresult));
       }
       else
       {
-         KODI->QueueNotification(QUEUE_ERROR, result.c_str());
+         kodi::QueueNotification(QUEUE_ERROR, "", result);
       }
     }
     else
@@ -1721,12 +1736,12 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       if (result.find("[ERROR]: TVServer answer: ") != std::string::npos)
       {
         //Skip first part: "[ERROR]: TVServer answer: "
-        KODI->QueueNotification(QUEUE_ERROR, "TVServer: %s", result.substr(26).c_str());
+        kodi::QueueFormattedNotification(QUEUE_ERROR, "TVServer: %s", result.substr(26).c_str());
       }
       else
       {
         //Skip first part: "[ERROR]: "
-        KODI->QueueNotification(QUEUE_ERROR, result.substr(7).c_str());
+        kodi::QueueNotification(QUEUE_ERROR, "", result.substr(7));
       }
     }
     m_iCurrentChannel = -1;
@@ -1742,7 +1757,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
 
     if(timeshiftfields.size()<4)
     {
-      KODI->Log(LOG_ERROR, "OpenLiveStream: Field count mismatch (<4). Data: %s\n", result.c_str());
+      kodi::Log(ADDON_LOG_ERROR, "OpenLiveStream: Field count mismatch (<4). Data: %s\n", result.c_str());
       m_iCurrentChannel = -1;
       return false;
     }
@@ -1755,23 +1770,23 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     //[5] = tsbuffer file nr (TVServerKodi build >= 110)
 
     m_PlaybackURL = timeshiftfields[0];
-    if (g_eStreamingMethod == TSReader)
+    if (CSettings::Get().GetStreamingMethod() == TSReader)
     {
-      KODI->Log(LOG_INFO, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
-      if (channelinfo.bIsRadio)
+      kodi::Log(ADDON_LOG_INFO, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
+      if (channelinfo.GetIsRadio())
       {
         usleep(100000); // 100 ms sleep to allow the buffer to fill
       }
     }
     else
     {
-      KODI->Log(LOG_INFO, "Channel stream URL: %s", m_PlaybackURL.c_str());
+      kodi::Log(ADDON_LOG_INFO, "Channel stream URL: %s", m_PlaybackURL.c_str());
     }
 
-    if (g_iSleepOnRTSPurl > 0)
+    if (CSettings::Get().GetSleepOnRTSPurl() > 0)
     {
-      KODI->Log(LOG_INFO, "Sleeping %i ms before opening stream: %s", g_iSleepOnRTSPurl, timeshiftfields[0].c_str());
-      usleep(g_iSleepOnRTSPurl * 1000);
+      kodi::Log(ADDON_LOG_INFO, "Sleeping %i ms before opening stream: %s", CSettings::Get().GetSleepOnRTSPurl(), timeshiftfields[0].c_str());
+      usleep(CSettings::Get().GetSleepOnRTSPurl() * 1000);
     }
 
     // Check the returned stream URL. When the URL is an rtsp stream, we need
@@ -1783,18 +1798,18 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       m_bTimeShiftStarted = true;
     }
 
-    if (g_eStreamingMethod == TSReader)
+    if (CSettings::Get().GetStreamingMethod() == TSReader)
     {
       if (m_tsreader != NULL)
       {
         bool bReturn = false;
 
         // Continue with the existing TsReader.
-        KODI->Log(LOG_INFO, "Re-using existing TsReader...");
+        kodi::Log(ADDON_LOG_INFO, "Re-using existing TsReader...");
         //if(g_bDirectTSFileRead)
-        if(g_bUseRTSP == false)
+        if(CSettings::Get().GetUseRTSP() == false)
         {
-          m_tsreader->SetCardId(atoi(timeshiftfields[3].c_str()));
+          m_tsreader->SetCardId(std::stoi(timeshiftfields[3]));
 
           if ((g_iTVServerKodiBuild >=110) && (timeshiftfields.size()>=6))
             bReturn = m_tsreader->OnZap(timeshiftfields[2].c_str(), atoll(timeshiftfields[4].c_str()), atol(timeshiftfields[5].c_str()));
@@ -1804,19 +1819,19 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         else
         {
           // RTSP url
-          KODI->Log(LOG_INFO, "Skipping OnZap for TSReader RTSP");
+          kodi::Log(ADDON_LOG_INFO, "Skipping OnZap for TSReader RTSP");
           bReturn = true; //Fast forward seek (OnZap) does not work for RTSP
         }
 
         if (bReturn)
         {
-          m_iCurrentChannel = (int) channelinfo.iUniqueId;
-          m_iCurrentCard = atoi(timeshiftfields[3].c_str());
-          m_bCurrentChannelIsRadio = channelinfo.bIsRadio;
+          m_iCurrentChannel = (int) channelinfo.GetUniqueId();
+          m_iCurrentCard = std::stoi(timeshiftfields[3]);
+          m_bCurrentChannelIsRadio = channelinfo.GetIsRadio();
         }
         else
         {
-          KODI->Log(LOG_ERROR, "Re-using the existing TsReader failed.");
+          kodi::Log(ADDON_LOG_ERROR, "Re-using the existing TsReader failed.");
           CloseLiveStream();
         }
 
@@ -1824,22 +1839,22 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
       }
       else
       {
-        KODI->Log(LOG_INFO, "Creating a new TsReader...");
+        kodi::Log(ADDON_LOG_INFO, "Creating a new TsReader...");
         m_tsreader = new CTsReader();
       }
 
-      if (!g_bUseRTSP)
+      if (!CSettings::Get().GetUseRTSP())
       {
         // Reading directly from the Timeshift buffer
         m_tsreader->SetCardSettings(&m_cCards);
-        m_tsreader->SetCardId(atoi(timeshiftfields[3].c_str()));
+        m_tsreader->SetCardId(std::stoi(timeshiftfields[3]));
 
         //if (g_szTimeshiftDir.length() > 0)
         //  m_tsreader->SetDirectory(g_szTimeshiftDir);
 
         if ( m_tsreader->Open(timeshiftfields[2].c_str()) != S_OK )
         {
-          KODI->Log(LOG_ERROR, "Cannot open timeshift buffer %s", timeshiftfields[2].c_str());
+          kodi::Log(ADDON_LOG_ERROR, "Cannot open timeshift buffer %s", timeshiftfields[2].c_str());
           CloseLiveStream();
           return false;
         }
@@ -1849,7 +1864,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
         // use the RTSP url and live555
         if ( m_tsreader->Open(timeshiftfields[0].c_str()) != S_OK)
         {
-          KODI->Log(LOG_ERROR, "Cannot open channel url %s", timeshiftfields[0].c_str());
+          kodi::Log(ADDON_LOG_ERROR, "Cannot open channel url %s", timeshiftfields[0].c_str());
           CloseLiveStream();
           return false;
         }
@@ -1858,11 +1873,11 @@ bool cPVRClientMediaPortal::OpenLiveStream(const PVR_CHANNEL &channelinfo)
     }
 
     // at this point everything is ready for playback
-    m_iCurrentChannel = (int) channelinfo.iUniqueId;
-    m_iCurrentCard = atoi(timeshiftfields[3].c_str());
-    m_bCurrentChannelIsRadio = channelinfo.bIsRadio;
+    m_iCurrentChannel = (int) channelinfo.GetUniqueId();
+    m_iCurrentCard = std::stoi(timeshiftfields[3]);
+    m_bCurrentChannelIsRadio = channelinfo.GetIsRadio();
   }
-  KODI->Log(LOG_INFO, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.strChannelName, m_iCurrentCard);
+  kodi::Log(ADDON_LOG_INFO, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.GetChannelName().c_str(), m_iCurrentCard);
 
   return true;
 }
@@ -1874,22 +1889,22 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
   static int read_timeouts  = 0;
   unsigned char* bufptr = pBuffer;
 
-  //KODI->Log(LOG_DEBUG, "->ReadLiveStream(buf_size=%i)", buf_size);
-  if (g_eStreamingMethod != TSReader)
+  //kodi::Log(ADDON_LOG_DEBUG, "->ReadLiveStream(buf_size=%i)", buf_size);
+  if (CSettings::Get().GetStreamingMethod() != TSReader)
   {
-    KODI->Log(LOG_ERROR, "ReadLiveStream: this function should not be called in FFMPEG/RTSP mode. Use 'Reset the PVR database' to re-read the channel list");
+    kodi::Log(ADDON_LOG_ERROR, "ReadLiveStream: this function should not be called in FFMPEG/RTSP mode. Use 'Reset the PVR database' to re-read the channel list");
     return 0;
   }
 
   if (!m_tsreader)
   {
-    KODI->Log(LOG_ERROR, "ReadLiveStream: failed. No open TSReader");
+    kodi::Log(ADDON_LOG_ERROR, "ReadLiveStream: failed. No open TSReader");
     return -1;
   }
 
-  if ((m_tsreader->State() == State_Paused) && (g_bUseRTSP))
+  if ((m_tsreader->State() == State_Paused) && (CSettings::Get().GetUseRTSP()))
   {
-    //KODI->Log(LOG_ERROR, "ReadLiveStream: failed. Stream is paused");
+    //kodi::Log(ADDON_LOG_ERROR, "ReadLiveStream: failed. Stream is paused");
     return 0;
   }
 
@@ -1911,7 +1926,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
       {
         if (m_bCurrentChannelIsRadio == false || read_done == 0)
         {
-          KODI->Log(LOG_INFO, "Kodi requested %u bytes, but the TSReader got only %lu bytes in 2 seconds", iBufferSize, read_done);
+          kodi::Log(ADDON_LOG_INFO, "Kodi requested %u bytes, but the TSReader got only %lu bytes in 2 seconds", iBufferSize, read_done);
         }
         read_timeouts = 0;
 
@@ -1940,13 +1955,13 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
 
   if (m_bTimeShiftStarted && !m_bSkipCloseLiveStream)
   {
-    if (g_eStreamingMethod == TSReader && m_tsreader)
+    if (CSettings::Get().GetStreamingMethod() == TSReader && m_tsreader)
     {
       m_tsreader->Close();
       SAFE_DELETE(m_tsreader);
     }
     result = SendCommand("StopTimeshift:\n");
-    KODI->Log(LOG_INFO, "CloseLiveStream: %s", result.c_str());
+    kodi::Log(ADDON_LOG_INFO, "CloseLiveStream: %s", result.c_str());
     m_bTimeShiftStarted = false;
     m_iCurrentChannel = -1;
     m_iCurrentCard = -1;
@@ -1956,11 +1971,11 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
   }
 }
 
-long long cPVRClientMediaPortal::SeekLiveStream(long long iPosition, int iWhence)
+int64_t cPVRClientMediaPortal::SeekLiveStream(int64_t iPosition, int iWhence)
 {
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
-    KODI->Log(LOG_ERROR, "SeekLiveStream: is not supported in FFMPEG/RTSP mode.");
+    kodi::Log(ADDON_LOG_ERROR, "SeekLiveStream: is not supported in FFMPEG/RTSP mode.");
     return -1;
   }
 
@@ -1971,21 +1986,21 @@ long long cPVRClientMediaPortal::SeekLiveStream(long long iPosition, int iWhence
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
 
-long long cPVRClientMediaPortal::LengthLiveStream(void)
+int64_t cPVRClientMediaPortal::LengthLiveStream(void)
 {
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
     return -1;
   }
   return m_tsreader->GetFileSize();
 }
 
-bool cPVRClientMediaPortal::IsRealTimeStream(void)
+bool cPVRClientMediaPortal::IsRealTimeStream()
 {
   return m_bTimeShiftStarted;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(PVR_SIGNAL_STATUS *signalStatus)
+PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus)
 {
   if (g_iTVServerKodiBuild < 108 || (m_iCurrentChannel == -1))
   {
@@ -2018,10 +2033,10 @@ PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(PVR_SIGNAL_STATUS *signalStatus
   if (m_signalStateCounter > 10)
     m_signalStateCounter = 0;
 
-  signalStatus->iSignal = m_iSignal;
-  signalStatus->iSNR = m_iSNR;
-  signalStatus->iBER = m_signalStateCounter;
-  PVR_STRCPY(signalStatus->strAdapterStatus, "timeshifting"); // hardcoded for now...
+  signalStatus.SetSignal(m_iSignal);
+  signalStatus.SetSNR(m_iSNR);
+  signalStatus.SetBER(m_signalStateCounter);
+  signalStatus.SetAdapterStatus("timeshifting"); // hardcoded for now...
 
 
   if (m_iCurrentCard >= 0)
@@ -2030,12 +2045,12 @@ PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(PVR_SIGNAL_STATUS *signalStatus
     Card currentCard;
     if (m_cCards.GetCard(m_iCurrentCard, currentCard) == true)
     {
-      PVR_STRCPY(signalStatus->strAdapterName, currentCard.Name.c_str());
+      signalStatus.SetAdapterName(currentCard.Name);
       return PVR_ERROR_NO_ERROR;
     }
   }
 
-  PVR_STRCLR(signalStatus->strAdapterName);
+  signalStatus.SetAdapterName("");
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -2047,18 +2062,18 @@ PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(PVR_SIGNAL_STATUS *signalStatus
 // respect to the live tv streams is that the URLs for the recordings
 // can be requested on beforehand (done in the TVServerKodi plugin).
 
-bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
+bool cPVRClientMediaPortal::OpenRecordedStream(const kodi::addon::PVRRecording& recording)
 {
-  KODI->Log(LOG_INFO, "OpenRecordedStream (id=%s, RTSP=%d)", recording.strRecordingId, (g_bUseRTSP ? "true" : "false"));
+  kodi::Log(ADDON_LOG_INFO, "OpenRecordedStream (id=%s, RTSP=%d)", recording.GetRecordingId().c_str(), (CSettings::Get().GetUseRTSP() ? "true" : "false"));
 
   m_bTimeShiftStarted = false;
 
   if (!IsUp())
     return false;
 
-  if (g_eStreamingMethod == ffmpeg)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg)
   {
-    KODI->Log(LOG_ERROR, "Addon is in 'ffmpeg' mode. Kodi should play the RTSP url directly. Please reset your Kodi PVR database!");
+    kodi::Log(ADDON_LOG_ERROR, "Addon is in 'ffmpeg' mode. Kodi should play the RTSP url directly. Please reset your Kodi PVR database!");
     return false;
   }
 
@@ -2071,16 +2086,16 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
     return false;
   }
 
-  if (!g_bUseRTSP)
+  if (!CSettings::Get().GetUseRTSP())
   {
     recfile  = myrecording->FilePath();
     if (recfile.empty())
     {
-      KODI->Log(LOG_ERROR, "Backend returned an empty recording filename for recording id %s.", recording.strRecordingId);
+      kodi::Log(ADDON_LOG_ERROR, "Backend returned an empty recording filename for recording id %s.", recording.GetRecordingId().c_str());
       recfile = myrecording->Stream();
       if (!recfile.empty())
       {
-        KODI->Log(LOG_INFO, "Trying to use the recording RTSP stream URL name instead.");
+        kodi::Log(ADDON_LOG_INFO, "Trying to use the recording RTSP stream URL name instead.");
       }
     }
   }
@@ -2089,21 +2104,21 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
     recfile = myrecording->Stream();
     if (recfile.empty())
     {
-      KODI->Log(LOG_ERROR, "Backend returned an empty RTSP stream URL for recording id %s.", recording.strRecordingId);
+      kodi::Log(ADDON_LOG_ERROR, "Backend returned an empty RTSP stream URL for recording id %s.", recording.GetRecordingId().c_str());
       recfile = myrecording->FilePath();
       if (!recfile.empty())
       {
-        KODI->Log(LOG_INFO, "Trying to use the filename instead.");
+        kodi::Log(ADDON_LOG_INFO, "Trying to use the filename instead.");
       }
     }
   }
 
   if (recfile.empty())
   {
-    KODI->Log(LOG_ERROR, "Recording playback not possible. Backend returned an empty filename and no RTSP stream URL for recording id %s", recording.strRecordingId);
-    KODI->QueueNotification(QUEUE_ERROR, KODI->GetLocalizedString(30052));
+    kodi::Log(ADDON_LOG_ERROR, "Recording playback not possible. Backend returned an empty filename and no RTSP stream URL for recording id %s", recording.GetRecordingId().c_str());
+    kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(30052));
     // Tell Kodi to re-read the list with recordings to remove deleted/non-existing recordings as a result of backend auto-deletion.
-    PVR->TriggerRecordingUpdate();
+    kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
     return false;
   }
 
@@ -2118,18 +2133,18 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const PVR_RECORDING &recording)
 
 void cPVRClientMediaPortal::CloseRecordedStream(void)
 {
-  if (!IsUp() || g_eStreamingMethod == ffmpeg)
+  if (!IsUp() || CSettings::Get().GetStreamingMethod() == ffmpeg)
      return;
 
   if (m_tsreader)
   {
-    KODI->Log(LOG_INFO, "CloseRecordedStream: Stop TSReader...");
+    kodi::Log(ADDON_LOG_INFO, "CloseRecordedStream: Stop TSReader...");
     m_tsreader->Close();
     SAFE_DELETE(m_tsreader);
   }
   else
   {
-    KODI->Log(LOG_DEBUG, "CloseRecordedStream: Nothing to do.");
+    kodi::Log(ADDON_LOG_DEBUG, "CloseRecordedStream: Nothing to do.");
   }
 }
 
@@ -2139,7 +2154,7 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
   size_t read_done   = 0;
   unsigned char* bufptr = pBuffer;
 
-  if (g_eStreamingMethod == ffmpeg)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg)
     return -1;
 
   while (read_done < static_cast<size_t>(iBufferSize))
@@ -2165,49 +2180,47 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
   return static_cast<int>(read_done);
 }
 
-long long cPVRClientMediaPortal::SeekRecordedStream(long long iPosition, int iWhence)
+int64_t cPVRClientMediaPortal::SeekRecordedStream(int64_t iPosition, int iWhence)
 {
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
     return -1;
   }
 #ifdef _DEBUG
-  KODI->Log(LOG_DEBUG, "SeekRec: Current pos %lli", m_tsreader->GetFilePointer());
+  kodi::Log(ADDON_LOG_DEBUG, "SeekRec: Current pos %lli", m_tsreader->GetFilePointer());
 #endif
-  KODI->Log(LOG_DEBUG,"SeekRec: iWhence %i pos %lli", iWhence, iPosition);
+  kodi::Log(ADDON_LOG_DEBUG,"SeekRec: iWhence %i pos %lli", iWhence, iPosition);
 
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
 
-long long  cPVRClientMediaPortal::LengthRecordedStream(void)
+int64_t  cPVRClientMediaPortal::LengthRecordedStream(void)
 {
-  if (g_eStreamingMethod == ffmpeg || !m_tsreader)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
     return -1;
   }
   return m_tsreader->GetFileSize();
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDING* recording,
-                                                              PVR_NAMED_VALUE* properties,
-                                                              unsigned int* iPropertiesCount)
+PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording,
+                                                              std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   // GetRecordingStreamProperties is called before OpenRecordedStream
   // If we return a stream URL here, Kodi will use its internal player to open the stream and bypass the PVR addon
-  *iPropertiesCount = 0;
 
-  cRecording* myrecording = GetRecordingInfo(*recording);
+  cRecording* myrecording = GetRecordingInfo(recording);
 
   if (!myrecording)
     return PVR_ERROR_NO_ERROR;
 
-  AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
+  properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
 
-  if (g_eStreamingMethod == ffmpeg)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg)
   {
-    AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, myrecording->Stream());
+    properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, myrecording->Stream());
   }
-  else if (!g_bUseRTSP)
+  else if (!CSettings::Get().GetUseRTSP())
   {
     if (myrecording->IsRecording() == false)
     {
@@ -2217,43 +2230,34 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const PVR_RECORDIN
         std::string recordingUri(ToKodiPath(myrecording->FilePath()));
 
         // Direct file playback by Kodi (without involving the addon)
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, recordingUri.c_str());
+        properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, recordingUri.c_str());
       }
 #endif
     }
     else
     {
       // Indicate that this is a real-time stream
-      AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
+      properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
     }
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* channel,
-                                                            PVR_NAMED_VALUE* properties,
-                                                            unsigned int* iPropertiesCount)
+PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
+                                                            std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
-  if ((channel == nullptr) || (properties == nullptr))
-  {
-    return PVR_ERROR_FAILED;
-  }
-
-  *iPropertiesCount = 0;
-
   // Is this a webstream?
   try
   {
-    cChannel& selectedChannel = m_channels.at(channel->iUniqueId);
+    cChannel& selectedChannel = m_channels.at(channel.GetUniqueId());
 
     if (selectedChannel.IsWebstream())
     {
-      KODI->Log(LOG_DEBUG, "GetChannelStreamProperties (webstream) for uid=%i is '%s'",
-                channel->iUniqueId, selectedChannel.URL());
-      AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL,
-                        selectedChannel.URL());
-      AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
+      kodi::Log(ADDON_LOG_DEBUG, "GetChannelStreamProperties (webstream) for uid=%i is '%s'",
+                channel.GetUniqueId(), selectedChannel.URL());
+      properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, selectedChannel.URL());
+      properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
       return PVR_ERROR_NO_ERROR;
     }
   }
@@ -2262,7 +2266,7 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
     // channel not found in our plugin channel cache
   }
 
-  if (g_eStreamingMethod == ffmpeg)
+  if (CSettings::Get().GetStreamingMethod() == ffmpeg)
   {
     // GetChannelStreamProperties is called before OpenLiveStream by Kodi, so we should already open the stream here...
     // The actual call to OpenLiveStream will return immediately since we've already tuned the correct channel here.
@@ -2270,22 +2274,22 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
     {
       //CloseLiveStream();
     }
-    if (OpenLiveStream(*channel) == true)
+    if (OpenLiveStream(channel) == true)
     {
       if (!m_PlaybackURL.empty())
       {
-        KODI->Log(LOG_DEBUG, "GetChannelStreamProperties (ffmpeg) for uid=%i is '%s'", channel->iUniqueId,
+        kodi::Log(ADDON_LOG_DEBUG, "GetChannelStreamProperties (ffmpeg) for uid=%i is '%s'", channel.GetUniqueId(),
                   m_PlaybackURL.c_str());
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL);
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
-        AddStreamProperty(properties, iPropertiesCount, PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
+        properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, m_PlaybackURL);
+        properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
+        properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "video/mp2t");
         return PVR_ERROR_NO_ERROR;
       }
     }
   }
-  else if (g_eStreamingMethod == TSReader)
+  else if (CSettings::Get().GetStreamingMethod() == TSReader)
   {
-    if ((m_bTimeShiftStarted == true) && (g_bFastChannelSwitch = true))
+    if ((m_bTimeShiftStarted == true) && (CSettings::Get().GetFastChannelSwitch() == true))
     {
       // This ignores the next CloseLiveStream call from Kodi to speedup channel switching
       m_bSkipCloseLiveStream = true;
@@ -2293,11 +2297,9 @@ PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const PVR_CHANNEL* c
   }
   else
   {
-    KODI->Log(LOG_ERROR, "GetChannelStreamProperties for uid=%i returned no URL",
-              channel->iUniqueId);
+    kodi::Log(ADDON_LOG_ERROR, "GetChannelStreamProperties for uid=%i returned no URL",
+              channel.GetUniqueId());
   }
-
-  *iPropertiesCount = 0;
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -2308,7 +2310,15 @@ void cPVRClientMediaPortal::PauseStream(bool bPaused)
     m_tsreader->Pause(bPaused);
 }
 
-bool cPVRClientMediaPortal::CanPauseAndSeek()
+bool cPVRClientMediaPortal::CanPauseStream()
+{
+  if (m_tsreader)
+    return true;
+  else
+    return false;
+}
+
+bool cPVRClientMediaPortal::CanSeekStream()
 {
   if (m_tsreader)
     return true;
@@ -2319,16 +2329,16 @@ bool cPVRClientMediaPortal::CanPauseAndSeek()
 void cPVRClientMediaPortal::LoadGenreTable()
 {
   // Read the genre string to type/subtype translation file:
-  if(g_bReadGenre)
+  if(CSettings::Get().GetReadGenre())
   {
-    string sGenreFile = g_szUserPath + PATH_SEPARATOR_CHAR + "resources" + PATH_SEPARATOR_CHAR + "genre_translation.xml";
+    string sGenreFile = UserPath() + PATH_SEPARATOR_CHAR + "resources" + PATH_SEPARATOR_CHAR + "genre_translation.xml";
 
-    if (!KODI->FileExists(sGenreFile.c_str(), false))
+    if (!kodi::vfs::FileExists(sGenreFile, false))
     {
-      sGenreFile = g_szUserPath + PATH_SEPARATOR_CHAR + "genre_translation.xml";
-      if (!KODI->FileExists(sGenreFile.c_str(), false))
+      sGenreFile = UserPath() + PATH_SEPARATOR_CHAR + "genre_translation.xml";
+      if (!kodi::vfs::FileExists(sGenreFile, false))
       {
-        sGenreFile = g_szClientPath + PATH_SEPARATOR_CHAR + "resources" + PATH_SEPARATOR_CHAR + "genre_translation.xml";
+        sGenreFile = ClientPath() + PATH_SEPARATOR_CHAR + "resources" + PATH_SEPARATOR_CHAR + "genre_translation.xml";
       }
     }
 
@@ -2338,7 +2348,7 @@ void cPVRClientMediaPortal::LoadGenreTable()
 
 void cPVRClientMediaPortal::LoadCardSettings()
 {
-  KODI->Log(LOG_DEBUG, "Loading card settings");
+  kodi::Log(ADDON_LOG_DEBUG, "Loading card settings");
 
   /* Retrieve card settings (needed for Live TV and recordings folders) */
   vector<string> lines;
@@ -2353,12 +2363,14 @@ void cPVRClientMediaPortal::SetConnectionState(PVR_CONNECTION_STATE newState)
 {
   if (newState != m_state)
   {
-    KODI->Log(LOG_DEBUG, "Connection state changed to '%s'",
+    kodi::Log(ADDON_LOG_DEBUG, "Connection state changed to '%s'",
       GetConnectionStateString(newState));
     m_state = newState;
 
     /* Notify connection state change (callback!) */
-    PVR->ConnectionStateChange(GetConnectionString(), m_state, NULL);
+    std::string connection;
+    GetConnectionString(connection);
+    kodi::addon::CInstancePVRClient::ConnectionStateChange(connection, m_state, "");
   }
 }
 
@@ -2386,12 +2398,12 @@ const char* cPVRClientMediaPortal::GetConnectionStateString(PVR_CONNECTION_STATE
   }
 }
 
-cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & recording)
+cRecording* cPVRClientMediaPortal::GetRecordingInfo(const kodi::addon::PVRRecording& recording)
 {
   // Is this the same recording as the previous one?
   if (m_lastSelectedRecording)
   {
-    int recId = atoi(recording.strRecordingId);
+    int recId = std::stoi(recording.GetRecordingId());
     if (m_lastSelectedRecording->Index() == recId)
     {
       return m_lastSelectedRecording;
@@ -2405,48 +2417,48 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const PVR_RECORDING & record
   string result;
   string command;
 
-  command = StringUtils::Format("GetRecordingInfo:%s|%s|True|%s\n", 
-    recording.strRecordingId, 
-    ((g_bUseRTSP || g_eStreamingMethod == ffmpeg) ? "True" : "False"),
-    g_bResolveRTSPHostname ? "True" : "False"
+  command = StringUtils::Format("GetRecordingInfo:%s|%s|True|%s\n",
+    recording.GetRecordingId().c_str(),
+    ((CSettings::Get().GetUseRTSP() || CSettings::Get().GetStreamingMethod() == ffmpeg) ? "True" : "False"),
+    CSettings::Get().GetResolveRTSPHostname() ? "True" : "False"
   );
   result = SendCommand(command);
   uri::decode(result);
 
   if (result.empty())
   {
-    KODI->Log(LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Backend command '%s' returned a zero-length answer.", command.c_str());
     return nullptr;
   }
 
   m_lastSelectedRecording = new cRecording();
   if (!m_lastSelectedRecording->ParseLine(result))
   {
-    KODI->Log(LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command.c_str(), result.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "Parsing result from '%s' command failed. Result='%s'.", command.c_str(), result.c_str());
     return nullptr;
   }
-  KODI->Log(LOG_INFO, "RECORDING: %s", result.c_str());
+  kodi::Log(ADDON_LOG_INFO, "RECORDING: %s", result.c_str());
   return m_lastSelectedRecording;
 }
 
-PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
+PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(kodi::addon::PVRStreamTimes& stream_times)
 {
   if (!m_bTimeShiftStarted && m_lastSelectedRecording)
   {
     // Recording playback
     // Warning: documentation in xbmc_pvr_types.h is wrong. pts values are not in seconds.
-    stream_times->startTime = 0; // seconds
-    stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
-    stream_times->ptsBegin = 0;  // useconds
-    stream_times->ptsEnd = ((int64_t)m_lastSelectedRecording->Duration()) * DVD_TIME_BASE; //useconds
+    stream_times.SetStartTime(0); // seconds
+    stream_times.SetPTSStart(0);  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
+    stream_times.SetPTSBegin(0);  // useconds
+    stream_times.SetPTSEnd(((int64_t)m_lastSelectedRecording->Duration()) * DVD_TIME_BASE); //useconds
     return PVR_ERROR_NO_ERROR;
   }
   else if (m_bTimeShiftStarted)
   {
-    stream_times->startTime = m_tsreader->GetStartTime();
-    stream_times->ptsStart = 0;  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
-    stream_times->ptsBegin = m_tsreader->GetPtsBegin();  // useconds
-    stream_times->ptsEnd = m_tsreader->GetPtsEnd();
+    stream_times.SetStartTime(m_tsreader->GetStartTime());
+    stream_times.SetPTSStart(0);  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
+    stream_times.SetPTSBegin(m_tsreader->GetPtsBegin());  // useconds
+    stream_times.SetPTSEnd(m_tsreader->GetPtsEnd());
     return PVR_ERROR_NO_ERROR;
   }
   *stream_times = { 0 };
@@ -2454,19 +2466,8 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(PVR_STREAM_TIMES* stream_times)
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-PVR_ERROR  cPVRClientMediaPortal::GetStreamReadChunkSize(int* chunksize)
+PVR_ERROR cPVRClientMediaPortal::GetStreamReadChunkSize(int& chunksize)
 {
-  *chunksize = 32 * 1024;
+  chunksize = 32 * 1024;
   return PVR_ERROR_NO_ERROR;
 }
-
-void cPVRClientMediaPortal::AddStreamProperty(PVR_NAMED_VALUE* properties,
-                       unsigned int* propertiesCount,
-                       std::string name,
-                       std::string value)
-{
-  PVR_STRCPY(properties[*propertiesCount].strName, name.c_str());
-  PVR_STRCPY(properties[*propertiesCount].strValue, value.c_str());
-  *propertiesCount = (*propertiesCount) + 1;
-}
-

@@ -1,4 +1,4 @@
-/* 
+/*
  *  Copyright (C) 2006 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
@@ -22,12 +22,10 @@
 
 #include "os-dependent.h"
 #include <stdint.h>
-#include "client.h" //KODI->Log
+#include <kodi/General.h> //for kodi::Log
 #include <time.h>
 #include "PatParser.h"
 #include "TSHeader.h"
-
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -65,7 +63,7 @@ namespace MPTV
     void  CPatParser::Reset()
     {
         // Dump();
-        KODI->Log(LOG_DEBUG, "PatParser:Reset()");
+        kodi::Log(ADDON_LOG_DEBUG, "PatParser:Reset()");
         CSectionDecoder::Reset();
         CleanUp();
         m_packetsReceived = 0;
@@ -167,12 +165,12 @@ namespace MPTV
 
             if (section.version_number != m_iPatTableVersion)
             {
-                KODI->Log(LOG_DEBUG, "PatParser: new pat table %d->%d", m_iPatTableVersion, section.version_number); //was commented out
+                kodi::Log(ADDON_LOG_DEBUG, "PatParser: new pat table %d->%d", m_iPatTableVersion, section.version_number); //was commented out
                 CleanUp();
                 m_iPatTableVersion = section.version_number;
                 m_iState = Parsing;
             }
-            //KODI->Log(LOG_DEBUG, "DecodePat  %d section:%d lastsection:%d sectionlen:%d",
+            //kodi::Log(ADDON_LOG_DEBUG, "DecodePat  %d section:%d lastsection:%d sectionlen:%d",
             //            version_number,section_number,last_section_number,section_length);
 
             int loop = (section.section_length - 9) / 4;
@@ -202,13 +200,13 @@ namespace MPTV
                     pmtParser->SetPid(pmtPid);
                     //pmtParser->SetPmtCallBack(this);
                     m_pmtParsers.push_back(pmtParser);
-                    KODI->Log(LOG_DEBUG, "PatParser:  add pmt# %u pid: %x", (unsigned int) m_pmtParsers.size(), pmtPid);
+                    kodi::Log(ADDON_LOG_DEBUG, "PatParser:  add pmt# %u pid: %x", (unsigned int) m_pmtParsers.size(), pmtPid);
                 }
             }
         }
         catch (...)
         {
-            KODI->Log(LOG_DEBUG, "Exception in PatParser");
+            kodi::Log(ADDON_LOG_DEBUG, "Exception in PatParser");
         }
     }
 
@@ -219,13 +217,13 @@ namespace MPTV
             CChannelInfo info;
             if (GetChannel(i, info))
             {
-                KODI->Log(LOG_DEBUG, "%u) onid:%x tsid:%x sid:%x major:%d minor:%x freq:%x type:%d provider:%s service:%s", (unsigned int) i,
+                kodi::Log(ADDON_LOG_DEBUG, "%u) onid:%x tsid:%x sid:%x major:%d minor:%x freq:%x type:%d provider:%s service:%s", (unsigned int) i,
                     info.NetworkId, info.TransportId, info.ServiceId, info.MajorChannel, info.MinorChannel, info.Frequency, info.ServiceType, info.ProviderName, info.ServiceName);
                 info.PidTable.LogPIDs();
             }
             else
             {
-                KODI->Log(LOG_DEBUG, "%u) not found", (unsigned int) i);
+                kodi::Log(ADDON_LOG_DEBUG, "%u) not found", (unsigned int) i);
             }
         }
     }

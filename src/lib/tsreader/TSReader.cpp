@@ -28,7 +28,8 @@
  *************************************************************************/
 
 #include "TSReader.h"
-#include "client.h" //for KODI->Log
+#include <kodi/General.h>  //for kodi::Log
+#include <kodi/Filesystem.h>
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "TSDebug.h"
@@ -42,7 +43,6 @@
 #include "FileUtils.h"
 
 using namespace std;
-using namespace ADDON;
 
 namespace MPTV
 {
@@ -83,14 +83,14 @@ namespace MPTV
         // Can we access the given file already?
         if (OS::CFile::Exists(pszFileName))
         {
-            KODI->Log(LOG_DEBUG, "Found the timeshift buffer at: %s\n", pszFileName);
+            kodi::Log(ADDON_LOG_DEBUG, "Found the timeshift buffer at: %s\n", pszFileName);
             return ToKodiPath(sFileName);
         }
-        KODI->Log(LOG_INFO, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
+        kodi::Log(ADDON_LOG_INFO, "Cannot access '%s' directly. Assuming multiseat mode. Need to translate to UNC filename.", pszFileName);
 #elif defined (TARGET_WINDOWS_STORE)
-        KODI->Log(LOG_DEBUG, "WindowsStore: need to translate '%s' to UNC filename.", pszFileName);
+        kodi::Log(ADDON_LOG_DEBUG, "WindowsStore: need to translate '%s' to UNC filename.", pszFileName);
 #else
-        KODI->Log(LOG_DEBUG, "Multiseat mode; need to translate '%s' to UNC filename.", pszFileName);
+        kodi::Log(ADDON_LOG_DEBUG, "Multiseat mode; need to translate '%s' to UNC filename.", pszFileName);
 #endif
 
         bool bFound = false;
@@ -109,7 +109,7 @@ namespace MPTV
                 }
                 else
                 {
-                    KODI->Log(LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerKodi settings!", tscard.IdCard, tscard.Name.c_str());
+                    kodi::Log(ADDON_LOG_ERROR, "No timeshift share known for card %i '%s'. Check your TVServerKodi settings!", tscard.IdCard, tscard.Name.c_str());
                 }
             }
         }
@@ -142,15 +142,15 @@ namespace MPTV
 
         if (bFound)
         {
-            KODI->Log(LOG_INFO, "Translate path %s -> %s", pszFileName, sFileName.c_str());
+            kodi::Log(ADDON_LOG_INFO, "Translate path %s -> %s", pszFileName, sFileName.c_str());
         }
         else
         {
-            KODI->Log(LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerKodi settings!", pszFileName);
-            if (!KODI->FileExists(pszFileName, false))
+            kodi::Log(ADDON_LOG_ERROR, "Could not find a network share for '%s'. Check your TVServerKodi settings!", pszFileName);
+            if (!kodi::vfs::FileExists(pszFileName, false))
             {
-                KODI->Log(LOG_ERROR, "Cannot access '%s'", pszFileName);
-                KODI->QueueNotification(QUEUE_ERROR, "Cannot access: %s", pszFileName);
+                kodi::Log(ADDON_LOG_ERROR, "Cannot access '%s'", pszFileName);
+                kodi::QueueFormattedNotification(QUEUE_ERROR, "Cannot access: %s", pszFileName);
                 sFileName.clear();
                 return sFileName;
             }
@@ -164,7 +164,7 @@ namespace MPTV
             switch (errCode)
             {
             case ERROR_FILE_NOT_FOUND:
-                KODI->Log(LOG_ERROR, "File not found: %s.\n", sFileName.c_str());
+                kodi::Log(ADDON_LOG_ERROR, "File not found: %s.\n", sFileName.c_str());
                 break;
             case ERROR_ACCESS_DENIED:
             {
@@ -173,25 +173,25 @@ namespace MPTV
 
                 if (GetUserNameA(strUserName, &lLength))
                 {
-                    KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
+                    kodi::Log(ADDON_LOG_ERROR, "Access denied on %s. Check share access rights for user '%s' or connect as a different user using the Explorer.\n", sFileName.c_str(), strUserName);
                 }
                 else
                 {
-                    KODI->Log(LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
+                    kodi::Log(ADDON_LOG_ERROR, "Access denied on %s. Check share access rights.\n", sFileName.c_str());
                 }
-                KODI->QueueNotification(QUEUE_ERROR, "Access denied: %s", sFileName.c_str());
+                kodi::QueueFormattedNotification(QUEUE_ERROR, "Access denied: %s", sFileName.c_str());
                 break;
             }
             default:
-                KODI->Log(LOG_ERROR, "Cannot find or access file: %s. Check share access rights.", sFileName.c_str());
+                kodi::Log(ADDON_LOG_ERROR, "Cannot find or access file: %s. Check share access rights.", sFileName.c_str());
             }
 
             sFileName.clear();
         }
 #elif defined TARGET_WINDOWS_STORE
-        if (!KODI->FileExists(sFileName.c_str(), false))
+        if (!kodi::vfs::FileExists(sFileName, false))
         {
-          KODI->Log(LOG_ERROR, "Cannot find or access file: %s. Did you enable the vfs.smb2 plugin?\n", sFileName.c_str());
+          kodi::Log(ADDON_LOG_ERROR, "Cannot find or access file: %s. Did you enable the vfs.smb2 plugin?\n", sFileName.c_str());
         }
 #endif
 
@@ -200,7 +200,7 @@ namespace MPTV
 
     long CTsReader::Open(const char* pszFileName)
     {
-        KODI->Log(LOG_INFO, "TsReader open '%s'", pszFileName);
+        kodi::Log(ADDON_LOG_INFO, "TsReader open '%s'", pszFileName);
 
         m_fileName = pszFileName;
 
@@ -214,7 +214,7 @@ namespace MPTV
         {
             // rtsp:// stream
             // open stream
-            KODI->Log(LOG_DEBUG, "open rtsp: %s", m_fileName.c_str());
+            kodi::Log(ADDON_LOG_DEBUG, "open rtsp: %s", m_fileName.c_str());
 #ifdef LIVE555
             //strcpy(m_rtspClient.m_outFileName, "e:\\temp\\rtsptest.ts");
             delete m_buffer;
@@ -248,7 +248,7 @@ namespace MPTV
             m_fileReader = new CMemoryReader(*m_buffer);
             m_State = State_Running;
 #else
-            KODI->Log(LOG_ERROR, "Failed to open %s. PVR client is compiled without LIVE555 RTSP support.", m_fileName.c_str());
+            kodi::Log(ADDON_LOG_ERROR, "Failed to open %s. PVR client is compiled without LIVE555 RTSP support.", m_fileName.c_str());
             KODI->QueueNotification(QUEUE_ERROR, "PVR client has no RTSP support: %s", m_fileName.c_str());
             return E_FAIL;
 #endif //LIVE555
@@ -282,7 +282,7 @@ namespace MPTV
             long retval = m_fileReader->OpenFile(m_fileName);
             if (retval != S_OK)
             {
-                KODI->Log(LOG_ERROR, "Failed to open file '%s' as '%s'", pszFileName, m_fileName.c_str());
+                kodi::Log(ADDON_LOG_ERROR, "Failed to open file '%s' as '%s'", pszFileName, m_fileName.c_str());
                 return retval;
             }
             // detect audio/video pids
@@ -316,7 +316,7 @@ namespace MPTV
             if (m_bIsRTSP)
             {
 #ifdef LIVE555
-                KODI->Log(LOG_INFO, "TsReader: closing RTSP client");
+                kodi::Log(ADDON_LOG_INFO, "TsReader: closing RTSP client");
                 m_rtspClient->Stop();
                 SAFE_DELETE(m_rtspClient);
                 SAFE_DELETE(m_buffer);
@@ -324,7 +324,7 @@ namespace MPTV
             }
             else
             {
-                KODI->Log(LOG_INFO, "TsReader: closing file");
+                kodi::Log(ADDON_LOG_INFO, "TsReader: closing file");
                 m_fileReader->CloseFile();
             }
             SAFE_DELETE(m_fileReader);
@@ -336,7 +336,7 @@ namespace MPTV
     {
         string newFileName;
 
-        KODI->Log(LOG_INFO, "TsReader: OnZap(%s)", pszFileName);
+        kodi::Log(ADDON_LOG_INFO, "TsReader: OnZap(%s)", pszFileName);
 
         // Check whether the new channel url/timeshift buffer is changed
         // In case of a new url/timeshift buffer file, close the old one first
@@ -350,7 +350,7 @@ namespace MPTV
         {
             if (m_fileReader)
             {
-                KODI->Log(LOG_DEBUG, "%s: request new PAT", __FUNCTION__);
+                kodi::Log(ADDON_LOG_DEBUG, "%s: request new PAT", __FUNCTION__);
 
                 int64_t pos_before, pos_after;
                 MultiFileReader* fileReader = dynamic_cast<MultiFileReader*>(m_fileReader);
@@ -386,7 +386,7 @@ namespace MPTV
                 m_demultiplexer.RequestNewPat();
                 fileReader->OnChannelChange();
 
-                KODI->Log(LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
+                kodi::Log(ADDON_LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
                 usleep(100000);
 
                 // Set the stream start times to this new channel
@@ -433,7 +433,7 @@ namespace MPTV
 
     long CTsReader::Pause(bool UNUSED(bPaused))
     {
-        KODI->Log(LOG_DEBUG, "TsReader: Pause - IsTimeShifting = %d - state = %d", IsTimeShifting(), m_State);
+        kodi::Log(ADDON_LOG_DEBUG, "TsReader: Pause - IsTimeShifting = %d - state = %d", IsTimeShifting(), m_State);
 
         if (m_State == State_Running)
         {
@@ -442,7 +442,7 @@ namespace MPTV
             // Are we using rtsp?
             if (m_bIsRTSP)
             {
-                KODI->Log(LOG_DEBUG, "CTsReader::Pause()  ->pause rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                kodi::Log(ADDON_LOG_DEBUG, "CTsReader::Pause()  ->pause rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
                 m_rtspClient->Pause();
             }
 #endif //LIVE555
@@ -454,15 +454,15 @@ namespace MPTV
             // Are we using rtsp?
             if (m_bIsRTSP)
             {
-                KODI->Log(LOG_DEBUG, "CTsReader::Pause() is paused, continue rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                kodi::Log(ADDON_LOG_DEBUG, "CTsReader::Pause() is paused, continue rtsp"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
                 m_rtspClient->Continue();
-                KODI->Log(LOG_DEBUG, "CTsReader::Pause() rtsp running"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
+                kodi::Log(ADDON_LOG_DEBUG, "CTsReader::Pause() rtsp running"); // at position: %f", (m_seekTime.Millisecs() / 1000.0f));
             }
             m_State = State_Running;
 #endif //LIVE555
         }
 
-        KODI->Log(LOG_DEBUG, "TsReader: Pause - END - state = %d", m_State);
+        kodi::Log(ADDON_LOG_DEBUG, "TsReader: Pause - END - state = %d", m_State);
         return S_OK;
     }
 

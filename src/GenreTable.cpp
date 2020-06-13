@@ -6,11 +6,12 @@
  */
 
 #include <algorithm>
-#include "client.h"
 #include "GenreTable.h"
 #include "tinyxml.h"
 
-using namespace ADDON;
+#include <kodi/General.h>
+#include <kodi/addon-instance/pvr/EPG.h>
+
 using namespace std;
 
 bool CGenreTable::LoadGenreXML(const std::string &filename)
@@ -18,11 +19,11 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
   TiXmlDocument xmlDoc;
   if (!xmlDoc.LoadFile(filename))
   {
-    KODI->Log(LOG_ERROR, "Unable to load %s: %s at line %d", filename.c_str(), xmlDoc.ErrorDesc(), xmlDoc.ErrorRow());
+    kodi::Log(ADDON_LOG_ERROR, "Unable to load %s: %s at line %d", filename.c_str(), xmlDoc.ErrorDesc(), xmlDoc.ErrorRow());
     return false;
   }
 
-  KODI->Log(LOG_INFO, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
+  kodi::Log(ADDON_LOG_INFO, "Opened %s to read genre string to type/subtype translation table", filename.c_str());
 
   TiXmlHandle hDoc(&xmlDoc);
   TiXmlElement* pElem;
@@ -36,7 +37,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
   // should always have a valid root but handle gracefully if it does
   if (!pElem)
   {
-    KODI->Log(LOG_ERROR, "Could not find <genrestrings> element");
+    kodi::Log(ADDON_LOG_ERROR, "Could not find <genrestrings> element");
     return false;
   }
 
@@ -51,7 +52,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
 
   if (!pGenreNode)
   {
-    KODI->Log(LOG_ERROR, "Could not find <genre> element");
+    kodi::Log(ADDON_LOG_ERROR, "Could not find <genre> element");
     return false;
   }
 
@@ -86,7 +87,7 @@ bool CGenreTable::LoadGenreXML(const std::string &filename)
 
       if (genre.type > 0)
       {
-        KODI->Log(LOG_DEBUG, "Genre '%s' => 0x%x, 0x%x", sGenreString, genre.type, genre.subtype);
+        kodi::Log(ADDON_LOG_DEBUG, "Genre '%s' => 0x%x, 0x%x", sGenreString, genre.type, genre.subtype);
         m_genremap.insert(std::pair<std::string, genre_t>(sGenreString, genre));
       }
     }
@@ -118,7 +119,7 @@ void CGenreTable::GenreToTypes(string& strGenre, int& genreType, int& genreSubTy
     }
     else
     {
-      KODI->Log(LOG_DEBUG, "EPG: No mapping of '%s' to genre type/subtype found.", strGenre.c_str());
+      kodi::Log(ADDON_LOG_DEBUG, "EPG: No mapping of '%s' to genre type/subtype found.", strGenre.c_str());
       genreType     = EPG_GENRE_USE_STRING;
       genreSubType  = 0;
     }

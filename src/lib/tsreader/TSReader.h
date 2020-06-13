@@ -28,7 +28,6 @@
  * - Code refactoring for cross platform usage
  *************************************************************************/
 
-#include "client.h"
 #include "FileReader.h"
 #include "DeMultiplexer.h"
 #include "Cards.h"

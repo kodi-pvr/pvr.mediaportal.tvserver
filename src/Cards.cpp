@@ -9,17 +9,17 @@
 #include "Cards.h"
 #include "uri.h"
 #include "utils.h"
-#include "client.h"
 #include "DateTime.h"
 
+#include <kodi/General.h>
+
 using namespace std;
-using namespace ADDON;
 
 bool CCards::ParseLines(vector<string>& lines)
 {
   if (lines.empty())
   {
-    KODI->Log(LOG_DEBUG, "No card settings found.");
+    kodi::Log(ADDON_LOG_DEBUG, "No card settings found.");
     return false;
   }
 
@@ -83,11 +83,11 @@ bool CCards::ParseLines(vector<string>& lines)
         card.TimeshiftFolderUNC = fields[18];
         if (card.RecordingFolderUNC.empty())
         {
-          KODI->Log(LOG_WARNING, "no recording share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
+          kodi::Log(ADDON_LOG_WARNING, "no recording share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
         if (card.TimeshiftFolderUNC.empty())
         {
-          KODI->Log(LOG_WARNING, "no timeshift share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
+          kodi::Log(ADDON_LOG_WARNING, "no timeshift share defined in the TVServerKodi settings for card '%s'", card.Name.c_str());
         }
       }
       else

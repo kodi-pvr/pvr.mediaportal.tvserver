@@ -20,7 +20,7 @@
 #pragma once
 
 #ifdef TSREADER_DEBUG
-#define TSDEBUG KODI->Log
+#define TSDEBUG kodi::Log
 #else
 #ifdef _MSC_VER
 #define TSDEBUG

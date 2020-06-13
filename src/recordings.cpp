@@ -13,10 +13,7 @@ using namespace std;
 #include "recordings.h"
 #include "utils.h"
 #include "timers.h"
-#include "client.h"
 #include "DateTime.h"
-
-using namespace ADDON;
 
 cRecording::cRecording() :
   m_channelType(TvDatabase::ChannelType::Unknown)
@@ -80,13 +77,13 @@ bool cRecording::ParseLine(const std::string& data)
 
     if ( m_startTime.SetFromDateTime(fields[1]) == false )
     {
-      KODI->Log(LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
+      kodi::Log(ADDON_LOG_ERROR, "%s: Unable to convert start time '%s' into date+time", __FUNCTION__, fields[1].c_str());
       return false;
     }
 
     if ( m_endTime.SetFromDateTime(fields[2]) == false )
     {
-      KODI->Log(LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
+      kodi::Log(ADDON_LOG_ERROR, "%s: Unable to convert end time '%s' into date+time", __FUNCTION__, fields[2].c_str());
       return false;
     }
 
@@ -176,7 +173,7 @@ bool cRecording::ParseLine(const std::string& data)
   }
   else
   {
-    KODI->Log(LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
+    kodi::Log(ADDON_LOG_ERROR, "Recording information has not enough fields. At least 9 fields expected, got only %d fields.", fields.size());
     return false;
   }
 }

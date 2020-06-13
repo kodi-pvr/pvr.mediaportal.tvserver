@@ -1,4 +1,4 @@
-/* 
+/*
  *  Copyright (C) 2006 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
@@ -6,12 +6,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
@@ -38,7 +38,7 @@
 #define SERVICE_TYPE_AUDIO_AAC      0x0f
 #define SERVICE_TYPE_AUDIO_LATM_AAC 0x11 //LATM AAC audio
 
-#define SERVICE_TYPE_AUDIO_DD_PLUS  0x84 
+#define SERVICE_TYPE_AUDIO_DD_PLUS  0x84
 #define SERVICE_TYPE_DVB_SUBTITLES1 0x05
 #define SERVICE_TYPE_DVB_SUBTITLES2 0x06
 

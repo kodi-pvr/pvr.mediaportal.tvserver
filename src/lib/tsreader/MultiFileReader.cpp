@@ -33,7 +33,8 @@
  */
 
 #include "MultiFileReader.h"
-#include "client.h" //for KODI->Log
+#include <kodi/General.h> //for kodi::Log
+#include <kodi/Filesystem.h>
 #include "TSDebug.h"
 #include <string>
 #include "utils.h"
@@ -42,7 +43,6 @@
 #include "p8-platform/threads/threads.h"
 #include <inttypes.h>
 
-using namespace ADDON;
 using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
@@ -88,7 +88,7 @@ namespace MPTV
     long MultiFileReader::OpenFile()
     {
         long hResult = m_TSBufferFile.OpenFile();
-        KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
+        kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
 
         if (hResult != S_OK)
             return hResult;
@@ -101,11 +101,11 @@ namespace MPTV
         while ((m_TSBufferFile.GetFileSize() == 0) && (retryCount < 50))
         {
             retryCount++;
-            KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
+            kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
             m_TSBufferFile.CloseFile();
             usleep(100000);
             hResult = m_TSBufferFile.OpenFile();
-            KODI->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
+            kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
         }
 
         if (RefreshTSBufferFile() == S_FALSE)
@@ -118,8 +118,8 @@ namespace MPTV
                 usleep(100000);
                 if (timeout.TimeLeft() == 0)
                 {
-                    KODI->Log(LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
-                    KODI->QueueNotification(QUEUE_ERROR, "Time out while waiting for buffer file");
+                    kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
+                    kodi::QueueNotification(QUEUE_ERROR, "", "Time out while waiting for buffer file");
                     return S_FALSE;
                 }
             } while (RefreshTSBufferFile() == S_FALSE);
@@ -178,7 +178,7 @@ namespace MPTV
 
         if (m_currentPosition > m_endPosition)
         {
-            KODI->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
+            kodi::Log(ADDON_LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
             m_currentPosition = m_endPosition;
         }
 
@@ -192,7 +192,7 @@ namespace MPTV
         if (m_TSFileId != timeshiftBufferFileID)
         {
             // We have to switch to a different buffer file
-            TSDEBUG(LOG_DEBUG, "Change buffer file from %i to %i", m_TSFileId, timeshiftBufferFileID);
+            TSDEBUG(ADDON_LOG_DEBUG, "Change buffer file from %i to %i", m_TSFileId, timeshiftBufferFileID);
 
             MultiFileReaderFile *file = NULL;
             std::vector<MultiFileReaderFile *>::iterator it = m_tsFiles.begin();
@@ -205,8 +205,8 @@ namespace MPTV
 
             if (!file)
             {
-                KODI->Log(LOG_ERROR, "MultiFileReader::no buffer file with id=%i", timeshiftBufferFileID);
-                KODI->QueueNotification(QUEUE_ERROR, "No buffer file");
+                kodi::Log(ADDON_LOG_ERROR, "MultiFileReader::no buffer file with id=%i", timeshiftBufferFileID);
+                kodi::QueueNotification(QUEUE_ERROR, "", "No buffer file");
                 return m_currentPosition;
             }
 
@@ -219,17 +219,17 @@ namespace MPTV
                 m_TSFileId = file->filePositionId;
                 m_currentFileStartOffset = file->startPosition;
 
-                TSDEBUG(LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s TS file id=%i\n", file->filename.c_str(), m_TSFileId);
+                TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s TS file id=%i\n", file->filename.c_str(), m_TSFileId);
             }
         }
 
         // Reposition the read pointer within the current timeshift buffer file
-        TSDEBUG(LOG_DEBUG, "Move read pointer within buffer file %i; %I64d -> %i64d", m_TSFileId, m_currentPosition, m_currentFileStartOffset + timeShiftBufferFilePos);
+        TSDEBUG(ADDON_LOG_DEBUG, "Move read pointer within buffer file %i; %I64d -> %i64d", m_TSFileId, m_currentPosition, m_currentFileStartOffset + timeShiftBufferFilePos);
         m_currentPosition = m_currentFileStartOffset + timeShiftBufferFilePos;
 
         if (m_currentPosition > m_endPosition)
         {
-            KODI->Log(LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
+            kodi::Log(ADDON_LOG_ERROR, "Seeking beyond the end position: %I64d > %I64d", m_currentPosition, m_endPosition);
             m_currentPosition = m_endPosition;
         }
 
@@ -251,7 +251,7 @@ namespace MPTV
 
         if (m_currentPosition < m_startPosition)
         {
-            KODI->Log(LOG_INFO, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentPosition, m_startPosition);
+            kodi::Log(ADDON_LOG_INFO, "%s: current position adjusted from %%I64dd to %%I64dd.", __FUNCTION__, m_currentPosition, m_startPosition);
             m_currentPosition = m_startPosition;
         }
 
@@ -265,12 +265,12 @@ namespace MPTV
                 break;
         };
 
-        // KODI->Log(LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
+        // kodi::Log(ADDON_LOG_DEBUG, "%s: reading %ld bytes. File %s, start %d, current %d, end %d.", __FUNCTION__, lDataLength, file->filename.c_str(), m_startPosition, m_currentPosition, m_endPosition);
 
         if (!file)
         {
-            KODI->Log(LOG_ERROR, "MultiFileReader::no file");
-            KODI->QueueNotification(QUEUE_ERROR, "No buffer file");
+            kodi::Log(ADDON_LOG_ERROR, "MultiFileReader::no file");
+            kodi::QueueNotification(QUEUE_ERROR, "", "No buffer file");
             return S_FALSE;
         }
         if (m_currentPosition < (file->startPosition + file->length))
@@ -281,14 +281,14 @@ namespace MPTV
                 m_TSFile.SetFileName(file->filename.c_str());
                 if (m_TSFile.OpenFile() != S_OK)
                 {
-                    KODI->Log(LOG_ERROR, "MultiFileReader: can't open %s\n", file->filename.c_str());
+                    kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: can't open %s\n", file->filename.c_str());
                     return S_FALSE;
                 }
 
                 m_TSFileId = file->filePositionId;
                 m_currentFileStartOffset = file->startPosition;
 
-                TSDEBUG(LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s TS file id=%i\n", file->filename.c_str(), m_TSFileId);
+                TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader::Read() Current File Changed to %s TS file id=%i\n", file->filename.c_str(), m_TSFileId);
             }
 
             int64_t seekPosition = m_currentPosition - file->startPosition;
@@ -301,7 +301,7 @@ namespace MPTV
                 posSeeked = m_TSFile.GetFilePointer();
                 if (posSeeked != seekPosition)
                 {
-                    KODI->Log(LOG_ERROR, "SEEK FAILED");
+                    kodi::Log(ADDON_LOG_ERROR, "SEEK FAILED");
                     return S_FALSE;
                 }
             }
@@ -312,11 +312,11 @@ namespace MPTV
             int64_t bytesToRead = file->length - seekPosition;
             if ((int64_t)lDataLength > bytesToRead)
             {
-                // KODI->Log(LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
+                // kodi::Log(ADDON_LOG_DEBUG, "%s: datalength %lu bytesToRead %lli.", __FUNCTION__, lDataLength, bytesToRead);
                 hr = m_TSFile.Read(pbData, (size_t)bytesToRead, &bytesRead);
                 if (FAILED(hr))
                 {
-                    KODI->Log(LOG_ERROR, "READ FAILED1");
+                    kodi::Log(ADDON_LOG_ERROR, "READ FAILED1");
                     return S_FALSE;
                 }
                 m_currentPosition += bytesToRead;
@@ -324,7 +324,7 @@ namespace MPTV
                 hr = this->Read(pbData + bytesToRead, lDataLength - (size_t)bytesToRead, dwReadBytes);
                 if (FAILED(hr))
                 {
-                    KODI->Log(LOG_ERROR, "READ FAILED2");
+                    kodi::Log(ADDON_LOG_ERROR, "READ FAILED2");
                 }
                 *dwReadBytes += bytesRead;
             }
@@ -333,7 +333,7 @@ namespace MPTV
                 hr = m_TSFile.Read(pbData, lDataLength, dwReadBytes);
                 if (FAILED(hr))
                 {
-                    KODI->Log(LOG_ERROR, "READ FAILED3");
+                    kodi::Log(ADDON_LOG_ERROR, "READ FAILED3");
                 }
                 m_currentPosition += lDataLength;
             }
@@ -344,7 +344,7 @@ namespace MPTV
             *dwReadBytes = 0;
         }
 
-        // KODI->Log(LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
+        // kodi::Log(ADDON_LOG_DEBUG, "%s: read %lu bytes. start %lli, current %lli, end %lli.", __FUNCTION__, *dwReadBytes, m_startPosition, m_currentPosition, m_endPosition);
         return S_OK;
     }
 
@@ -353,7 +353,7 @@ namespace MPTV
     {
         if (m_TSBufferFile.IsFileInvalid())
         {
-            KODI->Log(LOG_ERROR, "%s: buffer file is invalid.", __FUNCTION__);
+            kodi::Log(ADDON_LOG_ERROR, "%s: buffer file is invalid.", __FUNCTION__);
             return S_FALSE;
         }
 
@@ -382,7 +382,7 @@ namespace MPTV
             int64_t minimumlength = (int64_t)(sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved) + sizeof(Wchar_t) + sizeof(filesAdded2) + sizeof(filesRemoved2));
             if (fileLength <= minimumlength)
             {
-                KODI->Log(LOG_ERROR, "%s: TSBufferFile too short. Minimum length %ld, current length %ld", __FUNCTION__, minimumlength, fileLength);
+                kodi::Log(ADDON_LOG_ERROR, "%s: TSBufferFile too short. Minimum length %ld, current length %ld", __FUNCTION__, minimumlength, fileLength);
                 return S_FALSE;
             }
 
@@ -442,8 +442,8 @@ namespace MPTV
             {
                 Error |= 0x80;
 
-                KODI->Log(LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
-                KODI->Log(LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
+                kodi::Log(ADDON_LOG_ERROR, "MultiFileReader has error 0x%x in Loop %d. Try to clear SMB Cache.", Error, 10 - Loop);
+                kodi::Log(ADDON_LOG_DEBUG, "%s: filesAdded %d, filesAdded2 %d, filesRemoved %d, filesRemoved2 %d.", __FUNCTION__, filesAdded, filesAdded2, filesRemoved, filesRemoved2);
 
                 // try to clear local / remote SMB file cache. This should happen when we close the filehandle
                 m_TSBufferFile.CloseFile();
@@ -459,11 +459,11 @@ namespace MPTV
 
         if (Loop < 8)
         {
-            KODI->Log(LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
+            kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader has waited %d times for TSbuffer integrity.", 10 - Loop);
 
             if (Error)
             {
-                KODI->Log(LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
+                kodi::Log(ADDON_LOG_ERROR, "MultiFileReader has failed for TSbuffer integrity. Error : %x", Error);
                 return E_FAIL;
             }
         }
@@ -475,14 +475,14 @@ namespace MPTV
             int32_t fileID = filesRemoved;
             int64_t nextStartPosition = 0;
 
-            TSDEBUG(LOG_DEBUG, "MultiFileReader: Files Added %i, Removed %i\n", filesToAdd, filesToRemove);
+            TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader: Files Added %i, Removed %i\n", filesToAdd, filesToRemove);
 
             // Removed files that aren't present anymore.
             while ((filesToRemove > 0) && (!m_tsFiles.empty()))
             {
                 file = m_tsFiles.at(0);
 
-                TSDEBUG(LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
+                TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
 
                 SAFE_DELETE(file);
                 m_tsFiles.erase(m_tsFiles.begin());
@@ -521,7 +521,7 @@ namespace MPTV
             Wchar_t* pwCurrFile = pBuffer;    //Get a pointer to the first wchar filename string in pBuffer
             size_t length = WcsLen(pwCurrFile);
 
-            //KODI->Log(LOG_DEBUG, "%s: WcsLen(%d), sizeof(Wchar_t) == %d sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(Wchar_t), sizeof(wchar_t));
+            //kodi::Log(ADDON_LOG_DEBUG, "%s: WcsLen(%d), sizeof(Wchar_t) == %d sizeof(wchar_t) == %d.", __FUNCTION__, length, sizeof(Wchar_t), sizeof(wchar_t));
 
             while (length > 0)
             {
@@ -530,7 +530,7 @@ namespace MPTV
                 WcsToMbs(wide2normal, pwCurrFile, length);
                 wide2normal[length] = '\0';
                 std::string sCurrFile = wide2normal;
-                //KODI->Log(LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
+                //kodi::Log(ADDON_LOG_DEBUG, "%s: filename %s (%s).", __FUNCTION__, wide2normal, sCurrFile.c_str());
                 delete[] wide2normal;
 
                 // Modify filename path here to include the real (local) path
@@ -570,7 +570,7 @@ namespace MPTV
                 }
                 else
                 {
-                    KODI->Log(LOG_DEBUG, "MultiFileReader: Missing files!!\n");
+                    kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: Missing files!!\n");
                 }
             }
 
@@ -578,7 +578,7 @@ namespace MPTV
             {
                 std::string pFilename = *itFilenames;
 
-                TSDEBUG(LOG_DEBUG, "%s: Adding file %s (%" PRId64 ")\n", __FUNCTION__, pFilename.c_str(), nextStartPosition);
+                TSDEBUG(ADDON_LOG_DEBUG, "%s: Adding file %s (%" PRId64 ")\n", __FUNCTION__, pFilename.c_str(), nextStartPosition);
 
                 file = new MultiFileReaderFile();
                 file->filename = pFilename;
@@ -618,7 +618,7 @@ namespace MPTV
             file->length = currentPosition;
             m_endPosition = file->startPosition + currentPosition;
 
-            TSDEBUG(LOG_DEBUG, "StartPosition %lli, EndPosition %lli, CurrentPosition %lli\n", m_startPosition, m_endPosition, m_currentPosition);
+            TSDEBUG(ADDON_LOG_DEBUG, "StartPosition %lli, EndPosition %lli, CurrentPosition %lli\n", m_startPosition, m_endPosition, m_currentPosition);
         }
         else
         {
@@ -636,16 +636,15 @@ namespace MPTV
         length = 0;
 
         // Try to open the file
-        void* hFile;
-        if (((hFile = KODI->OpenFile(pFilename, 0)) != NULL))
+        kodi::vfs::CFile hFile;
+        if (hFile.OpenFile(pFilename, 0))
         {
-            length = KODI->GetFileLength(hFile);
-            KODI->CloseFile(hFile);
+            length = hFile.GetLength();
         }
         else
         {
-            KODI->Log(LOG_ERROR, "Failed to open file %s : 0x%x(%s)\n", pFilename, errno, strerror(errno));
-            KODI->QueueNotification(QUEUE_ERROR, "Failed to open file %s", pFilename);
+            kodi::Log(ADDON_LOG_ERROR, "Failed to open file %s : 0x%x(%s)\n", pFilename, errno, strerror(errno));
+            kodi::QueueFormattedNotification(QUEUE_ERROR, "Failed to open file %s", pFilename);
             return S_FALSE;
         }
         return S_OK;

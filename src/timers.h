@@ -10,11 +10,12 @@
 #ifndef __TIMERS_H
 #define __TIMERS_H
 
-#include "kodi/libXBMC_pvr.h"
 #include <stdlib.h>
 #include <string>
 #include "DateTime.h"
 #include "GenreTable.h"
+
+#include <kodi/addon-instance/pvr/Timers.h>
 
 namespace TvDatabase
 {
@@ -178,19 +179,19 @@ class cLifeTimeValues
 {
   public:
     cLifeTimeValues();
-    void SetLifeTimeValues(PVR_TIMER_TYPE& timertype);
+    void SetLifeTimeValues(kodi::addon::PVRTimerType& timertype);
   private:
-    std::vector<std::pair<int, std::string>> m_lifetimeValues;
+    std::vector<kodi::addon::PVRTypeIntValue> m_lifetimeValues;
 };
 
 class cTimer
 {
   public:
     cTimer();
-    cTimer(const PVR_TIMER &timerinfo);
+    cTimer(const kodi::addon::PVRTimer &timerinfo);
     virtual ~cTimer();
 
-    void GetPVRtimerinfo(PVR_TIMER &tag);
+    void GetPVRtimerinfo(kodi::addon::PVRTimer &tag);
     int Index(void) const { return m_index; }
     unsigned int Channel(void) const { return m_channel; }
     int Priority(void) { return Mepo2XBMCPriority(m_priority); }

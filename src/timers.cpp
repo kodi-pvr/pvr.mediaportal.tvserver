@@ -12,13 +12,14 @@
 using namespace std;
 
 #include "p8-platform/os.h" //needed for snprintf
-#include "client.h"
 #include "timers.h"
+#include "settings.h"
 #include "utils.h"
 #include "DateTime.h"
 #include "epg.h"
 
-using namespace ADDON;
+#include <kodi/General.h>
+
 using namespace MPTV;
 
 cTimer::cTimer() :
@@ -43,23 +44,23 @@ cTimer::cTimer() :
 }
 
 
-cTimer::cTimer(const PVR_TIMER& timerinfo):
+cTimer::cTimer(const kodi::addon::PVRTimer& timerinfo):
   m_genretable(NULL)
 {
 
-  m_index = timerinfo.iClientIndex - cKodiTimerIndexOffset;
-  m_progid = timerinfo.iEpgUid - cKodiEpgIndexOffset;
+  m_index = timerinfo.GetClientIndex() - cKodiTimerIndexOffset;
+  m_progid = timerinfo.GetEPGUid() - cKodiEpgIndexOffset;
 
-  m_parentScheduleID = timerinfo.iParentClientIndex - cKodiTimerIndexOffset;
+  m_parentScheduleID = timerinfo.GetParentClientIndex() - cKodiTimerIndexOffset;
 
   if (m_index >= MPTV_REPEAT_NO_SERIES_OFFSET)
   {
     m_index = m_parentScheduleID;
   }
 
-  m_done = (timerinfo.state == PVR_TIMER_STATE_COMPLETED);
-  m_active = (timerinfo.state == PVR_TIMER_STATE_SCHEDULED || timerinfo.state == PVR_TIMER_STATE_RECORDING
-    || timerinfo.state == PVR_TIMER_STATE_CONFLICT_OK || timerinfo.state == PVR_TIMER_STATE_CONFLICT_NOK);
+  m_done = (timerinfo.GetState() == PVR_TIMER_STATE_COMPLETED);
+  m_active = (timerinfo.GetState() == PVR_TIMER_STATE_SCHEDULED || timerinfo.GetState() == PVR_TIMER_STATE_RECORDING
+    || timerinfo.GetState() == PVR_TIMER_STATE_CONFLICT_OK || timerinfo.GetState() == PVR_TIMER_STATE_CONFLICT_NOK);
 
   if (!m_active)
   {
@@ -72,12 +73,12 @@ cTimer::cTimer(const PVR_TIMER& timerinfo):
   {
     m_canceled = cUndefinedDate;
   }
- 
-  m_title = timerinfo.strTitle;
-  m_directory = timerinfo.strDirectory;
-  m_channel = timerinfo.iClientChannelUid;
 
-  if (timerinfo.startTime <= 0)
+  m_title = timerinfo.GetTitle();
+  m_directory = timerinfo.GetDirectory();
+  m_channel = timerinfo.GetClientChannelUid();
+
+  if (timerinfo.GetStartTime() <= 0)
   {
     // Instant timer has starttime = 0, so set current time as starttime.
     m_startTime = CDateTime::Now();
@@ -85,33 +86,33 @@ cTimer::cTimer(const PVR_TIMER& timerinfo):
   }
   else
   {
-    m_startTime = timerinfo.startTime;
+    m_startTime = timerinfo.GetStartTime();
     m_ismanual = false;
   }
 
-  m_endTime = timerinfo.endTime;
+  m_endTime = timerinfo.GetEndTime();
   //m_firstday = timerinfo.firstday;
-  m_isrecording = (timerinfo.state == PVR_TIMER_STATE_RECORDING);
-  m_priority = XBMC2MepoPriority(timerinfo.iPriority);
+  m_isrecording = (timerinfo.GetState() == PVR_TIMER_STATE_RECORDING);
+  m_priority = XBMC2MepoPriority(timerinfo.GetPriority());
 
-  SetKeepMethod(timerinfo.iLifetime);
+  SetKeepMethod(timerinfo.GetLifetime());
 
-  m_schedtype = static_cast<enum TvDatabase::ScheduleRecordingType>(timerinfo.iTimerType - cKodiTimerTypeOffset);
+  m_schedtype = static_cast<enum TvDatabase::ScheduleRecordingType>(timerinfo.GetTimerType() - cKodiTimerTypeOffset);
   if (m_schedtype == TvDatabase::KodiManual)
   {
     m_schedtype = TvDatabase::Once;
   }
 
-  if ((m_schedtype == TvDatabase::Once) && (timerinfo.iWeekdays != PVR_WEEKDAY_NONE)) // huh, still repeating?
+  if ((m_schedtype == TvDatabase::Once) && (timerinfo.GetWeekdays() != PVR_WEEKDAY_NONE)) // huh, still repeating?
   {
     // Select the correct schedule type
-    m_schedtype = RepeatFlags2SchedRecType(timerinfo.iWeekdays);
+    m_schedtype = RepeatFlags2SchedRecType(timerinfo.GetWeekdays());
   }
 
   m_series = (m_schedtype == TvDatabase::Once) ? false : true;
 
-  m_prerecordinterval = timerinfo.iMarginStart;
-  m_postrecordinterval = timerinfo.iMarginEnd;
+  m_prerecordinterval = timerinfo.GetMarginStart();
+  m_postrecordinterval = timerinfo.GetMarginEnd();
 }
 
 
@@ -123,42 +124,40 @@ cTimer::~cTimer()
  * @brief Fills the PVR_TIMER struct with information from this timer
  * @param tag A reference to the PVR_TIMER struct
  */
-void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
+void cTimer::GetPVRtimerinfo(kodi::addon::PVRTimer &tag)
 {
-  memset(&tag, 0, sizeof(tag));
-
   if (m_parentScheduleID != MPTV_NO_PARENT_SCHEDULE)
   {
     /* Hack: use a different client index for Kodi since it does not accept multiple times the same schedule id
      * This means that all programs scheduled via a series schedule in MediaPortal will get a different client
      * index in Kodi. The iParentClientIndex will still point to the original id_Schedule in MediaPortal
      */
-    tag.iClientIndex = cKodiTimerIndexOffset + MPTV_REPEAT_NO_SERIES_OFFSET + cKodiEpgIndexOffset + m_progid;
+    tag.SetClientIndex(cKodiTimerIndexOffset + MPTV_REPEAT_NO_SERIES_OFFSET + cKodiEpgIndexOffset + m_progid);
   }
   else
   {
-    tag.iClientIndex = cKodiTimerIndexOffset + m_index;
+    tag.SetClientIndex(cKodiTimerIndexOffset + m_index);
   }
-  tag.iEpgUid = cKodiEpgIndexOffset + m_progid;
+  tag.SetEPGUid(cKodiEpgIndexOffset + m_progid);
 
   if (IsRecording())
-    tag.state           = PVR_TIMER_STATE_RECORDING;
+    tag.SetState(PVR_TIMER_STATE_RECORDING);
   else if (m_active)
-    tag.state           = PVR_TIMER_STATE_SCHEDULED;
+    tag.SetState(PVR_TIMER_STATE_SCHEDULED);
   else
-    tag.state           = PVR_TIMER_STATE_DISABLED;
+    tag.SetState(PVR_TIMER_STATE_DISABLED);
 
   if (m_schedtype == TvDatabase::EveryTimeOnEveryChannel)
   {
-    tag.iClientChannelUid = PVR_TIMER_ANY_CHANNEL;
+    tag.SetClientChannelUid(PVR_TIMER_ANY_CHANNEL);
   }
   else
   {
-    tag.iClientChannelUid = m_channel;
+    tag.SetClientChannelUid(m_channel);
   }
-  PVR_STRCPY(tag.strTitle, m_title.c_str());
-  tag.startTime = m_startTime.GetAsTime();
-  tag.endTime = m_endTime.GetAsTime();
+  tag.SetTitle(m_title);
+  tag.SetStartTime(m_startTime.GetAsTime());
+  tag.SetEndTime(m_endTime.GetAsTime());
   // From the VDR manual
   // firstday: The date of the first day when this timer shall start recording
   //           (only available for repeating timers).
@@ -166,47 +165,47 @@ void cTimer::GetPVRtimerinfo(PVR_TIMER &tag)
   {
     if (m_parentScheduleID != MPTV_NO_PARENT_SCHEDULE)
     {
-      tag.firstDay = 0;
-      tag.iParentClientIndex = (unsigned int)(cKodiTimerIndexOffset + m_parentScheduleID);
-      tag.iWeekdays = PVR_WEEKDAY_NONE;
-      tag.iTimerType = cKodiTimerTypeOffset + (int) TvDatabase::Once;
-      tag.iClientChannelUid = m_channel;
+      tag.SetFirstDay(0);
+      tag.SetParentClientIndex((unsigned int)(cKodiTimerIndexOffset + m_parentScheduleID));
+      tag.SetWeekdays(PVR_WEEKDAY_NONE);
+      tag.SetTimerType(cKodiTimerTypeOffset + (int) TvDatabase::Once);
+      tag.SetClientChannelUid(m_channel);
     }
     else
     {
-      tag.firstDay = m_startTime.GetAsTime();
-      tag.iParentClientIndex = PVR_TIMER_NO_PARENT;
-      tag.iWeekdays = RepeatFlags();
-      tag.iTimerType = cKodiTimerTypeOffset + (int) m_schedtype;
+      tag.SetFirstDay(m_startTime.GetAsTime());
+      tag.SetParentClientIndex(PVR_TIMER_NO_PARENT);
+      tag.SetWeekdays(RepeatFlags());
+      tag.SetTimerType(cKodiTimerTypeOffset + (int) m_schedtype);
     }
   }
   else
   {
-    tag.firstDay = 0;
-    tag.iParentClientIndex = PVR_TIMER_NO_PARENT;
-    tag.iWeekdays = RepeatFlags();
-    tag.iTimerType = cKodiTimerTypeOffset + (int) m_schedtype;
+    tag.SetFirstDay(0);
+    tag.SetParentClientIndex(PVR_TIMER_NO_PARENT);
+    tag.SetWeekdays(RepeatFlags());
+    tag.SetTimerType(cKodiTimerTypeOffset + (int) m_schedtype);
   }
-  tag.iPriority = Priority();
-  tag.iLifetime = GetLifetime();
-  tag.iMarginStart = m_prerecordinterval;
-  tag.iMarginEnd = m_postrecordinterval;
+  tag.SetPriority(Priority());
+  tag.SetLifetime(GetLifetime());
+  tag.SetMarginStart(m_prerecordinterval);
+  tag.SetMarginEnd(m_postrecordinterval);
   if (m_genretable)
   {
     // genre string to genre type/subtype mapping
     int genreType;
     int genreSubType;
     m_genretable->GenreToTypes(m_genre, genreType, genreSubType);
-    tag.iGenreType = genreType;
-    tag.iGenreSubType = genreSubType;
+    tag.SetGenreType(genreType);
+    tag.SetGenreSubType(genreSubType);
   }
   else
   {
-    tag.iGenreType = 0;
-    tag.iGenreSubType = 0;
+    tag.SetGenreType(0);
+    tag.SetGenreSubType(0);
   }
-  PVR_STRCPY(tag.strDirectory, m_directory.c_str());
-  PVR_STRCPY(tag.strSummary, m_description.c_str());
+  tag.SetDirectory(m_directory);
+  tag.SetSummary(m_description);
 }
 
 time_t cTimer::StartTime(void) const
@@ -270,7 +269,7 @@ bool cTimer::ParseLine(const char *s)
     m_done = stringtobool(schedulefields[8]);
     m_ismanual = stringtobool(schedulefields[9]);
     m_directory = schedulefields[10];
-    
+
     if(schedulefields.size() >= 18)
     {
       //TVServerKodi build >= 100
@@ -442,8 +441,8 @@ std::string cTimer::AddScheduleCommand()
 
   m_startTime.GetAsLocalizedTime(startTime);
   m_endTime.GetAsLocalizedTime(endTime);
-  KODI->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
-  KODI->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
+  kodi::Log(ADDON_LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
+  kodi::Log(ADDON_LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
 
   snprintf(command, 1023, "AddSchedule:%i|%s|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i\n",
           m_channel,                                                         //Channel number [0]
@@ -468,8 +467,8 @@ std::string cTimer::UpdateScheduleCommand()
 
   m_startTime.GetAsLocalizedTime(startTime);
   m_endTime.GetAsLocalizedTime(endTime);
-  KODI->Log(LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
-  KODI->Log(LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
+  kodi::Log(ADDON_LOG_DEBUG, "Start time: %s, marginstart: %i min earlier", startTime.c_str(), m_prerecordinterval);
+  kodi::Log(ADDON_LOG_DEBUG, "End time: %s, marginstop: %i min later", endTime.c_str(), m_postrecordinterval);
 
   snprintf(command, 1024, "UpdateSchedule:%i|%i|%i|%s|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i|%i\n",
           m_index,                                                           //Schedule index [0]
@@ -589,95 +588,85 @@ cLifeTimeValues::cLifeTimeValues()
 {
   /* Prepare the list with Lifetime values and descriptions */
   // MediaPortal keep methods:
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_ALWAYS, KODI->GetLocalizedString(30133)));
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_SPACE_NEEDED, KODI->GetLocalizedString(30130)));
-  m_lifetimeValues.push_back(std::make_pair(-MPTV_KEEP_UNTIL_WATCHED, KODI->GetLocalizedString(30131)));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_ALWAYS, kodi::GetLocalizedString(30133));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_SPACE_NEEDED, kodi::GetLocalizedString(30130));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_WATCHED, kodi::GetLocalizedString(30131));
 
   //Not directly supported by Kodi. I can add this, but there is no way to select the date
-  //m_lifetimeValues.push_back(std::make_pair(TvDatabase::TillDate, KODI->GetLocalizedString(30132)));
+  //m_lifetimeValues.emplace_back(TvDatabase::TillDate, kodi::GetLocalizedString(30132));
 
   // MediaPortal Until date replacements:
-  const char* strWeeks = KODI->GetLocalizedString(30137); // %d weeks
-  const char* strMonths = KODI->GetLocalizedString(30139); // %d months
+  const std::string strWeeks = kodi::GetLocalizedString(30137); // %d weeks
+  const std::string strMonths = kodi::GetLocalizedString(30139); // %d months
   const size_t cKeepStringLength = 255;
   char strKeepString[cKeepStringLength];
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_WEEK, KODI->GetLocalizedString(30134)));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_WEEK, kodi::GetLocalizedString(30134));
 
-  snprintf(strKeepString, cKeepStringLength, strWeeks, 2);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_TWO_WEEKS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strWeeks.c_str(), 2);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_TWO_WEEKS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strWeeks, 3);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_THREE_WEEKS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strWeeks.c_str(), 3);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_THREE_WEEKS, strKeepString);
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_MONTH, KODI->GetLocalizedString(30138)));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_MONTH, kodi::GetLocalizedString(30138));
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 2);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_TWO_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 2);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_TWO_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 3);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_THREE_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 3);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_THREE_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 4);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_FOUR_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 4);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_FOUR_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 5);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_FIVE_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 5);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_FIVE_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 6);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_SIX_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 6);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_SIX_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 7);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_SEVEN_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 7);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_SEVEN_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 8);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_EIGHT_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 8);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_EIGHT_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 9);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_NINE_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 9);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_NINE_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 10);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_TEN_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 10);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_TEN_MONTHS, strKeepString);
 
-  snprintf(strKeepString, cKeepStringLength, strMonths, 11);
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ELEVEN_MONTHS, strKeepString));
+  snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 11);
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ELEVEN_MONTHS, strKeepString);
 
-  m_lifetimeValues.push_back(std::make_pair(MPTV_KEEP_ONE_YEAR, KODI->GetLocalizedString(30140)));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_YEAR, kodi::GetLocalizedString(30140));
 }
 
-void cLifeTimeValues::SetLifeTimeValues(PVR_TIMER_TYPE& timertype)
+void cLifeTimeValues::SetLifeTimeValues(kodi::addon::PVRTimerType& timertype)
 {
-  timertype.iLifetimesSize = static_cast<unsigned int>(m_lifetimeValues.size());
-  timertype.iLifetimesDefault = -MPTV_KEEP_ALWAYS; //Negative = special types, positive values is days
+  timertype.SetLifetimes(m_lifetimeValues, -MPTV_KEEP_ALWAYS); //Negative = special types, positive values is days
 
   //select default keep method
-  switch (g_KeepMethodType)
+  switch (CSettings::Get().GetKeepMethodType())
   {
     case TvDatabase::UntilSpaceNeeded: //until space needed
-      timertype.iLifetimesDefault = -MPTV_KEEP_UNTIL_SPACE_NEEDED; //Negative = special types, positive values is days
+      timertype.SetLifetimesDefault(-MPTV_KEEP_UNTIL_SPACE_NEEDED); //Negative = special types, positive values is days
       break;
 
     case TvDatabase::UntilWatched: //until watched
-      timertype.iLifetimesDefault = -MPTV_KEEP_UNTIL_WATCHED; //Negative = special types, positive values is days
+      timertype.SetLifetimesDefault(-MPTV_KEEP_UNTIL_WATCHED); //Negative = special types, positive values is days
       break;
 
     case TvDatabase::TillDate: //until keepdate
       //use defaultrecordinglifetime value from settings.xml
-      timertype.iLifetimesDefault = g_DefaultRecordingLifeTime;
+      timertype.SetLifetimesDefault(CSettings::Get().GetDefaultRecordingLifeTime());
       break;
 
     case TvDatabase::Always: //forever
     default:
       break;
-  }
-
-
-  int i = 0;
-  std::vector<std::pair<int, std::string>>::iterator it;
-  for (it = m_lifetimeValues.begin(); ((it != m_lifetimeValues.end()) && (i < PVR_ADDON_TIMERTYPE_VALUES_ARRAY_SIZE)); ++it, ++i)
-  {
-    timertype.lifetimes[i].iValue = it->first;
-    PVR_STRCPY(timertype.lifetimes[i].strDescription, it->second.c_str());
   }
 }
 

@@ -32,10 +32,8 @@
 #include "p8-platform/os.h"
 #include "MemorySink.h"
 #include "GroupsockHelper.hh"
-#include "client.h"
+#include <kodi/General.h> //for kodi::Log
 #include "utils.h"
-
-using namespace ADDON;
 
 #define SUBMIT_BUF_SIZE (1316*30)
 
@@ -70,7 +68,7 @@ Boolean CMemorySink::continuePlaying()
   return True;
 }
 
-void CMemorySink::afterGettingFrame(void* clientData, unsigned frameSize, unsigned /*numTruncatedBytes*/, struct timeval presentationTime, unsigned /*durationInMicroseconds*/) 
+void CMemorySink::afterGettingFrame(void* clientData, unsigned frameSize, unsigned /*numTruncatedBytes*/, struct timeval presentationTime, unsigned /*durationInMicroseconds*/)
 {
   CMemorySink* sink = (CMemorySink*)clientData;
   sink->afterGettingFrame1(frameSize, presentationTime);
@@ -83,7 +81,7 @@ void CMemorySink::addData(unsigned char* data, size_t dataSize, struct timeval U
 
   if (m_bReEntrant)
   {
-    KODI->Log(LOG_DEBUG, "REENTRANT IN MEMORYSINK.CPP");
+    kodi::Log(ADDON_LOG_DEBUG, "REENTRANT IN MEMORYSINK.CPP");
     return;
   }
 

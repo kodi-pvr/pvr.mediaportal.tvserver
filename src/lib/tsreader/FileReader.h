@@ -35,6 +35,7 @@
 
 #include "p8-platform/os.h" // for __stat
 #include <string>
+#include <kodi/Filesystem.h>
 
 namespace MPTV
 {
@@ -60,7 +61,7 @@ namespace MPTV
         virtual size_t HasData(){ return 0; };
 
     protected:
-        void*       m_hFile;               // Handle to file for streaming
+        kodi::vfs::CFile m_hFile;         // Handle to file for streaming
         std::string m_fileName;           // The filename where we read from
         int64_t     m_fileSize;
     };

@@ -8,12 +8,12 @@
 #pragma once
 
 #include <stdlib.h>
-#include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_pvr.h"
 #include "Cards.h"
 #include "GenreTable.h"
 #include "DateTime.h"
 #include "channels.h"
+
+#include <kodi/addon-instance/pvr/Recordings.h>
 
 #define DEFAULTFRAMESPERSECOND 25.0
 #define MAXPRIORITY 99
