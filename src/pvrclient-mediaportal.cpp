@@ -2450,7 +2450,7 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamTimes(kodi::addon::PVRStreamTimes& str
     stream_times.SetStartTime(0); // seconds
     stream_times.SetPTSStart(0);  // Unit must match Kodi's internal m_clock.GetClock() which is in useconds
     stream_times.SetPTSBegin(0);  // useconds
-    stream_times.SetPTSEnd(((int64_t)m_lastSelectedRecording->Duration()) * DVD_TIME_BASE); //useconds
+    stream_times.SetPTSEnd(((int64_t)m_lastSelectedRecording->Duration()) * STREAM_TIME_BASE); //useconds
     return PVR_ERROR_NO_ERROR;
   }
   else if (m_bTimeShiftStarted)
