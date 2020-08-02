@@ -1,3 +1,7 @@
+v6.0.1
+- Fix build error on Debian if system live555 is not found
+- Fix spelling error identified by Lintian
+
 v6.0.0
 - Update PVR API 7.0.0
 - Rework addon to support new API interface

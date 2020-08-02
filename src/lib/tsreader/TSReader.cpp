@@ -249,7 +249,7 @@ namespace MPTV
             m_State = State_Running;
 #else
             kodi::Log(ADDON_LOG_ERROR, "Failed to open %s. PVR client is compiled without LIVE555 RTSP support.", m_fileName.c_str());
-            KODI->QueueNotification(QUEUE_ERROR, "PVR client has no RTSP support: %s", m_fileName.c_str());
+            kodi::QueueNotification(QUEUE_ERROR, "PVR client has no RTSP support: %s", m_fileName.c_str());
             return E_FAIL;
 #endif //LIVE555
         }

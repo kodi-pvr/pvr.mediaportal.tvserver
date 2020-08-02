@@ -276,7 +276,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
     // Advice to upgrade:
     if( g_iTVServerKodiBuild < TVSERVERKODI_RECOMMENDED_VERSION_BUILD )
     {
-      kodi::Log(ADDON_LOG_INFO, "It is adviced to upgrade your TVServerKodi version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_RECOMMENDED_VERSION_STRING);
+      kodi::Log(ADDON_LOG_INFO, "It is advised to upgrade your TVServerKodi version '%s' to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_RECOMMENDED_VERSION_STRING);
     }
   }
 
