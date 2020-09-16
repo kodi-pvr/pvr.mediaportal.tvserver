@@ -30,7 +30,7 @@ private:
   bool OnClick(int controlId) override;
   bool OnFocus(int controlId) override;
   bool OnInit() override;
-  bool OnAction(int actionId, uint32_t buttoncode, wchar_t unicode) override;
+  bool OnAction(ADDON_ACTION actionId) override;
 
   // Specific for this dialog:
   std::shared_ptr<kodi::gui::controls::CSpin> m_spinFrequency;
