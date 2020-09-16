@@ -12,7 +12,6 @@
 #include "p8-platform/util/StringUtils.h"
 
 #include <kodi/General.h>
-#include <kodi/ActionIDs.h>
 
 /* Dialog item identifiers */
 #define BUTTON_OK                       1
@@ -239,10 +238,10 @@ bool CGUIDialogRecordSettings::OnFocus(int controlId)
  * Returning "true" tells XBMC that we already handled the action, returing "false"
  * passes action to the XBMC internal OnAction() function
  */
-bool CGUIDialogRecordSettings::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
+bool CGUIDialogRecordSettings::OnAction(ADDON_ACTION actionId)
 {
   //kodi::Log(ADDON_ADDON::LOG_DEBUG, "%s: action = %i\n", __FUNCTION__, actionId);
-  if (actionId == ACTION_PREVIOUS_MENU || actionId == ACTION_NAV_BACK)
+  if (actionId == ADDON_ACTION_PREVIOUS_MENU || actionId == ADDON_ACTION_NAV_BACK)
     return OnClick(BUTTON_CANCEL);
   else
     /* return false to tell XBMC that it should take over */

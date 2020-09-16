@@ -1,3 +1,6 @@
+v7.0.0
+- Update GUI API 5.15.0
+
 v6.0.1
 - Fix build error on Debian if system live555 is not found
 - Fix spelling error identified by Lintian
