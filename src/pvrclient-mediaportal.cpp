@@ -42,6 +42,15 @@ int g_iTVServerKodiBuild = 0;
 #define TVSERVERKODI_RECOMMENDED_VERSION_STRING "1.2.3.122 till 1.20.0.140"
 #define TVSERVERKODI_RECOMMENDED_VERSION_BUILD  140
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
+
 /************************************************************/
 /** Class interface */
 
@@ -75,10 +84,10 @@ cPVRClientMediaPortal::~cPVRClientMediaPortal()
   kodi::Log(ADDON_LOG_DEBUG, "->~cPVRClientMediaPortal()");
   Disconnect();
 
-  SAFE_DELETE(Timer::lifetimeValues);
-  SAFE_DELETE(m_tcpclient);
-  SAFE_DELETE(m_genretable);
-  SAFE_DELETE(m_lastSelectedRecording);
+  SafeDelete(Timer::lifetimeValues);
+  SafeDelete(m_tcpclient);
+  SafeDelete(m_genretable);
+  SafeDelete(m_lastSelectedRecording);
 }
 
 string cPVRClientMediaPortal::SendCommand(const char* command)
@@ -321,7 +330,7 @@ void cPVRClientMediaPortal::Disconnect()
       if ((CSettings::Get().GetStreamingMethod()==TSReader) && (m_tsreader != NULL))
       {
         m_tsreader->Close();
-        SAFE_DELETE(m_tsreader);
+        SafeDelete(m_tsreader);
       }
       SendCommand("StopTimeshift:\n");
     }
@@ -1748,7 +1757,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
     m_iCurrentChannel = -1;
     if (m_tsreader != nullptr)
     {
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     return false;
   }
@@ -1959,7 +1968,7 @@ void cPVRClientMediaPortal::CloseLiveStream(void)
     if (CSettings::Get().GetStreamingMethod() == TSReader && m_tsreader)
     {
       m_tsreader->Close();
-      SAFE_DELETE(m_tsreader);
+      SafeDelete(m_tsreader);
     }
     result = SendCommand("StopTimeshift:\n");
     kodi::Log(ADDON_LOG_INFO, "CloseLiveStream: %s", result.c_str());
@@ -2141,7 +2150,7 @@ void cPVRClientMediaPortal::CloseRecordedStream(void)
   {
     kodi::Log(ADDON_LOG_INFO, "CloseRecordedStream: Stop TSReader...");
     m_tsreader->Close();
-    SAFE_DELETE(m_tsreader);
+    SafeDelete(m_tsreader);
   }
   else
   {
@@ -2409,7 +2418,7 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const kodi::addon::PVRRecord
     {
       return m_lastSelectedRecording;
     }
-    SAFE_DELETE(m_lastSelectedRecording);
+    SafeDelete(m_lastSelectedRecording);
   }
 
   if (!IsUp())

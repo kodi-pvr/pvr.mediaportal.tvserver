@@ -48,6 +48,15 @@ using namespace P8PLATFORM;
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
+
 namespace MPTV
 {
     MultiFileReader::MultiFileReader() :
@@ -484,7 +493,7 @@ namespace MPTV
 
                 TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
 
-                SAFE_DELETE(file);
+                SafeDelete(file);
                 m_tsFiles.erase(m_tsFiles.begin());
 
                 filesToRemove--;

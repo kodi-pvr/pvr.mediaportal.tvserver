@@ -44,6 +44,15 @@
 
 using namespace std;
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
+
 namespace MPTV
 {
     CTsReader::CTsReader() : m_demultiplexer(*this),
@@ -69,10 +78,10 @@ namespace MPTV
 
     CTsReader::~CTsReader(void)
     {
-        SAFE_DELETE(m_fileReader);
+        SafeDelete(m_fileReader);
 #ifdef LIVE555
-        SAFE_DELETE(m_buffer);
-        SAFE_DELETE(m_rtspClient);
+        SafeDelete(m_buffer);
+        SafeDelete(m_rtspClient);
 #endif
     }
 
@@ -225,8 +234,8 @@ namespace MPTV
 
             if ( !m_rtspClient->OpenStream(m_fileName.c_str()) )
             {
-                SAFE_DELETE(m_rtspClient);
-                SAFE_DELETE(m_buffer);
+                SafeDelete(m_rtspClient);
+                SafeDelete(m_buffer);
                 return E_FAIL;
             }
 
@@ -318,8 +327,8 @@ namespace MPTV
 #ifdef LIVE555
                 kodi::Log(ADDON_LOG_INFO, "TsReader: closing RTSP client");
                 m_rtspClient->Stop();
-                SAFE_DELETE(m_rtspClient);
-                SAFE_DELETE(m_buffer);
+                SafeDelete(m_rtspClient);
+                SafeDelete(m_buffer);
 #endif
             }
             else
@@ -327,7 +336,7 @@ namespace MPTV
                 kodi::Log(ADDON_LOG_INFO, "TsReader: closing file");
                 m_fileReader->CloseFile();
             }
-            SAFE_DELETE(m_fileReader);
+            SafeDelete(m_fileReader);
             m_State = State_Stopped;
         }
     }

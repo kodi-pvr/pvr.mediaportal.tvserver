@@ -31,7 +31,6 @@
 
 #include "p8-platform/util/timeutils.h"
 #include "p8-platform/threads/mutex.h"
-#include "p8-platform/util/util.h"
 #include "MemoryBuffer.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
@@ -57,13 +56,15 @@ bool CMemoryBuffer::IsRunning()
 void CMemoryBuffer::Clear()
 {
   P8PLATFORM::CLockObject BufferLock(m_BufferLock);
-  std::vector<BufferItem *>::iterator it = m_Array.begin();
 
-  for ( ; it != m_Array.end(); ++it )
+  for (auto& item : m_Array)
   {
-    BufferItem *item = *it;
-    SAFE_DELETE_ARRAY(item->data);
-    SAFE_DELETE(item);
+    if (item)
+    {
+      if (item->data)
+        delete[] item->data;
+      delete item;
+    }
   }
 
   m_Array.clear();
@@ -150,8 +151,9 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
     if (item->nOffset >= item->nDataLength)
     {
       m_Array.erase(m_Array.begin());
-      SAFE_DELETE_ARRAY(item->data);
-      SAFE_DELETE(item);
+      if (item->data)
+        delete[] item->data;
+      delete item;
     }
   }
   return bytesWritten;
@@ -182,8 +184,9 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
 
       m_BytesInBuffer -= copyLength;
       m_Array.erase(m_Array.begin());
-      SAFE_DELETE_ARRAY(item2->data);
-      SAFE_DELETE(item2);
+      if (item2->data)
+        delete[] item2->data;
+      delete item2;
     }
     if (m_BytesInBuffer > 0)
     {
