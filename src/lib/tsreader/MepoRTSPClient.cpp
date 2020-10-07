@@ -18,12 +18,13 @@
 
 #if defined LIVE555
 
-#include "p8-platform/util/timeutils.h"
 #include "MepoRTSPClient.h"
 #include "MemorySink.h"
 #include <kodi/General.h> //for kodi::Log
 #include "utils.h"
 #include "os-dependent.h"
+
+#include <thread>
 
 CRTSPClient::CRTSPClient()
 {
@@ -531,7 +532,7 @@ void CRTSPClient::FillBuffer(unsigned long byteCount)
 
   while ( IsRunning() && m_buffer->Size() < byteCount)
   {
-    usleep(5000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (GetTickCount64() - tickCount > 3000)
       break;
   }

@@ -37,10 +37,10 @@
 #include "TSDebug.h"
 #include "p8-platform/threads/threads.h"
 #include <algorithm> //std::min, std::max
-#include "p8-platform/util/timeutils.h" // for usleep
 #include "utils.h"
 #include <errno.h>
 
+#include <thread>
 
 /* indicate that caller can handle truncated reads, where function returns before entire buffer has been filled */
 #define READ_TRUNCATED 0x01
@@ -145,7 +145,8 @@ namespace MPTV
                     }
                 }
             }
-            usleep(20000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
         } while (--Tmo);
 
         if (Tmo)

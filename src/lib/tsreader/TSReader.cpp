@@ -33,7 +33,6 @@
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "TSDebug.h"
-#include "p8-platform/util/timeutils.h"
 #include <kodi/tools/StringUtils.h>
 #ifdef LIVE555
 #include "MemoryReader.h"
@@ -41,6 +40,8 @@
 #include "MemoryBuffer.h"
 #endif
 #include "FileUtils.h"
+
+#include <thread>
 
 using namespace std;
 
@@ -396,7 +397,7 @@ namespace MPTV
                 fileReader->OnChannelChange();
 
                 kodi::Log(ADDON_LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
-                usleep(100000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
                 // Set the stream start times to this new channel
                 time(&m_startTime);

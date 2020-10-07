@@ -39,9 +39,10 @@
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "p8-platform/util/timeutils.h"
 #include "p8-platform/threads/threads.h"
 #include <inttypes.h>
+
+#include <thread>
 
 using namespace P8PLATFORM;
 
@@ -112,7 +113,7 @@ namespace MPTV
             retryCount++;
             kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
             m_TSBufferFile.CloseFile();
-            usleep(100000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             hResult = m_TSBufferFile.OpenFile();
             kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
         }
@@ -124,7 +125,7 @@ namespace MPTV
 
             do
             {
-                usleep(100000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 if (timeout.TimeLeft() == 0)
                 {
                     kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
@@ -457,7 +458,7 @@ namespace MPTV
                 // try to clear local / remote SMB file cache. This should happen when we close the filehandle
                 m_TSBufferFile.CloseFile();
                 m_TSBufferFile.OpenFile();
-                usleep(5000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
 
             if (Error)

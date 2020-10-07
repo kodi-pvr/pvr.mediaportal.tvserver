@@ -29,11 +29,12 @@
 
 #ifdef LIVE555
 
-#include "p8-platform/util/timeutils.h"
 #include "p8-platform/threads/mutex.h"
 #include "MemoryBuffer.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
+
+#include <thread>
 
 #define MAX_MEMORY_BUFFER_SIZE (1024L*1024L*12L)
 
@@ -196,7 +197,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
 
   if (sleep)
   {
-    usleep(10000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   return S_OK;
 }

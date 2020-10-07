@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <clocale>
 
-#include "p8-platform/util/timeutils.h"
 #include <kodi/tools/StringUtils.h>
 
 #include "timers.h"
@@ -28,6 +27,8 @@
 
 #include <kodi/General.h>
 #include <kodi/Filesystem.h>
+
+#include <thread>
 
 using namespace kodi::tools;
 using namespace std;
@@ -389,7 +390,7 @@ void* cPVRClientMediaPortal::Process(void)
     if (keepWaiting)
     {
       // Wait for 1 minute before re-trying
-      usleep(60000000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(60000));
     }
   }
   SetConnectionState(state);
@@ -1571,7 +1572,8 @@ PVR_ERROR cPVRClientMediaPortal::AddTimer(const kodi::addon::PVRTimer& timerinfo
   if (timerinfo.GetStartTime() <= 0)
   {
     // Refresh the recordings list to see the newly created recording
-    usleep(100000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
   }
 
@@ -1785,7 +1787,8 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
       kodi::Log(ADDON_LOG_INFO, "Channel timeshift buffer: %s", timeshiftfields[2].c_str());
       if (channelinfo.GetIsRadio())
       {
-        usleep(100000); // 100 ms sleep to allow the buffer to fill
+        // 100 ms sleep to allow the buffer to fill
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
     }
     else
@@ -1796,7 +1799,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
     if (CSettings::Get().GetSleepOnRTSPurl() > 0)
     {
       kodi::Log(ADDON_LOG_INFO, "Sleeping %i ms before opening stream: %s", CSettings::Get().GetSleepOnRTSPurl(), timeshiftfields[0].c_str());
-      usleep(CSettings::Get().GetSleepOnRTSPurl() * 1000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(CSettings::Get().GetSleepOnRTSPurl()));
     }
 
     // Check the returned stream URL. When the URL is an rtsp stream, we need
@@ -1878,7 +1881,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
           CloseLiveStream();
           return false;
         }
-        usleep(400000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(400));
       }
     }
 
@@ -1924,7 +1927,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
 
     if (m_tsreader->Read(bufptr, read_wanted, &read_wanted) > 0)
     {
-      usleep(20000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
       read_timeouts++;
       return static_cast<int>(read_wanted);
     }
@@ -1948,7 +1951,7 @@ int cPVRClientMediaPortal::ReadLiveStream(unsigned char *pBuffer, unsigned int i
       }
       bufptr += read_wanted;
       read_timeouts++;
-      usleep(10000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
   }
   read_timeouts = 0;
@@ -2175,7 +2178,7 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
 
     if (m_tsreader->Read(bufptr, read_wanted, &read_wanted) > 0)
     {
-      usleep(20000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
       return static_cast<int>(read_wanted);
     }
     read_done += read_wanted;
@@ -2183,7 +2186,7 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
     if ( read_done < static_cast<size_t>(iBufferSize) )
     {
       bufptr += read_wanted;
-      usleep(20000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
   }
 
