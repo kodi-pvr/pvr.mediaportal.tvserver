@@ -9,9 +9,9 @@
 #include "timers.h"
 #include "utils.h"
 #include "DateTime.h"
-#include "p8-platform/util/StringUtils.h"
 
 #include <kodi/General.h>
+#include <kodi/tools/StringUtils.h>
 
 /* Dialog item identifiers */
 #define BUTTON_OK                       1
@@ -106,7 +106,7 @@ bool CGUIDialogRecordSettings::OnInit()
 
   // Populate PreRecord spin control
   std::string marginStart;
-  marginStart = StringUtils::Format("%d (%s)", m_timerinfo.GetMarginStart(), kodi::GetLocalizedString(30136).c_str());
+  marginStart = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginStart(), kodi::GetLocalizedString(30136).c_str());
   m_spinPreRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   m_spinPreRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
   m_spinPreRecord->AddLabel(marginStart, m_timerinfo.GetMarginStart()); //value from XBMC
@@ -120,7 +120,7 @@ bool CGUIDialogRecordSettings::OnInit()
 
   // Populate PostRecord spin control
   std::string marginEnd;
-  marginEnd = StringUtils::Format("%d (%s)", m_timerinfo.GetMarginEnd(), kodi::GetLocalizedString(30136).c_str());
+  marginEnd = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginEnd(), kodi::GetLocalizedString(30136).c_str());
   m_spinPostRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   m_spinPostRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
   m_spinPostRecord->AddLabel(marginEnd, m_timerinfo.GetMarginEnd()); //value from XBMC

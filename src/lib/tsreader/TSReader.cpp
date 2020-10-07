@@ -34,7 +34,7 @@
 #include "utils.h"
 #include "TSDebug.h"
 #include "p8-platform/util/timeutils.h"
-#include "p8-platform/util/StringUtils.h"
+#include <kodi/tools/StringUtils.h>
 #ifdef LIVE555
 #include "MemoryReader.h"
 #include "MepoRTSPClient.h"
@@ -104,7 +104,7 @@ namespace MPTV
             {
                 if (!tscard.TimeshiftFolderUNC.empty())
                 {
-                    StringUtils::Replace(sFileName, tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
+                    kodi::tools::StringUtils::Replace(sFileName, tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
                     bFound = true;
                 }
                 else
@@ -129,7 +129,7 @@ namespace MPTV
                         if (!it->RecordingFolderUNC.empty())
                         {
                             // Remove the original base path and replace it with the given path
-                            StringUtils::Replace(sFileName, it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
+                            kodi::tools::StringUtils::Replace(sFileName, it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
                             bFound = true;
                             break;
                         }
@@ -412,8 +412,8 @@ namespace MPTV
         if (tmp.find("smb://") != string::npos)
         {
           // Convert XBMC smb share name back to a real windows network share...
-          StringUtils::Replace(tmp, "smb://", "\\\\");
-          StringUtils::Replace(tmp, "/", "\\");
+          kodi::tools::StringUtils::Replace(tmp, "smb://", "\\\\");
+          kodi::tools::StringUtils::Replace(tmp, "/", "\\");
         }
 #else
         //TODO: do something useful...

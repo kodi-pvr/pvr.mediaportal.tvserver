@@ -13,8 +13,9 @@
 #include "settings.h"
 #include <string>
 #include <stdio.h>
-#include "p8-platform/util/StringUtils.h"
+#include <kodi/tools/StringUtils.h>
 
+using namespace kodi::tools;
 using namespace std;
 
 void Tokenize(const string& str, vector<string>& tokens, const string& delimiters = " ")

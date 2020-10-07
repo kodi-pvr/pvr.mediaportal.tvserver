@@ -11,7 +11,7 @@
 #include <clocale>
 
 #include "p8-platform/util/timeutils.h"
-#include "p8-platform/util/StringUtils.h"
+#include <kodi/tools/StringUtils.h>
 
 #include "timers.h"
 #include "channels.h"
@@ -29,6 +29,7 @@
 #include <kodi/General.h>
 #include <kodi/Filesystem.h>
 
+using namespace kodi::tools;
 using namespace std;
 using namespace MPTV;
 
