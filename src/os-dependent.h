@@ -7,29 +7,33 @@
 
 #pragma once
 
-#include "p8-platform/os.h"
+#include <cstdint>
 
-#ifdef TARGET_LINUX
-// Retrieve the number of milliseconds that have elapsed since the system was started
-#include <time.h>
+#if (defined(_WIN32) || defined(_WIN64))
+
+#ifndef _SSIZE_T_DEFINED
+#ifdef  _WIN64
+typedef __int64    ssize_t;
+#else
+typedef _W64 int   ssize_t;
+#endif
+#define _SSIZE_T_DEFINED
+#endif
+
+#else
+
+#if (defined(TARGET_LINUX) || defined(TARGET_DARWIN))
+#include <sys/types.h>
+#include <chrono>
+#include <cstring>
 inline unsigned long long GetTickCount64(void)
 {
-  struct timespec ts;
-  if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-  {
-    return 0;
-  }
-  return (unsigned long long)( (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000) );
-};
-#elif defined(TARGET_DARWIN)
-#include <time.h>
-inline unsigned long long GetTickCount64(void)
-{
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (unsigned long long)( (tv.tv_sec * 1000) + (tv.tv_usec / 1000) );
+  auto now = std::chrono::steady_clock::now();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 };
 #endif /* TARGET_LINUX || TARGET_DARWIN */
+
+#endif
 
 // Additional typedefs
 typedef uint8_t byte;

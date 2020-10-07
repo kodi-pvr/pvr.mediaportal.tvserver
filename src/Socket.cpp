@@ -7,7 +7,6 @@
 
 #include "utils.h"
 #include <string>
-#include "p8-platform/os.h"
 #include "Socket.h"
 
 #include <kodi/General.h>

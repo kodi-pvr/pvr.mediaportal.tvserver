@@ -11,7 +11,6 @@
 
 using namespace std;
 
-#include "p8-platform/os.h" //needed for snprintf
 #include "timers.h"
 #include "settings.h"
 #include "utils.h"

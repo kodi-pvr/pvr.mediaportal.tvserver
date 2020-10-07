@@ -6,12 +6,16 @@
  */
 
 #include "../FileUtils.h"
-#include "p8-platform/os.h"
 #include "p8-platform/windows/CharsetConverter.h"
 #include <string>
 #include "../utils.h"
 #ifdef TARGET_WINDOWS_DESKTOP
 #include <Shlobj.h>
+#endif
+
+#ifdef TARGET_WINDOWS
+#include <windows.h>
+#include <fileapi.h>
 #endif
 
 namespace OS

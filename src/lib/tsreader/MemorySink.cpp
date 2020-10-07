@@ -29,7 +29,6 @@
 
 #if defined LIVE555
 
-#include "p8-platform/os.h"
 #include "MemorySink.h"
 #include "GroupsockHelper.hh"
 #include <kodi/General.h> //for kodi::Log
