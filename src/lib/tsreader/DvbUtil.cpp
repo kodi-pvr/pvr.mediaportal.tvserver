@@ -77,7 +77,7 @@ namespace MPTV
     //*******************************************************************
     uint32_t crc32(char *data, int len)
     {
-        int i;
+        register int i;
         uint32_t crc = 0xffffffff;
 
         for (i = 0; i < len; i++)
