@@ -4,7 +4,6 @@ project(pvr.mediaportal.tvserver)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 find_package(Kodi REQUIRED)
-find_package(p8-platform REQUIRED)
 find_package(TinyXML REQUIRED)
 
 set(LIVE555_INCLUDE_DIR
@@ -17,8 +16,7 @@ set(LIVE555_INCLUDE_DIR
 
 set(LIVE555_DEFINES -DLIVE555 -D_WINSOCK_DEPRECATED_NO_WARNINGS -DSOCKLEN_T=socklen_t -DBSD=1)
 
-include_directories(${p8-platform_INCLUDE_DIRS}
-                    ${TINYXML_INCLUDE_DIR}
+include_directories(${TINYXML_INCLUDE_DIR}
                     ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${PROJECT_SOURCE_DIR}/src
                     ${PROJECT_BINARY_DIR}
@@ -229,8 +227,7 @@ source_group("Header Files\\lib\\live555" FILES ${LIVE555_HEADERS})
 # Make sure that CMake adds all files to the MSVC project
 list(APPEND MPTV_SOURCES ${MPTV_HEADERS} ${TSREADER_SOURCES} ${TSREADER_HEADERS} ${LIVE555_SOURCES} ${LIVE555_HEADERS})
 
-set(DEPLIBS ${p8-platform_LIBRARIES}
-            ${TINYXML_LIBRARIES})
+set(DEPLIBS ${TINYXML_LIBRARIES})
 
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
