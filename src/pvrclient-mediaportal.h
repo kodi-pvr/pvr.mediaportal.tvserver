@@ -7,6 +7,10 @@
 
 #pragma once
 
+#include <atomic>
+#include <chrono>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 /* Master defines for client control */
@@ -17,8 +21,6 @@
 #include "Cards.h"
 #include "epg.h"
 #include "channels.h"
-#include "p8-platform/threads/mutex.h"
-#include "p8-platform/threads/threads.h"
 
 /* Use a forward declaration here. Including RTSPClient.h via TSReader.h at this point gives compile errors */
 namespace MPTV
@@ -28,9 +30,7 @@ namespace MPTV
 class cRecording;
 
 class ATTRIBUTE_HIDDEN cPVRClientMediaPortal
-  : public kodi::addon::CInstancePVRClient,
-    public P8PLATFORM::PreventCopy,
-    public P8PLATFORM::CThread
+  : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
@@ -110,7 +110,7 @@ protected:
 
 private:
   /* TVServerKodi Listening Thread */
-  void* Process(void);
+  void Process();
   PVR_CONNECTION_STATE Connect(bool updateConnectionState = true);
 
   void LoadGenreTable(void);
@@ -134,9 +134,9 @@ private:
   time_t                  m_BackendTime;
   CCards                  m_cCards;
   CGenreTable*            m_genretable;
-  P8PLATFORM::CMutex      m_mutex;
-  P8PLATFORM::CMutex      m_connectionMutex;
-  int64_t                 m_iLastRecordingUpdate;
+  std::mutex              m_mutex;
+  std::mutex              m_connectionMutex;
+  std::chrono::system_clock::time_point m_iLastRecordingUpdate;
   MPTV::CTsReader*        m_tsreader;
   std::map<int,cChannel>  m_channels;
   int                     m_signalStateCounter;
@@ -144,6 +144,9 @@ private:
   int                     m_iSNR;
 
   cRecording*             m_lastSelectedRecording;
+
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 
   //Used for TV Server communication:
   std::string SendCommand(const char* command);

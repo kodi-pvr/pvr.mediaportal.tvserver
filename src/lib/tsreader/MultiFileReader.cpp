@@ -35,16 +35,15 @@
 #include "MultiFileReader.h"
 #include <kodi/General.h> //for kodi::Log
 #include <kodi/Filesystem.h>
+#include <kodi/tools/EndTime.h>
 #include "TSDebug.h"
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "p8-platform/threads/threads.h"
 #include <inttypes.h>
+#include "os-dependent.h"
 
 #include <thread>
-
-using namespace P8PLATFORM;
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
@@ -121,12 +120,12 @@ namespace MPTV
         if (RefreshTSBufferFile() == S_FALSE)
         {
             // For radio the buffer sometimes needs some time to become available, so wait and try it more than once
-            P8PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
+            kodi::tools::CEndTime timeout(MAX_BUFFER_TIMEOUT);
 
             do
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                if (timeout.TimeLeft() == 0)
+                if (timeout.MillisLeft() == 0)
                 {
                     kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
                     kodi::QueueNotification(QUEUE_ERROR, "", "Time out while waiting for buffer file");

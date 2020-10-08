@@ -28,8 +28,6 @@
 #include <kodi/General.h>
 #include <kodi/Filesystem.h>
 
-#include <thread>
-
 using namespace kodi::tools;
 using namespace std;
 using namespace MPTV;
@@ -70,7 +68,6 @@ cPVRClientMediaPortal::cPVRClientMediaPortal(KODI_HANDLE instance, const std::st
   m_BackendTime            = 0;
   m_tsreader               = NULL;
   m_genretable             = NULL;
-  m_iLastRecordingUpdate   = 0;
   m_signalStateCounter     = 0;
   m_iSignal                = 0;
   m_iSNR                   = 0;
@@ -99,7 +96,7 @@ string cPVRClientMediaPortal::SendCommand(const char* command)
 
 string cPVRClientMediaPortal::SendCommand(const string& command)
 {
-  P8PLATFORM::CLockObject critsec(m_mutex);
+  std::lock_guard<std::mutex> critsec(m_mutex);
 
   if ( !m_tcpclient->send(command) )
   {
@@ -174,10 +171,10 @@ ADDON_STATUS cPVRClientMediaPortal::TryConnect()
     case PVR_CONNECTION_STATE_SERVER_UNREACHABLE:
       kodi::Log(ADDON_LOG_ERROR, "Could not connect to MediaPortal TV Server backend.");
       // Start background thread for connecting to the backend
-      if (!IsRunning())
+      if (!m_running)
       {
-        kodi::Log(ADDON_LOG_INFO, "Waiting for a connection in the background.");
-        CreateThread();
+        m_running = true;
+        m_thread = std::thread([&] { Process(); });
       }
       return ADDON_STATUS_LOST_CONNECTION;
     case PVR_CONNECTION_STATE_CONNECTING:
@@ -190,7 +187,7 @@ ADDON_STATUS cPVRClientMediaPortal::TryConnect()
 
 PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
 {
-  P8PLATFORM::CLockObject critsec(m_connectionMutex);
+  std::lock_guard<std::mutex> critsec(m_connectionMutex);
 
   string result;
 
@@ -317,9 +314,11 @@ void cPVRClientMediaPortal::Disconnect()
 
   kodi::Log(ADDON_LOG_INFO, "Disconnect");
 
-  if (IsRunning())
+  if (m_running)
   {
-    StopThread(1000);
+    m_running = false;
+    if (m_thread.joinable())
+      m_thread.join();
   }
 
   if (m_tcpclient->is_valid() && m_bTimeShiftStarted)
@@ -361,14 +360,14 @@ bool cPVRClientMediaPortal::IsUp()
   }
 }
 
-void* cPVRClientMediaPortal::Process(void)
+void cPVRClientMediaPortal::Process()
 {
   kodi::Log(ADDON_LOG_DEBUG, "Background thread started.");
 
   bool keepWaiting = true;
   PVR_CONNECTION_STATE state;
 
-  while (!IsStopped() && keepWaiting)
+  while (m_running && keepWaiting)
   {
     state = Connect(false);
 
@@ -396,8 +395,6 @@ void* cPVRClientMediaPortal::Process(void)
   SetConnectionState(state);
 
   kodi::Log(ADDON_LOG_DEBUG, "Background thread finished.");
-
-  return NULL;
 }
 
 
@@ -1188,7 +1185,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordings(bool deleted, kodi::addon::PVRRec
     }
   }
 
-  m_iLastRecordingUpdate = P8PLATFORM::GetTimeMs();
+  m_iLastRecordingUpdate = std::chrono::system_clock::now();
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -1383,7 +1380,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimers(kodi::addon::PVRTimersResultSet& resu
     }
   }
 
-  if ( P8PLATFORM::GetTimeMs() >  m_iLastRecordingUpdate + 15000)
+  if ( std::chrono::system_clock::now() >  m_iLastRecordingUpdate + std::chrono::milliseconds(15000))
   {
     kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
   }

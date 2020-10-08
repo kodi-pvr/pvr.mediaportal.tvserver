@@ -29,7 +29,7 @@
 
 #ifdef LIVE555
 
-#include "p8-platform/threads/mutex.h"
+#include "os-dependent.h"
 #include "MemoryBuffer.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
@@ -56,7 +56,7 @@ bool CMemoryBuffer::IsRunning()
 
 void CMemoryBuffer::Clear()
 {
-  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  std::lock_guard<std::mutex> BufferLock(m_BufferLock);
 
   for (auto& item : m_Array)
   {
@@ -103,14 +103,17 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
   {
     if (!m_bRunning)
       return 0;
-    m_event.Wait(5000);
+
+    std::unique_lock<std::mutex> lock(m_BufferLock);
+    m_condition.wait_for(lock, std::chrono::milliseconds(5000));
+
     if (!m_bRunning)
       return 0;
   }
 
   // kodi::Log(ADDON_LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
   size_t bytesWritten = 0;
-  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  std::lock_guard<std::mutex> BufferLock(m_BufferLock);
 
   while (bytesWritten < lDataLength)
   {
@@ -171,7 +174,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
   memcpy(item->data, pbData, lDataLength);
   bool sleep = false;
   {
-    P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+    std::lock_guard<std::mutex> BufferLock(m_BufferLock);
     m_Array.push_back(item);
     m_BytesInBuffer += lDataLength;
 
@@ -191,7 +194,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
     }
     if (m_BytesInBuffer > 0)
     {
-      m_event.Broadcast();
+      m_condition.notify_one();
     }
   }
 

@@ -30,7 +30,8 @@
 
 #ifdef LIVE555
 
-#include "p8-platform/threads/mutex.h"
+#include <condition_variable>
+#include <mutex>
 #include <vector>
 
 class CMemoryBuffer
@@ -55,9 +56,9 @@ class CMemoryBuffer
 
   protected:
     std::vector<BufferItem *> m_Array;
-    P8PLATFORM::CMutex m_BufferLock;
+    std::mutex m_BufferLock;
     size_t    m_BytesInBuffer;
-		P8PLATFORM::CEvent m_event;
+    std::condition_variable m_condition;
     bool m_bRunning;
 };
 #endif //LIVE555

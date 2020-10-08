@@ -35,7 +35,7 @@
 #include "FileReader.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
-#include "p8-platform/threads/threads.h"
+#include "os-dependent.h"
 #include <algorithm> //std::min, std::max
 #include "utils.h"
 #include <errno.h>
