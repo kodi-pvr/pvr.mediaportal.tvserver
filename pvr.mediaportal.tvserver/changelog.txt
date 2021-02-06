@@ -1,3 +1,13 @@
+v8.1.1
+- Remove p8-platform dependency
+- Remove charset converter dependency
+- Use std::thread, std::mutex, condition_variable instead of event and bool defines
+- Use thread sleep_for instead of p8 time utils
+- Remove SAFE_DELETE
+- Use kodi StringUtils
+- Remove p8 os includes
+- Revert "Removed no more supported (C++17) declaration keyword (register)"
+
 v8.1.0
 - Update PVR API 7.1.0
 
