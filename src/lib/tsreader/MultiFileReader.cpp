@@ -35,18 +35,27 @@
 #include "MultiFileReader.h"
 #include <kodi/General.h> //for kodi::Log
 #include <kodi/Filesystem.h>
+#include <kodi/tools/EndTime.h>
 #include "TSDebug.h"
 #include <string>
 #include "utils.h"
 #include <algorithm>
-#include "p8-platform/util/timeutils.h"
-#include "p8-platform/threads/threads.h"
 #include <inttypes.h>
+#include "os-dependent.h"
 
-using namespace P8PLATFORM;
+#include <thread>
 
 //Maximum time in msec to wait for the buffer file to become available - Needed for DVB radio (this sometimes takes some time)
 #define MAX_BUFFER_TIMEOUT 1500
+
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 
 namespace MPTV
 {
@@ -103,7 +112,7 @@ namespace MPTV
             retryCount++;
             kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 100 ms and re-opening. Attempt: %d.", retryCount);
             m_TSBufferFile.CloseFile();
-            usleep(100000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             hResult = m_TSBufferFile.OpenFile();
             kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
         }
@@ -111,12 +120,12 @@ namespace MPTV
         if (RefreshTSBufferFile() == S_FALSE)
         {
             // For radio the buffer sometimes needs some time to become available, so wait and try it more than once
-            P8PLATFORM::CTimeout timeout(MAX_BUFFER_TIMEOUT);
+            kodi::tools::CEndTime timeout(MAX_BUFFER_TIMEOUT);
 
             do
             {
-                usleep(100000);
-                if (timeout.TimeLeft() == 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                if (timeout.MillisLeft() == 0)
                 {
                     kodi::Log(ADDON_LOG_ERROR, "MultiFileReader: timed out while waiting for buffer file to become available");
                     kodi::QueueNotification(QUEUE_ERROR, "", "Time out while waiting for buffer file");
@@ -448,7 +457,7 @@ namespace MPTV
                 // try to clear local / remote SMB file cache. This should happen when we close the filehandle
                 m_TSBufferFile.CloseFile();
                 m_TSBufferFile.OpenFile();
-                usleep(5000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
 
             if (Error)
@@ -484,7 +493,7 @@ namespace MPTV
 
                 TSDEBUG(ADDON_LOG_DEBUG, "MultiFileReader: Removing file %s\n", file->filename.c_str());
 
-                SAFE_DELETE(file);
+                SafeDelete(file);
                 m_tsFiles.erase(m_tsFiles.begin());
 
                 filesToRemove--;

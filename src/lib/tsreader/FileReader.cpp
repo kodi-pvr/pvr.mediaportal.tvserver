@@ -35,13 +35,12 @@
 #include "FileReader.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
-#include "p8-platform/threads/threads.h"
+#include "os-dependent.h"
 #include <algorithm> //std::min, std::max
-#include "p8-platform/util/timeutils.h" // for usleep
-#include "p8-platform/util/util.h"
 #include "utils.h"
 #include <errno.h>
 
+#include <thread>
 
 /* indicate that caller can handle truncated reads, where function returns before entire buffer has been filled */
 #define READ_TRUNCATED 0x01
@@ -58,6 +57,14 @@
 /* calcuate bitrate for file while reading */
 #define READ_BITRATE   0x10
 
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 namespace MPTV
 {
     FileReader::FileReader() :
@@ -138,7 +145,8 @@ namespace MPTV
                     }
                 }
             }
-            usleep(20000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
         } while (--Tmo);
 
         if (Tmo)

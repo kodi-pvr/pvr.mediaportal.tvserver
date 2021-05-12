@@ -18,12 +18,13 @@
 
 #if defined LIVE555
 
-#include "p8-platform/util/timeutils.h"
 #include "MepoRTSPClient.h"
 #include "MemorySink.h"
 #include <kodi/General.h> //for kodi::Log
 #include "utils.h"
 #include "os-dependent.h"
+
+#include <thread>
 
 CRTSPClient::CRTSPClient()
 {
@@ -53,7 +54,7 @@ CRTSPClient::CRTSPClient()
   m_env = NULL;
   m_fDuration = 0.0f;
   m_url[0] = '\0';
-  m_bRunning = false;
+  m_running = false;
 }
 
 CRTSPClient::~CRTSPClient()
@@ -495,7 +496,9 @@ void CRTSPClient::StartBufferThread()
 
   if (!m_BufferThreadActive)
   {
-    CreateThread();
+    m_running = true;
+    m_thread = std::thread([&] { Process(); });
+
     m_BufferThreadActive = true;
   }
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::StartBufferThread done");
@@ -504,11 +507,12 @@ void CRTSPClient::StartBufferThread()
 void CRTSPClient::StopBufferThread()
 {
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::StopBufferThread");
-  m_bRunning = false;
+  m_running = false;
   if (!m_BufferThreadActive)
     return;
 
-  StopThread();
+  if (m_thread.joinable())
+    m_thread.join();
 
   m_BufferThreadActive = false;
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::StopBufferThread done");
@@ -531,32 +535,29 @@ void CRTSPClient::FillBuffer(unsigned long byteCount)
 
   while ( IsRunning() && m_buffer->Size() < byteCount)
   {
-    usleep(5000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (GetTickCount64() - tickCount > 3000)
       break;
   }
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::Fillbuffer...%d/%d\n", byteCount, m_buffer->Size() );
 }
 
-void *CRTSPClient::Process()
+void CRTSPClient::Process()
 {
   m_BufferThreadActive = true;
-  m_bRunning = true;
 
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient:: thread started");
 
-  while (m_env != NULL && !IsStopped())
+  while (m_env != NULL && m_running)
   {
     m_env->taskScheduler().doEventLoop();
-    if (m_bRunning == false)
+    if (m_running == false)
       break;
   }
 
   kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient:: thread stopped");
 
   m_BufferThreadActive = false;
-
-  return NULL;
 }
 
 void CRTSPClient::Continue()
@@ -581,8 +582,12 @@ bool CRTSPClient::Pause()
   if (m_ourClient != NULL && m_session != NULL)
   {
     kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::Pause() stopthread");
-    StopThread(10000);                    // Ambass : sometimes 100mS ( prev value ) is not enough and thread is not stopped.
-                                                 //          now stopping takes around 5 secs ?!?! why ????
+    // Ambass : sometimes 100mS ( prev value ) is not enough and thread is not stopped.
+    //          now stopping takes around 5 secs ?!?! why ????
+    m_running = false;
+    if (m_thread.joinable())
+      m_thread.join();
+
     kodi::Log(ADDON_LOG_DEBUG, "CRTSPClient::Pause() thread stopped");
     RTSPClient* rtspClient=(RTSPClient*)m_ourClient;
     rtspClient->pauseMediaSession(*m_session);

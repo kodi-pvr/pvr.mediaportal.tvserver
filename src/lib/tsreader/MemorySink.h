@@ -35,7 +35,7 @@
 #endif
 
 #include "MemoryBuffer.h"
-#include "p8-platform/threads/mutex.h"
+#include <mutex>
 
 class CMemorySink: public MediaSink
 {
@@ -57,7 +57,7 @@ class CMemorySink: public MediaSink
   private: // redefined virtual functions:
     virtual Boolean continuePlaying();
 
-		P8PLATFORM::CMutex m_BufferLock;
+		std::mutex m_BufferLock;
     unsigned char* m_pSubmitBuffer;
     int   m_iSubmitBufferPos;
     bool  m_bReEntrant;

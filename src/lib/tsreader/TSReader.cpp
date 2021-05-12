@@ -33,8 +33,7 @@
 #include "MultiFileReader.h"
 #include "utils.h"
 #include "TSDebug.h"
-#include "p8-platform/util/timeutils.h"
-#include "p8-platform/util/StringUtils.h"
+#include <kodi/tools/StringUtils.h>
 #ifdef LIVE555
 #include "MemoryReader.h"
 #include "MepoRTSPClient.h"
@@ -42,7 +41,18 @@
 #endif
 #include "FileUtils.h"
 
+#include <thread>
+
 using namespace std;
+
+template<typename T> void SafeDelete(T*& p)
+{
+  if (p)
+  {
+    delete p;
+    p = nullptr;
+  }
+}
 
 namespace MPTV
 {
@@ -69,10 +79,10 @@ namespace MPTV
 
     CTsReader::~CTsReader(void)
     {
-        SAFE_DELETE(m_fileReader);
+        SafeDelete(m_fileReader);
 #ifdef LIVE555
-        SAFE_DELETE(m_buffer);
-        SAFE_DELETE(m_rtspClient);
+        SafeDelete(m_buffer);
+        SafeDelete(m_rtspClient);
 #endif
     }
 
@@ -104,7 +114,7 @@ namespace MPTV
             {
                 if (!tscard.TimeshiftFolderUNC.empty())
                 {
-                    StringUtils::Replace(sFileName, tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
+                    kodi::tools::StringUtils::Replace(sFileName, tscard.TimeshiftFolder.c_str(), tscard.TimeshiftFolderUNC.c_str());
                     bFound = true;
                 }
                 else
@@ -129,7 +139,7 @@ namespace MPTV
                         if (!it->RecordingFolderUNC.empty())
                         {
                             // Remove the original base path and replace it with the given path
-                            StringUtils::Replace(sFileName, it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
+                            kodi::tools::StringUtils::Replace(sFileName, it->RecordingFolder.c_str(), it->RecordingFolderUNC.c_str());
                             bFound = true;
                             break;
                         }
@@ -225,8 +235,8 @@ namespace MPTV
 
             if ( !m_rtspClient->OpenStream(m_fileName.c_str()) )
             {
-                SAFE_DELETE(m_rtspClient);
-                SAFE_DELETE(m_buffer);
+                SafeDelete(m_rtspClient);
+                SafeDelete(m_buffer);
                 return E_FAIL;
             }
 
@@ -318,8 +328,8 @@ namespace MPTV
 #ifdef LIVE555
                 kodi::Log(ADDON_LOG_INFO, "TsReader: closing RTSP client");
                 m_rtspClient->Stop();
-                SAFE_DELETE(m_rtspClient);
-                SAFE_DELETE(m_buffer);
+                SafeDelete(m_rtspClient);
+                SafeDelete(m_buffer);
 #endif
             }
             else
@@ -327,7 +337,7 @@ namespace MPTV
                 kodi::Log(ADDON_LOG_INFO, "TsReader: closing file");
                 m_fileReader->CloseFile();
             }
-            SAFE_DELETE(m_fileReader);
+            SafeDelete(m_fileReader);
             m_State = State_Stopped;
         }
     }
@@ -387,7 +397,7 @@ namespace MPTV
                 fileReader->OnChannelChange();
 
                 kodi::Log(ADDON_LOG_DEBUG, "%s:: move from %I64d to %I64d tsbufpos  %I64d", __FUNCTION__, pos_before, pos_after, timeShiftBufferPos);
-                usleep(100000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
                 // Set the stream start times to this new channel
                 time(&m_startTime);
@@ -412,8 +422,8 @@ namespace MPTV
         if (tmp.find("smb://") != string::npos)
         {
           // Convert XBMC smb share name back to a real windows network share...
-          StringUtils::Replace(tmp, "smb://", "\\\\");
-          StringUtils::Replace(tmp, "/", "\\");
+          kodi::tools::StringUtils::Replace(tmp, "smb://", "\\\\");
+          kodi::tools::StringUtils::Replace(tmp, "/", "\\");
         }
 #else
         //TODO: do something useful...

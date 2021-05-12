@@ -29,7 +29,6 @@
 
 #if defined LIVE555
 
-#include "p8-platform/os.h"
 #include "MemorySink.h"
 #include "GroupsockHelper.hh"
 #include <kodi/General.h> //for kodi::Log
@@ -85,7 +84,7 @@ void CMemorySink::addData(unsigned char* data, size_t dataSize, struct timeval U
     return;
   }
 
-  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  std::lock_guard<std::mutex> BufferLock(m_BufferLock);
 
   m_bReEntrant = true;
   m_buffer.PutBuffer(data, dataSize);

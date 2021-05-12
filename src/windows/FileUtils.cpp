@@ -6,20 +6,36 @@
  */
 
 #include "../FileUtils.h"
-#include "p8-platform/os.h"
-#include "p8-platform/windows/CharsetConverter.h"
 #include <string>
 #include "../utils.h"
 #ifdef TARGET_WINDOWS_DESKTOP
 #include <Shlobj.h>
 #endif
 
+#include <windows.h>
+#include <fileapi.h>
+
+std::wstring ToW(const char* str, size_t length)
+{
+  int result = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, length, nullptr, 0);
+  if (result == 0)
+    return std::wstring();
+
+  auto newStr = std::make_unique<wchar_t[]>(result);
+  result = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, length, newStr.get(), result);
+
+  if (result == 0)
+    return std::wstring();
+
+  return std::wstring(newStr.get(), result);
+}
+
 namespace OS
 {
   bool CFile::Exists(const std::string& strFileName, long* errCode)
   {
     std::string strWinFile = ToWindowsPath(strFileName);
-    std::wstring strWFile = p8::windows::ToW(strWinFile.c_str());
+    std::wstring strWFile = ToW(strWinFile.c_str(), 0);
     DWORD dwAttr = GetFileAttributesW(strWFile.c_str());
 
     if(dwAttr != 0xffffffff)

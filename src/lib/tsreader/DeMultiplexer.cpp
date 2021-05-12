@@ -37,6 +37,8 @@
 #include <kodi/General.h>  //for kodi::Log
 #include "TSReader.h"
 
+#include <thread>
+
 #define MAX_BUF_SIZE 8000
 #define BUFFER_LENGTH 0x1000
 #define READ_SIZE (1316*30)
@@ -83,7 +85,7 @@ namespace MPTV
         {
             size_t BytesRead = ReadFromFile();
             if (0 == BytesRead)
-                usleep(10000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         m_bStarting = false;
     }
@@ -102,7 +104,7 @@ namespace MPTV
         if (m_filter.IsSeeking())
             return 0;       // Ambass : to check
 
-        P8PLATFORM::CLockObject lock(m_sectionRead);
+        std::lock_guard<std::mutex> lock(m_sectionRead);
         if (NULL == m_reader)
             return 0;
 
@@ -248,7 +250,7 @@ namespace MPTV
         {
             size_t BytesRead = ReadFromFile();
             if (0 == BytesRead)
-                usleep(10000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             dwBytesProcessed += BytesRead;
         }
 

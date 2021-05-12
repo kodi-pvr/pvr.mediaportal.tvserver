@@ -31,7 +31,8 @@
 
 #ifdef LIVE555
 
-#include "p8-platform/threads/threads.h"
+#include <atomic>
+#include <thread>
 #include "lib/tsreader/MemoryBuffer.h"
 
 #include "liveMedia.hh"
@@ -41,7 +42,7 @@
 
 #define RTSP_URL_BUFFERSIZE 2048
 
-class CRTSPClient: public P8PLATFORM::CThread
+class CRTSPClient
 {
 public:
   CRTSPClient();
@@ -101,7 +102,7 @@ public:
 
   // Thread
 private:
-  virtual void *Process(void);
+  void Process();
   void StartBufferThread();
   void StopBufferThread();
   bool m_BufferThreadActive;
@@ -113,5 +114,8 @@ private:
   bool m_bRunning;
   bool m_bPaused;
   char m_outFileName[1000];
+
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 };
 #endif //LIVE555

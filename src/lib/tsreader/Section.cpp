@@ -22,6 +22,8 @@
 #include "os-dependent.h"
 #include "Section.h"
 
+#include <cstring>
+
 namespace MPTV
 {
     CSection::CSection(void)

@@ -32,6 +32,7 @@
 
 #include "FileReader.h"
 #include "MemoryBuffer.h"
+#include "os-dependent.h"
 
 namespace MPTV
 {

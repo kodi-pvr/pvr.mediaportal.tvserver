@@ -11,12 +11,10 @@
 #include <vector>
 #include <ctime>
 #include "uri.h"
-#include "p8-platform/util/util.h"
 
 #ifdef TARGET_WINDOWS
 #include "windows/WindowsUtils.h"
 #endif
-
 
 /**
  * String tokenize

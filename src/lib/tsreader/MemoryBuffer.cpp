@@ -29,12 +29,12 @@
 
 #ifdef LIVE555
 
-#include "p8-platform/util/timeutils.h"
-#include "p8-platform/threads/mutex.h"
-#include "p8-platform/util/util.h"
+#include "os-dependent.h"
 #include "MemoryBuffer.h"
 #include <kodi/General.h> //for kodi::Log
 #include "TSDebug.h"
+
+#include <thread>
 
 #define MAX_MEMORY_BUFFER_SIZE (1024L*1024L*12L)
 
@@ -56,14 +56,16 @@ bool CMemoryBuffer::IsRunning()
 
 void CMemoryBuffer::Clear()
 {
-  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
-  std::vector<BufferItem *>::iterator it = m_Array.begin();
+  std::lock_guard<std::mutex> BufferLock(m_BufferLock);
 
-  for ( ; it != m_Array.end(); ++it )
+  for (auto& item : m_Array)
   {
-    BufferItem *item = *it;
-    SAFE_DELETE_ARRAY(item->data);
-    SAFE_DELETE(item);
+    if (item)
+    {
+      if (item->data)
+        delete[] item->data;
+      delete item;
+    }
   }
 
   m_Array.clear();
@@ -101,14 +103,17 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
   {
     if (!m_bRunning)
       return 0;
-    m_event.Wait(5000);
+
+    std::unique_lock<std::mutex> lock(m_BufferLock);
+    m_condition.wait_for(lock, std::chrono::milliseconds(5000));
+
     if (!m_bRunning)
       return 0;
   }
 
   // kodi::Log(ADDON_LOG_DEBUG, "get..%d/%d", lDataLength, m_BytesInBuffer);
   size_t bytesWritten = 0;
-  P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+  std::lock_guard<std::mutex> BufferLock(m_BufferLock);
 
   while (bytesWritten < lDataLength)
   {
@@ -150,8 +155,9 @@ size_t CMemoryBuffer::ReadFromBuffer(unsigned char *pbData, size_t lDataLength)
     if (item->nOffset >= item->nDataLength)
     {
       m_Array.erase(m_Array.begin());
-      SAFE_DELETE_ARRAY(item->data);
-      SAFE_DELETE(item);
+      if (item->data)
+        delete[] item->data;
+      delete item;
     }
   }
   return bytesWritten;
@@ -168,7 +174,7 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
   memcpy(item->data, pbData, lDataLength);
   bool sleep = false;
   {
-    P8PLATFORM::CLockObject BufferLock(m_BufferLock);
+    std::lock_guard<std::mutex> BufferLock(m_BufferLock);
     m_Array.push_back(item);
     m_BytesInBuffer += lDataLength;
 
@@ -182,18 +188,19 @@ long CMemoryBuffer::PutBuffer(unsigned char *pbData, size_t lDataLength)
 
       m_BytesInBuffer -= copyLength;
       m_Array.erase(m_Array.begin());
-      SAFE_DELETE_ARRAY(item2->data);
-      SAFE_DELETE(item2);
+      if (item2->data)
+        delete[] item2->data;
+      delete item2;
     }
     if (m_BytesInBuffer > 0)
     {
-      m_event.Broadcast();
+      m_condition.notify_one();
     }
   }
 
   if (sleep)
   {
-    usleep(10000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   return S_OK;
 }
