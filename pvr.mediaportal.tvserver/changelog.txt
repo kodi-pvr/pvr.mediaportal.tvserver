@@ -1,3 +1,6 @@
+v8.1.2
+- Fix MultiByteToWideChar parameter
+
 v8.1.1
 - Remove p8-platform dependency
 - Remove charset converter dependency
