@@ -35,7 +35,7 @@ namespace OS
   bool CFile::Exists(const std::string& strFileName, long* errCode)
   {
     std::string strWinFile = ToWindowsPath(strFileName);
-    std::wstring strWFile = ToW(strWinFile.c_str(), 0);
+    std::wstring strWFile = ToW(strWinFile.c_str(), -1);
     DWORD dwAttr = GetFileAttributesW(strWFile.c_str());
 
     if(dwAttr != 0xffffffff)
