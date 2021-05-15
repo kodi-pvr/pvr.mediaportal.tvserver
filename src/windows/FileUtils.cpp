@@ -6,6 +6,7 @@
  */
 
 #include "../FileUtils.h"
+#include <memory>
 #include <string>
 #include "../utils.h"
 #ifdef TARGET_WINDOWS_DESKTOP
