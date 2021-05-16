@@ -419,7 +419,7 @@ PVR_ERROR cPVRClientMediaPortal::GetCapabilities(kodi::addon::PVRCapabilities& c
   capabilities.SetHandlesDemuxing(false);
   capabilities.SetSupportsRecordingPlayCount((g_iTVServerKodiBuild < 117) ? false : true);
   capabilities.SetSupportsLastPlayedPosition((g_iTVServerKodiBuild < 121) ? false : true);
-  capabilities.SetSupportsRecordingEdl(false);
+  capabilities.SetSupportsRecordingEdl(true);
   capabilities.SetSupportsRecordingsRename(true);
   capabilities.SetSupportsRecordingsLifetimeChange(false);
   capabilities.SetSupportsDescrambleInfo(false);
@@ -2480,4 +2480,71 @@ PVR_ERROR cPVRClientMediaPortal::GetStreamReadChunkSize(int& chunksize)
 {
   chunksize = 32 * 1024;
   return PVR_ERROR_NO_ERROR;
+}
+
+namespace
+{
+    int GetFileContents(const std::string& url, std::string& content)
+    {
+      content.clear();
+      kodi::vfs::CFile file;
+      if (file.OpenFile(url))
+      {
+        char buffer[1024];
+        while (int bytesRead = file.Read(buffer, 1024))
+          content.append(buffer, bytesRead);
+      }
+
+      return content.length();
+    }
+}
+
+PVR_ERROR cPVRClientMediaPortal::GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl) // bilkusg
+{
+    cRecording* myrecording = GetRecordingInfo(recording);
+    if (!myrecording)
+      return PVR_ERROR_SERVER_ERROR;
+
+    const std::string pvrSmbPath = m_tsreader->TranslatePath(myrecording->FilePath());
+    const std::string edlFilePath = pvrSmbPath.substr(0, pvrSmbPath.find_last_of('.')) + ".edl";
+    kodi::Log(ADDON_LOG_DEBUG, "GetRecordingEdl for %s from %s", myrecording->FilePath(), edlFilePath.c_str());
+    
+    if (!kodi::vfs::FileExists(edlFilePath))
+      return PVR_ERROR_NO_ERROR;
+    std::string edlFileContents;
+    int edlLength = GetFileContents(edlFilePath, edlFileContents);
+    if (edlLength == 0) 
+      return PVR_ERROR_NO_ERROR;
+
+    std::istringstream stream(edlFileContents);
+    std::string line;
+    int lineNumber = 0;
+    while (std::getline(stream, line))
+    {
+        float start = 0.0f, stop = 0.0f;
+        unsigned int type = PVR_EDL_TYPE_CUT;
+        lineNumber++;
+        if (std::sscanf(line.c_str(), "%f %f %u", &start, &stop, &type) < 2 || type > PVR_EDL_TYPE_COMBREAK)
+        {
+            kodi::Log(ADDON_LOG_INFO, "%s Unable to parse EDL entry for recording '%s' at line %d. Skipping.", __func__,
+                edlFilePath.c_str(), lineNumber);
+            continue;
+        }
+
+        start = std::max(start, 0.0f);
+        stop = std::max(stop, 0.0f);
+        start = std::min(start, stop);
+        stop = std::max(start, stop);
+
+        kodi::Log(ADDON_LOG_DEBUG, "%s EDL for '%s', line %d -  start: %f stop: %f type: %d", __func__, edlFilePath.c_str(), lineNumber, start, stop, type);
+
+        kodi::addon::PVREDLEntry edlEntry;
+        edlEntry.SetStart(static_cast<int64_t>(start * 1000.0f));
+        edlEntry.SetEnd(static_cast<int64_t>(stop * 1000.0f));
+        edlEntry.SetType(static_cast<PVR_EDL_TYPE>(type));
+
+        edl.emplace_back(edlEntry);
+    }
+    kodi::Log(ADDON_LOG_INFO, "%s - recording '%s' has '%d' EDL entries available", __func__, recording.GetTitle().c_str(), edl.size());
+    return PVR_ERROR_NO_ERROR;
 }

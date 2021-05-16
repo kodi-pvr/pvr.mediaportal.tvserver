@@ -80,14 +80,13 @@ namespace MPTV
         long Pause(bool bPaused);
 
         TsReaderState State() { return m_State; };
-
-    private:
-
         /**
          * \brief Translate the given path using the m_basePath setting
          * \param The original (local) timeshift buffer file path on the TV server side
          */
-        std::string TranslatePath(const char* pszFileName);
+        std::string TranslatePath(const char* pszFileName); 
+
+    private:
 
         bool            m_bTimeShifting;
         bool            m_bRecording;

@@ -1,3 +1,6 @@
+v8.2.0
+- Support edl files over remote smb shares for commercial skipping 
+
 v8.1.2
 - Fix MultiByteToWideChar parameter
 
