@@ -1,5 +1,8 @@
+v8.2.1
+- Language update from Weblate
+
 v8.2.0
-- Support edl files over remote smb shares for commercial skipping 
+- Support edl files over remote smb shares for commercial skipping
 
 v8.1.2
 - Fix MultiByteToWideChar parameter
