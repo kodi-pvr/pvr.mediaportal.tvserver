@@ -26,7 +26,7 @@ msgstr "MediaPortal TV kiszolgáló előtét. Élő adások, felvételek és rá
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Ez nem stabil szoftver! A készítők nem vállalnak felelősséget, a hibás felvételért, rossz időzítésért, elvesztegetett időért..."
+msgstr "Ez nem stabil szoftver! A készítők nem vállalnak felelősséget, a hibás felvételért, rossz időzítésért, elvesztegetett időért."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

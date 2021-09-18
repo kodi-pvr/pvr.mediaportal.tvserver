@@ -26,7 +26,7 @@ msgstr "MediaPortal TV poslužitelj sučelje. Podržava stremanje i snimanje TV 
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna vremena snimanja, izgubljene sate, ili bilo koje druge nepoželjne učinke..."
+msgstr "Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna vremena snimanja, izgubljene sate, ili bilo koje druge nepoželjne učinke."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

@@ -19,7 +19,7 @@ msgstr ""
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
-msgstr "Накладка Kodi для сервера ТВ MediaPortal'у  (версія ffmpeg + tsreader)"
+msgstr "Накладка Kodi для сервера ТВ MediaPortal'у (версія ffmpeg + tsreader)"
 
 msgctxt "Addon Description"
 msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
