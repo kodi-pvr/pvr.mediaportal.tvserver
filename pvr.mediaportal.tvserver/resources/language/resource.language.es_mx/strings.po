@@ -27,7 +27,7 @@ msgstr "MediaPortal TV Server frontend. Soporta streaming de TV y grabaciones en
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado..."
+msgstr "¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

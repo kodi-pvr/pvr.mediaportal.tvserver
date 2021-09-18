@@ -27,7 +27,7 @@ msgstr "MediaPortal TV server frontend. Understøtter streaming af TV og Optagel
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser.."
+msgstr "Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

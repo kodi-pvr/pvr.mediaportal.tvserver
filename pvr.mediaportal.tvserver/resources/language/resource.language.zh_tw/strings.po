@@ -26,7 +26,7 @@ msgstr "MediaPortal電視服務器的前端。支援的串流檔案包括有：�
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "這是測試版軟體！其原創作者並無法對於以下情況負責，包含：錄影失敗，不正確的定時設定，多餘時數，或任何產生的其它不良影響..."
+msgstr "這是測試版軟體！其原創作者並無法對於以下情況負責，包含：錄影失敗，不正確的定時設定，多餘時數，或任何產生的其它不良影響."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

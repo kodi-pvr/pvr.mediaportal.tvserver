@@ -27,7 +27,7 @@ msgstr "Partea din față pentru servitorul tv MediaPortal. Capabil de difuzarea
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Acesta nu este o aplicație definitivă! Autorii nu sunt în nici un fel responsabili pentru înregistrări eșuate, cronometre incorecte, ore pierdute, sau orice alte efecte nedorite..."
+msgstr "Acesta nu este o aplicație definitivă! Autorii nu sunt în nici un fel responsabili pentru înregistrări eșuate, cronometre incorecte, ore pierdute, sau orice alte efecte nedorite."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"

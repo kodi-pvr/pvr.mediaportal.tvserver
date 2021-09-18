@@ -26,7 +26,7 @@ msgstr "MediaPortal tv-server frontend. Stödjer strömning av Live-TV &amp; ins
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Upphovsmännen är inte ansvariga för misslyckade inspelningar, inkorrekta timers, bortslösade timmar, eller några andra oönskade effekter.."
+msgstr "Upphovsmännen är inte ansvariga för misslyckade inspelningar, inkorrekta timers, bortslösade timmar, eller några andra oönskade effekter."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
