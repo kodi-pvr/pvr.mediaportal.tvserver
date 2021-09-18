@@ -52,8 +52,8 @@
     <summary lang="my_MM">MediaPortal TV Server အတွက် Kodi frontend (ffmpeg + tsreader version)</summary>
     <summary lang="nb_NO">Kodi-drakt for MediaPortal TV-tjener (ffmpeg + tsreader-versjon)</summary>
     <summary lang="nl_NL">Kodi frontend voor de Mediaportal TV Server</summary>
-    <summary lang="pl_PL">Klient telewizyjny dla MediaPortal TV  (wersja ffmpeg + tsreader)</summary>
-    <summary lang="pt_BR">Frontend  do Kodi para Servidor de TV MediaPortal (ffmpeg + versão tsreader)</summary>
+    <summary lang="pl_PL">Klient telewizyjny dla MediaPortal TV (wersja ffmpeg + tsreader)</summary>
+    <summary lang="pt_BR">Frontend do Kodi para Servidor de TV MediaPortal (ffmpeg + versão tsreader)</summary>
     <summary lang="pt_PT">Interface Kodi para MediaPortal TV Server (versão ffmpeg + tsreader)</summary>
     <summary lang="ro_RO">Partea din față a Kodi pentru servitorul tv MediaPortal</summary>
     <summary lang="ru_RU">Интерфейс Kodi для ТВ-сервера MediaPortal (версия ffmpeg + tsreader)</summary>
@@ -63,7 +63,7 @@
     <summary lang="sr_RS@latin">Kodi interfejs za MediaPortal TV Server</summary>
     <summary lang="sv_SE">Kodi's frontend MediaPortal tv-server</summary>
     <summary lang="tr_TR">MediaPortal TV Sunucusu için Kodi ön ucu (ffmpeg + tsreader sürümü)</summary>
-    <summary lang="uk_UA">Накладка Kodi для сервера ТВ MediaPortal'у  (версія ffmpeg + tsreader)</summary>
+    <summary lang="uk_UA">Накладка Kodi для сервера ТВ MediaPortal'у (версія ffmpeg + tsreader)</summary>
     <summary lang="vi_VN">Giao tiếp Kodi cho MediaPortal TV Server (phiên bản ffmpeg + tsreader)</summary>
     <summary lang="zh_CN">Kodi 的 MediaPortal TV 服务器前端</summary>
     <summary lang="zh_TW">MediaPortal電視服務器的Kodi前端 (ffmpeg+tsreader版本)</summary>
@@ -103,7 +103,7 @@
     <description lang="nb_NO">MediaPortal TV-tjenerdrakt. Støtter strømming av direkte-TV og opptak, Lytting til radiokanaler, EPG og tidsur. Dette tillegget kombinererer de tidligere ffmpeg- og tsreader -tilleggene.</description>
     <description lang="nl_NL">MediaPortal TV Server frontend. Ondersteunt het bekijken van Live-TV en opnames, het beluisteren van radiozenders, het tonen van de EPG en het inplannen/beheren van nieuwe opnames (Timers).</description>
     <description lang="pl_PL">Klient telewizyjny dla MediaPortal obsługuje transmisje kanałów radiowych i telewizyjnych, nagrywanie i harmonogram nagrań oraz funkcje przewodnika telewizyjnego. Klient ten łączy w sobie funkcje wcześniejszych klientów ffmpeg i tsreader.</description>
-    <description lang="pt_BR">Frontend do Servidor de TV  do MediaPortal. Suporta streaming de TV Ao Vivo e Gravações, escutar canais de rádio, EPG e Agendamentos. Este addon combina os antigos addons ffmpeg e tsreader</description>
+    <description lang="pt_BR">Frontend do Servidor de TV do MediaPortal. Suporta streaming de TV Ao Vivo e Gravações, escutar canais de rádio, EPG e Agendamentos. Este addon combina os antigos addons ffmpeg e tsreader</description>
     <description lang="pt_PT">Interface para o servidor MediaPortal TV. Suporta transmissão de TV em direto e gravações, ouvir estações de Rádio, EPG e Temporizadores. Este add-on combina os antigos add-ons ffmpeg e tsreader.</description>
     <description lang="ro_RO">Partea din față pentru servitorul tv MediaPortal. Capabil de difuzarea televiunii în direct și a înregistrărilor, ascultarea canalelor Radio channels, ghid tv electronic și cronometre.</description>
     <description lang="ru_RU">Интерфейс Kodi для ТВ-сервера MediaPortal. Поддерживает просмотр и запись ТВ, прослушивание радио, EPG и таймеры. Это дополнение заменяет старые дополнения ffmpeg и tsreader.</description>
@@ -154,7 +154,7 @@
     <disclaimer lang="ms_MY">Ini merupakan perisian tidak stabil! Pengarang tidak bertanggungjawab atas kegagalan rakaman, pemasa tidak betul, masa yang dibazirkan, atau apa jua kesan yang tidak dikehendaki.</disclaimer>
     <disclaimer lang="mt_MT">Dan il-programm mhuwiex stabbli! L-Awturi m'humiex responsabbli bl-ebda mod għal rekordings li ma jirnexxewx, arloġġi żbaljati, siegħat moħlija, jew kwalunkwe effett ieħor mhux mixtieq.</disclaimer>
     <disclaimer lang="nb_NO">Dette er ustabilt programvare! Forfatterne er ikke ansvarlig på noen måte for ødelagte opptak, feilstilte tidsur, bortkastede timer, eller andre uønskede hendelser…</disclaimer>
-    <disclaimer lang="nl_NL">Deze software is niet 100% stabiel! De auteurs zijn op geen enkele wijze aansprakelijk voor mislukte opnames, verspilde tijd, of enig ander ongewild neveneffect.</disclaimer>
+    <disclaimer lang="nl_NL">Deze software is niet 100tabiel! De auteurs zijn op geen enkele wijze aansprakelijk voor mislukte opnames, verspilde tijd, of enig ander ongewild neveneffect.</disclaimer>
     <disclaimer lang="pl_PL">Oprogramowanie nadal jest w fazie rozwoju i jest niestabilne! Autorzy w żaden sposób nie są odpowiedzialni za nieudane nagrania, błędy w harmonogramie nagrań, zmarnowany czas ani jakiekolwiek inne niepożądane efekty.</disclaimer>
     <disclaimer lang="pt_BR">Este é um software instável! Os autores não são responsáveis por falhas de gravações, agendamentos incorretos, horas desperdiçadas, ou quaisquer outros efeitos indesejados.</disclaimer>
     <disclaimer lang="pt_PT">Este software é instável! Os autores não são de forma alguma responsáveis por gravações falhadas, temporizadores incorrectos, horas desperdiçadas, ou qualquer outro tipo de efeitos indesejáveis.</disclaimer>
