@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the MediaPortal TV Server"
+msgstr "Kodi 的 MediaPortal TV 服务器前端"
+
+msgctxt "Addon Description"
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgstr "MediaPortal TV 服务器前端。支持流媒体直播电视和录像、收听电台、电子节目单和定时器。"
+
+msgctxt "Addon Disclaimer"
+msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "作者不对录像失败、错误定时造成时间浪费或其它不良影响负责。"
+
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr "Mediaportal 主机名"

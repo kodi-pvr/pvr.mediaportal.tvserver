@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the MediaPortal TV Server"
+msgstr "Kodi Oberfläche für den MediaPortal TV Server (ffmpeg + tsreader Version)"
+
+msgctxt "Addon Description"
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgstr "Mediaportal TV Server Oberfläche. Unterstützt Live TV &amp; Aufnahmen, Radiokanäle, EPG und Timer. Dieses Addon kombiniert die ehemaligen ffmpeg- und tsreader-Addons."
+
+msgctxt "Addon Disclaimer"
+msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Dies ist instabile Software! Die Autoren sind in keiner Weise verantwortlich für fehlgeschlagene Aufnahmen, falsche Timer, verschwendete Zeit oder andere ungewünschte Effekte."
+
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr "Mediaportal Hostname oder IP-Adresse"
