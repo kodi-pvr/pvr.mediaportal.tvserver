@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the MediaPortal TV Server"
+msgstr "Frontend Kodi per il server MediaPortal TV (versione ffmpeg + tsreader)"
+
+msgctxt "Addon Description"
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgstr "Frontend del server MediaPortal TV. Supporta lo streaming di Live TV e le registrazioni, l'ascolto dei canali radio, EPG e i timer. Questo addon combina gli addon ffmpeg e tsreaded."
+
+msgctxt "Addon Disclaimer"
+msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Questo software non è stabile! Gli autori non sono responsabili per registrazioni fallite, timer non corretti, ore perse, o altri effetti indesiderati..."
+
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr "Nome del server Mediaportal"

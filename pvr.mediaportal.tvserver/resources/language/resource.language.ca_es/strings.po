@@ -17,6 +17,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.7\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the MediaPortal TV Server"
+msgstr "Frontal de Kodi per al servidor de TV MediaPortal"
+
+msgctxt "Addon Description"
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgstr "Frontal del servidor de TV MediaPortal. És compatible amb les transmissions en línia de TV en directe i enregistraments, escolta de canals de ràdio, guia electrònica de programació (EPG) i temporitzadors."
+
+msgctxt "Addon Disclaimer"
+msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat."
+
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr "Nom d'amfitrió de MediaPortal"

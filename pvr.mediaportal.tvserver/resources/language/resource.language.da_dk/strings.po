@@ -17,6 +17,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.7.2\n"
 
+msgctxt "Addon Summary"
+msgid "Kodi frontend for the MediaPortal TV Server"
+msgstr "Kodi frontend til MediaPortal TV server (ffmpeg + tsreader version)"
+
+msgctxt "Addon Description"
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgstr "MediaPortal TV server frontend. Understøtter streaming af TV og Optagelser, Radiokanaler, EPG og Timere. Denne addon kombinerer de gamle ffmpeg og tsreader addons."
+
+msgctxt "Addon Disclaimer"
+msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser.."
+
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr "Mediaportal Værtsnavn"
