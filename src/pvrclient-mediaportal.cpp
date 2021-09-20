@@ -410,6 +410,7 @@ PVR_ERROR cPVRClientMediaPortal::GetCapabilities(kodi::addon::PVRCapabilities& c
   capabilities.SetSupportsTV(true);
   capabilities.SetSupportsRadio(CSettings::Get().GetRadioEnabled());
   capabilities.SetSupportsRecordings(true);
+  capabilities.SetSupportsRecordingsDelete(true);
   capabilities.SetSupportsRecordingsUndelete(false);
   capabilities.SetSupportsTimers(true);
   capabilities.SetSupportsChannelGroups(true);
