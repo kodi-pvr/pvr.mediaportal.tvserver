@@ -28,7 +28,7 @@ msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
 msgstr ""
 
-#Settings labels
+# Settings labels
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
 msgstr ""
@@ -81,7 +81,7 @@ msgctxt "#30012"
 msgid "Default recording lifetime"
 msgstr ""
 
-#empty strings from id 30013 to 30014
+# empty strings from id 30013 to 30014
 msgctxt "#30015"
 msgid "Streaming method"
 msgstr ""
@@ -98,8 +98,8 @@ msgctxt "#30018"
 msgid "Use RTSP streaming"
 msgstr ""
 
-#empty strings from id 30019 to 30039
-#Category labels
+# empty strings from id 30019 to 30039
+# Category labels
 msgctxt "#30040"
 msgid "Connection"
 msgstr ""
@@ -112,8 +112,8 @@ msgctxt "#30042"
 msgid "Playback"
 msgstr ""
 
-#empty strings from id 30043 to 30049
-#On-screen error messages
+# empty strings from id 30043 to 30049
+# On-screen error messages
 msgctxt "#30050"
 msgid "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!"
 msgstr ""
@@ -126,8 +126,8 @@ msgctxt "#30052"
 msgid "Recording playback failed. Empty URL of filename."
 msgstr ""
 
-#empty strings from id 30053 to 30059
-#Status message strings corresponding to the MediaPortal TvResult enum
+# empty strings from id 30053 to 30059
+# Status message strings corresponding to the MediaPortal TvResult enum
 msgctxt "#30060"
 msgid "All cards are busy"
 msgstr ""
@@ -192,8 +192,8 @@ msgctxt "#30075"
 msgid "No PMT found"
 msgstr ""
 
-#empty strings from id 30076 to 30099
-#Schedule settings dialog
+# empty strings from id 30076 to 30099
+# Schedule settings dialog
 msgctxt "#30100"
 msgid "Schedule settings"
 msgstr ""
@@ -222,8 +222,8 @@ msgctxt "#30106"
 msgid "Record minutes after end"
 msgstr ""
 
-#empty strings from id 30107 to 30109
-#Frequency:
+# empty strings from id 30107 to 30109
+# Frequency:
 msgctxt "#30110"
 msgid "Record Once"
 msgstr ""
@@ -264,7 +264,7 @@ msgctxt "#30119"
 msgid "Record weekly on this channel"
 msgstr ""
 
-#Airtime:
+# Airtime:
 msgctxt "#30120"
 msgid "This time"
 msgstr ""
@@ -277,8 +277,8 @@ msgctxt "#30122"
 msgid "Manual"
 msgstr ""
 
-#empty strings from id 30123 to 30124
-#Channel:
+# empty strings from id 30123 to 30124
+# Channel:
 msgctxt "#30125"
 msgid "This Channel"
 msgstr ""
@@ -287,8 +287,8 @@ msgctxt "#30126"
 msgid "Any Channel"
 msgstr ""
 
-#empty strings from id 30127 to 30129
-#Keep:
+# empty strings from id 30127 to 30129
+# Keep:
 msgctxt "#30130"
 msgid "Until space needed"
 msgstr ""
@@ -309,7 +309,7 @@ msgctxt "#30134"
 msgid "1 week"
 msgstr ""
 
-#Pre/post record time
+# Pre/post record time
 msgctxt "#30135"
 msgid "Backend default"
 msgstr ""
