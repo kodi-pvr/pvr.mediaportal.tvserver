@@ -525,7 +525,7 @@ PVR_ERROR cPVRClientMediaPortal::GetBackendTime(time_t *localTime, int *gmtOffse
     //[1] UTC offset hours
     //[2] UTC offset minutes
     //From CPVREpg::CPVREpg(): Expected PVREpg GMT offset is in seconds
-    m_BackendUTCoffset = ((std::stoi(fields[1]) * 60) + std::stoi(fields[2])) * 60;
+    m_BackendUTCoffset = ((atoi(fields[1].c_str()) * 60) + atoi(fields[2].c_str())) * 60;
 
     int count = sscanf(fields[0].c_str(), "%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second);
 
@@ -1256,7 +1256,7 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingPlayCount(const kodi::addon::PVRRec
   char           command[512];
   string         result;
 
-  snprintf(command, 512, "SetRecordingTimesWatched:%i|%i\n", std::stoi(recording.GetRecordingId()), count);
+  snprintf(command, 512, "SetRecordingTimesWatched:%i|%i\n", std::atoi(recording.GetRecordingId().c_str()), count);
 
   result = SendCommand(command);
 
@@ -1288,7 +1288,7 @@ PVR_ERROR cPVRClientMediaPortal::SetRecordingLastPlayedPosition(const kodi::addo
     lastplayedposition = 0;
   }
 
-  snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", std::stoi(recording.GetRecordingId()), lastplayedposition);
+  snprintf(command, 512, "SetRecordingStopTime:%i|%i\n", std::atoi(recording.GetRecordingId().c_str()), lastplayedposition);
 
   result = SendCommand(command);
 
@@ -1315,7 +1315,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const kodi::addo
   char           command[512];
   string         result;
 
-  snprintf(command, 512, "GetRecordingStopTime:%i\n", std::stoi(recording.GetRecordingId()));
+  snprintf(command, 512, "GetRecordingStopTime:%i\n", std::atoi(recording.GetRecordingId().c_str()));
 
   result = SendCommand(command);
 
@@ -1325,7 +1325,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingLastPlayedPosition(const kodi::addo
     return PVR_ERROR_UNKNOWN;
   }
 
-  position = std::stoi(result);
+  position = std::atoi(result.c_str());
 
   kodi::Log(ADDON_LOG_DEBUG, "%s: id=%s stoptime=%i {s} [successful]", __FUNCTION__, recording.GetRecordingId().c_str(), position);
 
@@ -1732,7 +1732,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
         //  NoPmtFound = 16,
         //};
 
-        int tvresult = std::stoi(timeshiftfields[1]);
+        int tvresult = std::atoi(timeshiftfields[1].c_str());
         // Display one of the localized error messages 30060-30075
         kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(30059 + tvresult));
       }
@@ -1820,7 +1820,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
         //if(g_bDirectTSFileRead)
         if(CSettings::Get().GetUseRTSP() == false)
         {
-          m_tsreader->SetCardId(std::stoi(timeshiftfields[3]));
+          m_tsreader->SetCardId(std::atoi(timeshiftfields[3].c_str()));
 
           if ((g_iTVServerKodiBuild >=110) && (timeshiftfields.size()>=6))
             bReturn = m_tsreader->OnZap(timeshiftfields[2].c_str(), atoll(timeshiftfields[4].c_str()), atol(timeshiftfields[5].c_str()));
@@ -1837,7 +1837,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
         if (bReturn)
         {
           m_iCurrentChannel = (int) channelinfo.GetUniqueId();
-          m_iCurrentCard = std::stoi(timeshiftfields[3]);
+          m_iCurrentCard = std::atoi(timeshiftfields[3].c_str());
           m_bCurrentChannelIsRadio = channelinfo.GetIsRadio();
         }
         else
@@ -1858,7 +1858,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
       {
         // Reading directly from the Timeshift buffer
         m_tsreader->SetCardSettings(&m_cCards);
-        m_tsreader->SetCardId(std::stoi(timeshiftfields[3]));
+        m_tsreader->SetCardId(std::atoi(timeshiftfields[3].c_str()));
 
         //if (g_szTimeshiftDir.length() > 0)
         //  m_tsreader->SetDirectory(g_szTimeshiftDir);
@@ -1885,7 +1885,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
 
     // at this point everything is ready for playback
     m_iCurrentChannel = (int) channelinfo.GetUniqueId();
-    m_iCurrentCard = std::stoi(timeshiftfields[3]);
+    m_iCurrentCard = std::atoi(timeshiftfields[3].c_str());
     m_bCurrentChannelIsRadio = channelinfo.GetIsRadio();
   }
   kodi::Log(ADDON_LOG_INFO, "OpenLiveStream: success for channel id %i (%s) on card %i", m_iCurrentChannel, channelinfo.GetChannelName().c_str(), m_iCurrentCard);
@@ -2414,7 +2414,7 @@ cRecording* cPVRClientMediaPortal::GetRecordingInfo(const kodi::addon::PVRRecord
   // Is this the same recording as the previous one?
   if (m_lastSelectedRecording)
   {
-    int recId = std::stoi(recording.GetRecordingId());
+    int recId = std::atoi(recording.GetRecordingId().c_str());
     if (m_lastSelectedRecording->Index() == recId)
     {
       return m_lastSelectedRecording;
