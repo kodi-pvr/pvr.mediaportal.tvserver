@@ -1,3 +1,6 @@
+v19.0.1
+- Revert std:stoi to std:atoi calls to avoid conversion errors
+
 v19.0.0
 - Translations updates from Weblate
   - da_dk, ko_kr, pl_pl
