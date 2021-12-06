@@ -1,3 +1,7 @@
+v19.0.2
+- Translations updates from Weblate
+	- da_dk, is_is, ko_kr, ml_in, pl_pl
+
 v19.0.1
 - Revert std:stoi to std:atoi calls to avoid conversion errors
 
