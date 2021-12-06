@@ -22,7 +22,7 @@ msgid "Kodi frontend for the MediaPortal TV Server"
 msgstr "Klient telewizyjny dla MediaPortal TV (wersja ffmpeg + tsreader)"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
 msgstr "Klient telewizyjny dla MediaPortal obsługuje transmisje kanałów radiowych i telewizyjnych, nagrywanie i harmonogram nagrań oraz funkcje przewodnika telewizyjnego. Klient ten łączy w sobie funkcje wcześniejszych klientów ffmpeg i tsreader."
 
 msgctxt "Addon Disclaimer"
