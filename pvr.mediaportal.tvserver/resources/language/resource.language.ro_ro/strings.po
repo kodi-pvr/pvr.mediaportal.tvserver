@@ -22,7 +22,7 @@ msgid "Kodi frontend for the MediaPortal TV Server"
 msgstr "Partea din față a Kodi pentru servitorul tv MediaPortal"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
 msgstr "Partea din față pentru servitorul tv MediaPortal. Capabil de difuzarea televiunii în direct și a înregistrărilor, ascultarea canalelor Radio channels, ghid tv electronic și cronometre."
 
 msgctxt "Addon Disclaimer"

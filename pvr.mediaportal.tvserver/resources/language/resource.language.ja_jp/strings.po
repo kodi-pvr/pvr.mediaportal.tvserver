@@ -21,7 +21,7 @@ msgid "Kodi frontend for the MediaPortal TV Server"
 msgstr "MediaPortal TV サーバー (ffmpeg + tsreader バージョン) の Kodi フロントエンド"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
 msgstr "MediaPortal TV サーバーのフロントエンドです。ライブテレビのストリーミングや録画、ラジオチャンネルの視聴、EPG、タイマーなどをサポートしています。以前の ffmpeg アドオンと tsreader アドオンを組み合わせたものです。"
 
 msgctxt "Addon Disclaimer"
