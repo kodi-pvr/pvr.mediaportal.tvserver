@@ -94,12 +94,12 @@ bool cEpg::ParseLine(string& data)
       {
         // Since TVServerKodi v1.x.x.104
         m_uid = (unsigned int) cKodiEpgIndexOffset + atol(epgfields[5].c_str());
-        m_seriesNumber = !epgfields[7].empty() ? std::stoi(epgfields[7]) : EPG_TAG_INVALID_SERIES_EPISODE;
-        m_episodeNumber = !epgfields[8].empty() ? std::stoi(epgfields[8]) : EPG_TAG_INVALID_SERIES_EPISODE;
+        m_seriesNumber = !epgfields[7].empty() ? std::atoi(epgfields[7].c_str()) : EPG_TAG_INVALID_SERIES_EPISODE;
+        m_episodeNumber = !epgfields[8].empty() ? std::atoi(epgfields[8].c_str()) : EPG_TAG_INVALID_SERIES_EPISODE;
         m_episodeName = epgfields[9];
         m_episodePart = epgfields[10];
-        m_starRating = !epgfields[13].empty() ? std::stoi(epgfields[13]) : 0;
-        m_parentalRating = !epgfields[14].empty() ? std::stoi(epgfields[14]) : 0;
+        m_starRating = !epgfields[13].empty() ? std::atoi(epgfields[13].c_str()) : 0;
+        m_parentalRating = !epgfields[14].empty() ? std::atoi(epgfields[14].c_str()) : 0;
 
         //originalAirDate
         if( m_originalAirDate.SetFromDateTime(epgfields[11]) == false )
