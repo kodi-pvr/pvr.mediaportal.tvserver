@@ -33,13 +33,13 @@ enum eStreamingMethod
   ffmpeg = 1
 };
 
-class ATTRIBUTE_HIDDEN CSettings
+class ATTR_DLL_LOCAL CSettings
 {
 public:
   static CSettings& Get();
 
   bool Load();
-  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue);
+  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue);
 
   const std::string& GetHostname() const { return m_szHostname; }
   int GetPort() const { return m_iPort; }

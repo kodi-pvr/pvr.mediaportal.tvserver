@@ -587,20 +587,20 @@ cLifeTimeValues::cLifeTimeValues()
 {
   /* Prepare the list with Lifetime values and descriptions */
   // MediaPortal keep methods:
-  m_lifetimeValues.emplace_back(-MPTV_KEEP_ALWAYS, kodi::GetLocalizedString(30133));
-  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_SPACE_NEEDED, kodi::GetLocalizedString(30130));
-  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_WATCHED, kodi::GetLocalizedString(30131));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_ALWAYS, kodi::addon::GetLocalizedString(30133));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_SPACE_NEEDED, kodi::addon::GetLocalizedString(30130));
+  m_lifetimeValues.emplace_back(-MPTV_KEEP_UNTIL_WATCHED, kodi::addon::GetLocalizedString(30131));
 
   //Not directly supported by Kodi. I can add this, but there is no way to select the date
-  //m_lifetimeValues.emplace_back(TvDatabase::TillDate, kodi::GetLocalizedString(30132));
+  //m_lifetimeValues.emplace_back(TvDatabase::TillDate, kodi::addon::GetLocalizedString(30132));
 
   // MediaPortal Until date replacements:
-  const std::string strWeeks = kodi::GetLocalizedString(30137); // %d weeks
-  const std::string strMonths = kodi::GetLocalizedString(30139); // %d months
+  const std::string strWeeks = kodi::addon::GetLocalizedString(30137); // %d weeks
+  const std::string strMonths = kodi::addon::GetLocalizedString(30139); // %d months
   const size_t cKeepStringLength = 255;
   char strKeepString[cKeepStringLength];
 
-  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_WEEK, kodi::GetLocalizedString(30134));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_WEEK, kodi::addon::GetLocalizedString(30134));
 
   snprintf(strKeepString, cKeepStringLength, strWeeks.c_str(), 2);
   m_lifetimeValues.emplace_back(MPTV_KEEP_TWO_WEEKS, strKeepString);
@@ -608,7 +608,7 @@ cLifeTimeValues::cLifeTimeValues()
   snprintf(strKeepString, cKeepStringLength, strWeeks.c_str(), 3);
   m_lifetimeValues.emplace_back(MPTV_KEEP_THREE_WEEKS, strKeepString);
 
-  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_MONTH, kodi::GetLocalizedString(30138));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_MONTH, kodi::addon::GetLocalizedString(30138));
 
   snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 2);
   m_lifetimeValues.emplace_back(MPTV_KEEP_TWO_MONTHS, strKeepString);
@@ -640,7 +640,7 @@ cLifeTimeValues::cLifeTimeValues()
   snprintf(strKeepString, cKeepStringLength, strMonths.c_str(), 11);
   m_lifetimeValues.emplace_back(MPTV_KEEP_ELEVEN_MONTHS, strKeepString);
 
-  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_YEAR, kodi::GetLocalizedString(30140));
+  m_lifetimeValues.emplace_back(MPTV_KEEP_ONE_YEAR, kodi::addon::GetLocalizedString(30140));
 }
 
 void cLifeTimeValues::SetLifeTimeValues(kodi::addon::PVRTimerType& timertype)

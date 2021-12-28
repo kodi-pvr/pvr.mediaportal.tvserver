@@ -53,8 +53,8 @@ template<typename T> void SafeDelete(T*& p)
 /************************************************************/
 /** Class interface */
 
-cPVRClientMediaPortal::cPVRClientMediaPortal(KODI_HANDLE instance, const std::string& kodiVersion) :
-  kodi::addon::CInstancePVRClient(instance, kodiVersion),
+cPVRClientMediaPortal::cPVRClientMediaPortal(const kodi::addon::IInstanceInfo& instance) :
+  kodi::addon::CInstancePVRClient(instance),
   m_state(PVR_CONNECTION_STATE_UNKNOWN)
 {
   m_iCurrentChannel        = -1;
@@ -246,7 +246,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   if(fields.size() < 2)
   {
     kodi::Log(ADDON_LOG_ERROR, "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!", TVSERVERKODI_MIN_VERSION_STRING);
-    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::GetLocalizedString(30051).c_str(), TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::addon::GetLocalizedString(30051).c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
@@ -270,7 +270,7 @@ PVR_CONNECTION_STATE cPVRClientMediaPortal::Connect(bool updateConnectionState)
   if( g_iTVServerKodiBuild < TVSERVERKODI_MIN_VERSION_BUILD ) //major < 1 || minor < 1 || revision < 0 || build < 70
   {
     kodi::Log(ADDON_LOG_ERROR, "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!", fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
-    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::GetLocalizedString(30051).c_str(), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
+    kodi::QueueFormattedNotification(QUEUE_ERROR, kodi::addon::GetLocalizedString(30051).c_str(), fields[1].c_str(), TVSERVERKODI_MIN_VERSION_STRING);
     if (updateConnectionState)
     {
       SetConnectionState(PVR_CONNECTION_STATE_VERSION_MISMATCH);
@@ -1431,7 +1431,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::Once);
     type.SetAttributes(MPTV_RECORD_ONCE);
-    type.SetDescription(kodi::GetLocalizedString(30110)); /* Record once */
+    type.SetDescription(kodi::addon::GetLocalizedString(30110)); /* Record once */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1441,7 +1441,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::EveryTimeOnThisChannel);
     type.SetAttributes(MPTV_RECORD_EVERY_TIME_ON_THIS_CHANNEL);
-    type.SetDescription(kodi::GetLocalizedString(30115)); /* Record every time on this channel */
+    type.SetDescription(kodi::addon::GetLocalizedString(30115)); /* Record every time on this channel */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1451,7 +1451,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::EveryTimeOnEveryChannel);
     type.SetAttributes(MPTV_RECORD_EVERY_TIME_ON_EVERY_CHANNEL);
-    type.SetDescription(kodi::GetLocalizedString(30116)); /* Record every time on every channel */
+    type.SetDescription(kodi::addon::GetLocalizedString(30116)); /* Record every time on every channel */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1461,7 +1461,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::Weekly);
     type.SetAttributes(MPTV_RECORD_WEEKLY);
-    type.SetDescription(kodi::GetLocalizedString(30117)); /* "Record every week at this time" */
+    type.SetDescription(kodi::addon::GetLocalizedString(30117)); /* "Record every week at this time" */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1471,7 +1471,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::Daily);
     type.SetAttributes(MPTV_RECORD_DAILY);
-    type.SetDescription(kodi::GetLocalizedString(30118)); /* Record every day at this time */
+    type.SetDescription(kodi::addon::GetLocalizedString(30118)); /* Record every day at this time */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1481,7 +1481,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::WorkingDays);
     type.SetAttributes(MPTV_RECORD_WORKING_DAYS);
-    type.SetDescription(kodi::GetLocalizedString(30114)); /* Record weekdays */
+    type.SetDescription(kodi::addon::GetLocalizedString(30114)); /* Record weekdays */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1491,7 +1491,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::Weekends);
     type.SetAttributes(MPTV_RECORD_WEEEKENDS);
-    type.SetDescription(kodi::GetLocalizedString(30113)); /* Record Weekends */
+    type.SetDescription(kodi::addon::GetLocalizedString(30113)); /* Record Weekends */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1501,7 +1501,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::WeeklyEveryTimeOnThisChannel);
     type.SetAttributes(MPTV_RECORD_WEEKLY_EVERY_TIME_ON_THIS_CHANNEL);
-    type.SetDescription(kodi::GetLocalizedString(30119)); /* Weekly on this channel */
+    type.SetDescription(kodi::addon::GetLocalizedString(30119)); /* Weekly on this channel */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1511,7 +1511,7 @@ PVR_ERROR cPVRClientMediaPortal::GetTimerTypes(std::vector<kodi::addon::PVRTimer
     kodi::addon::PVRTimerType type;
     type.SetId(cKodiTimerTypeOffset + TvDatabase::KodiManual);
     type.SetAttributes(MPTV_RECORD_MANUAL);
-    type.SetDescription(kodi::GetLocalizedString(30122)); /* Manual */
+    type.SetDescription(kodi::addon::GetLocalizedString(30122)); /* Manual */
     Timer::lifetimeValues->SetLifeTimeValues(type);
     types.emplace_back(type);
   }
@@ -1734,7 +1734,7 @@ bool cPVRClientMediaPortal::OpenLiveStream(const kodi::addon::PVRChannel& channe
 
         int tvresult = std::atoi(timeshiftfields[1].c_str());
         // Display one of the localized error messages 30060-30075
-        kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(30059 + tvresult));
+        kodi::QueueNotification(QUEUE_ERROR, "", kodi::addon::GetLocalizedString(30059 + tvresult));
       }
       else
       {
@@ -2127,7 +2127,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const kodi::addon::PVRRecording& 
   if (recfile.empty())
   {
     kodi::Log(ADDON_LOG_ERROR, "Recording playback not possible. Backend returned an empty filename and no RTSP stream URL for recording id %s", recording.GetRecordingId().c_str());
-    kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(30052));
+    kodi::QueueNotification(QUEUE_ERROR, "", kodi::addon::GetLocalizedString(30052));
     // Tell Kodi to re-read the list with recordings to remove deleted/non-existing recordings as a result of backend auto-deletion.
     kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
     return false;

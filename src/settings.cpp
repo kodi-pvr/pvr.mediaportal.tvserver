@@ -21,7 +21,7 @@ bool CSettings::Load()
 {
   /* Connection settings */
   /***********************/
-  if (kodi::CheckSettingString("host", m_szHostname))
+  if (kodi::addon::CheckSettingString("host", m_szHostname))
   {
     uri::decode(m_szHostname);
   }
@@ -34,7 +34,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "port" from settings.xml */
-  if (!kodi::CheckSettingInt("port", m_iPort))
+  if (!kodi::addon::CheckSettingInt("port", m_iPort))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'port' setting, falling back to '9596' as default");
@@ -42,7 +42,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "timeout" from settings.xml */
-  if (!kodi::CheckSettingInt("timeout", m_iConnectTimeout))
+  if (!kodi::addon::CheckSettingInt("timeout", m_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -55,7 +55,7 @@ bool CSettings::Load()
   /***********************/
 
   /* Read setting "ftaonly" from settings.xml */
-  if (!kodi::CheckSettingBoolean("ftaonly", m_bOnlyFTA))
+  if (!kodi::addon::CheckSettingBoolean("ftaonly", m_bOnlyFTA))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -64,7 +64,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "useradio" from settings.xml */
-  if (!kodi::CheckSettingBoolean("useradio", m_bRadioEnabled))
+  if (!kodi::addon::CheckSettingBoolean("useradio", m_bRadioEnabled))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -72,7 +72,7 @@ bool CSettings::Load()
     m_bRadioEnabled = DEFAULT_RADIO;
   }
 
-  if (!kodi::CheckSettingString("tvgroup", m_szTVGroup))
+  if (!kodi::addon::CheckSettingString("tvgroup", m_szTVGroup))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'tvgroup' setting, falling back to '' as default");
@@ -82,7 +82,7 @@ bool CSettings::Load()
     std::replace(m_szTVGroup.begin(), m_szTVGroup.end(), ';', '|');
   }
 
-  if (!kodi::CheckSettingString("radiogroup", m_szRadioGroup))
+  if (!kodi::addon::CheckSettingString("radiogroup", m_szRadioGroup))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'radiogroup' setting, falling back to '' as default");
@@ -92,7 +92,7 @@ bool CSettings::Load()
     std::replace(m_szRadioGroup.begin(), m_szRadioGroup.end(), ';', '|');
   }
 
-  if (!kodi::CheckSettingEnum<eStreamingMethod>("streamingmethod", m_eStreamingMethod))
+  if (!kodi::addon::CheckSettingEnum<eStreamingMethod>("streamingmethod", m_eStreamingMethod))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -101,7 +101,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "resolvertsphostname" from settings.xml */
-  if (!kodi::CheckSettingBoolean("resolvertsphostname", m_bResolveRTSPHostname))
+  if (!kodi::addon::CheckSettingBoolean("resolvertsphostname", m_bResolveRTSPHostname))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -110,7 +110,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "readgenre" from settings.xml */
-  if (!kodi::CheckSettingBoolean("readgenre", m_bReadGenre))
+  if (!kodi::addon::CheckSettingBoolean("readgenre", m_bReadGenre))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -119,7 +119,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "readgenre" from settings.xml */
-  if (!kodi::CheckSettingBoolean("enableoldseriesdlg", m_bEnableOldSeriesDlg))
+  if (!kodi::addon::CheckSettingBoolean("enableoldseriesdlg", m_bEnableOldSeriesDlg))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -128,7 +128,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "keepmethodtype" from settings.xml */
-  if (!kodi::CheckSettingEnum<TvDatabase::KeepMethodType>("keepmethodtype", m_KeepMethodType))
+  if (!kodi::addon::CheckSettingEnum<TvDatabase::KeepMethodType>("keepmethodtype", m_KeepMethodType))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -137,7 +137,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "defaultrecordinglifetime" from settings.xml */
-  if (!kodi::CheckSettingInt("defaultrecordinglifetime", m_DefaultRecordingLifeTime))
+  if (!kodi::addon::CheckSettingInt("defaultrecordinglifetime", m_DefaultRecordingLifeTime))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -146,7 +146,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "sleeponrtspurl" from settings.xml */
-  if (!kodi::CheckSettingInt("sleeponrtspurl", m_iSleepOnRTSPurl))
+  if (!kodi::addon::CheckSettingInt("sleeponrtspurl", m_iSleepOnRTSPurl))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -159,7 +159,7 @@ bool CSettings::Load()
   /* TSReader settings */
   /*********************/
   /* Read setting "fastchannelswitch" from settings.xml */
-  if (!kodi::CheckSettingBoolean("fastchannelswitch", m_bFastChannelSwitch))
+  if (!kodi::addon::CheckSettingBoolean("fastchannelswitch", m_bFastChannelSwitch))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -168,7 +168,7 @@ bool CSettings::Load()
   }
 
   /* read setting "user" from settings.xml */
-  if (!kodi::CheckSettingString("smbusername", m_szSMBusername))
+  if (!kodi::addon::CheckSettingString("smbusername", m_szSMBusername))
   {
     kodi::Log(ADDON_LOG_ERROR,
               "Couldn't get 'smbusername' setting, falling back to '%s' as default",
@@ -177,7 +177,7 @@ bool CSettings::Load()
   }
 
   /* read setting "pass" from settings.xml */
-  if (!kodi::CheckSettingString("smbpassword", m_szSMBpassword))
+  if (!kodi::addon::CheckSettingString("smbpassword", m_szSMBpassword))
   {
     kodi::Log(ADDON_LOG_ERROR,
               "Couldn't get 'smbpassword' setting, falling back to '%s' as default",
@@ -186,7 +186,7 @@ bool CSettings::Load()
   }
 
   /* Read setting "usertsp" from settings.xml */
-  if (!kodi::CheckSettingBoolean("usertsp", m_bUseRTSP))
+  if (!kodi::addon::CheckSettingBoolean("usertsp", m_bUseRTSP))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -214,7 +214,7 @@ bool CSettings::Load()
 }
 
 ADDON_STATUS CSettings::SetSetting(const std::string& settingName,
-                                   const kodi::CSettingValue& settingValue)
+                                   const kodi::addon::CSettingValue& settingValue)
 {
   if (settingName == "host")
   {
