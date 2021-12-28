@@ -21,8 +21,8 @@ msgid "Kodi frontend for the MediaPortal TV Server"
 msgstr "Kodi voorprogram vir die MediaPortal TV Bediener (ffmpeg + tsreader weergawe)"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
-msgstr "MediaPortal TV Bediener voorprogram. Ondersteun stroom van Lewendige TV &amp; Opnames, luister na Radio kanale, EPG en Tydhouers. Hierdie byvoegsel kombineer die voormalige ffmpeg en tsreader byvoegsels."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
+msgstr "MediaPortal TV Bediener voorprogram. Ondersteun stroom van Lewendige TV & Opnames, luister na Radio kanale, EPG en Tydhouers. Hierdie byvoegsel kombineer die voormalige ffmpeg en tsreader byvoegsels."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
