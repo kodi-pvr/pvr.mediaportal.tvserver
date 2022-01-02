@@ -70,17 +70,17 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinFrequency->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 5; i++)
   { // show localized recording options
-    m_spinFrequency->AddLabel(kodi::GetLocalizedString(30110 + i), i);
+    m_spinFrequency->AddLabel(kodi::addon::GetLocalizedString(30110 + i), i);
   }
   // set the default value
   m_spinFrequency->SetIntValue(CGUIDialogRecordSettings::Once);
 
   // Populate Airtime spin control
-  std::string strThisTime = kodi::GetLocalizedString(30120);
+  std::string strThisTime = kodi::addon::GetLocalizedString(30120);
   strThisTime += "(" + m_startTime + ")";
   m_spinAirtime->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   m_spinAirtime->AddLabel(strThisTime, CGUIDialogRecordSettings::ThisTime);
-  m_spinAirtime->AddLabel(kodi::GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
+  m_spinAirtime->AddLabel(kodi::addon::GetLocalizedString(30121), CGUIDialogRecordSettings::AnyTime);
   // Set the default values
   m_spinAirtime->SetIntValue(CGUIDialogRecordSettings::ThisTime);
   m_spinAirtime->SetVisible(false);
@@ -89,7 +89,7 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinChannels->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 2; i++)
   { // show localized recording options
-    m_spinChannels->AddLabel(kodi::GetLocalizedString(30125 + i), i);
+    m_spinChannels->AddLabel(kodi::addon::GetLocalizedString(30125 + i), i);
   }
   // Set the default values
   m_spinChannels->SetIntValue(CGUIDialogRecordSettings::ThisChannel);
@@ -99,16 +99,16 @@ bool CGUIDialogRecordSettings::OnInit()
   m_spinKeep->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
   for (int i = 0; i < 4; i++)
   { // show localized recording options
-    m_spinKeep->AddLabel(kodi::GetLocalizedString(30130 + i), i);
+    m_spinKeep->AddLabel(kodi::addon::GetLocalizedString(30130 + i), i);
   }
   // Set the default values
   m_spinKeep->SetIntValue(TvDatabase::Always);
 
   // Populate PreRecord spin control
   std::string marginStart;
-  marginStart = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginStart(), kodi::GetLocalizedString(30136).c_str());
+  marginStart = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginStart(), kodi::addon::GetLocalizedString(30136).c_str());
   m_spinPreRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
-  m_spinPreRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
+  m_spinPreRecord->AddLabel(kodi::addon::GetLocalizedString(30135), -1);
   m_spinPreRecord->AddLabel(marginStart, m_timerinfo.GetMarginStart()); //value from XBMC
   m_spinPreRecord->AddLabel("0", 0);
   m_spinPreRecord->AddLabel("3", 3);
@@ -120,9 +120,9 @@ bool CGUIDialogRecordSettings::OnInit()
 
   // Populate PostRecord spin control
   std::string marginEnd;
-  marginEnd = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginEnd(), kodi::GetLocalizedString(30136).c_str());
+  marginEnd = kodi::tools::StringUtils::Format("%d (%s)", m_timerinfo.GetMarginEnd(), kodi::addon::GetLocalizedString(30136).c_str());
   m_spinPostRecord->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
-  m_spinPostRecord->AddLabel(kodi::GetLocalizedString(30135), -1);
+  m_spinPostRecord->AddLabel(kodi::addon::GetLocalizedString(30135), -1);
   m_spinPostRecord->AddLabel(marginEnd, m_timerinfo.GetMarginEnd()); //value from XBMC
   m_spinPostRecord->AddLabel("0", 0);
   m_spinPostRecord->AddLabel("3", 3);

@@ -29,12 +29,12 @@ namespace MPTV
 }
 class cRecording;
 
-class ATTRIBUTE_HIDDEN cPVRClientMediaPortal
+class ATTR_DLL_LOCAL cPVRClientMediaPortal
   : public kodi::addon::CInstancePVRClient
 {
 public:
   /* Class interface */
-  cPVRClientMediaPortal(KODI_HANDLE instance, const std::string& kodiVersion);
+  cPVRClientMediaPortal(const kodi::addon::IInstanceInfo& instance);
   ~cPVRClientMediaPortal() override;
 
   /* Server handling */

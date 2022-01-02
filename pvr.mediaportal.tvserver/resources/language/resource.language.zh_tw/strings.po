@@ -21,7 +21,7 @@ msgid "Kodi frontend for the MediaPortal TV Server"
 msgstr "MediaPortal電視服務器的Kodi前端 (ffmpeg+tsreader版本)"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
 msgstr "MediaPortal電視服務器的前端。支援的串流檔案包括有：電視直播和錄影，收聽廣播頻道，電子節目表和計時器。這個插件結合了先前ffmpeg和tsreader的插件。"
 
 msgctxt "Addon Disclaimer"

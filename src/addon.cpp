@@ -10,26 +10,23 @@
 #include "settings.h"
 
 ADDON_STATUS CPVRMediaPortalAddon::SetSetting(const std::string& settingName,
-                                              const kodi::CSettingValue& settingValue)
+                                              const kodi::addon::CSettingValue& settingValue)
 {
   return CSettings::Get().SetSetting(settingName, settingValue);
 }
 
-ADDON_STATUS CPVRMediaPortalAddon::CreateInstance(int instanceType,
-                                                  const std::string& instanceID,
-                                                  KODI_HANDLE instance,
-                                                  const std::string& version,
-                                                  KODI_HANDLE& addonInstance)
+ADDON_STATUS CPVRMediaPortalAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                                                  KODI_ADDON_INSTANCE_HDL& hdl)
 {
-  if (instanceType == ADDON_INSTANCE_PVR)
+  if (instance.IsType(ADDON_INSTANCE_PVR))
   {
     kodi::Log(ADDON_LOG_INFO, "Creating MediaPortal PVR-Client");
 
     CSettings::Get().Load();
 
     /* Connect to ARGUS TV */
-    cPVRClientMediaPortal* client = new cPVRClientMediaPortal(instance, version);
-    addonInstance = client;
+    cPVRClientMediaPortal* client = new cPVRClientMediaPortal(instance);
+    hdl = client;
 
     ADDON_STATUS curStatus = client->TryConnect();
     if (curStatus == ADDON_STATUS_PERMANENT_FAILURE)

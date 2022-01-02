@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-08-03 23:29+0000\n"
+"PO-Revision-Date: 2021-11-14 14:13+0000\n"
 "Last-Translator: Christian Gade <gade@kodi.tv>\n"
 "Language-Team: Danish <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-mediaportal-tvserver/da_dk/>\n"
 "Language: da_dk\n"
@@ -15,27 +15,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7.2\n"
+"X-Generator: Weblate 4.9\n"
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
-msgstr "Kodi frontend til MediaPortal TV server (ffmpeg + tsreader version)"
+msgstr "Kodi frontend til MediaPortal tv-server"
 
 msgctxt "Addon Description"
-msgid "MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers."
-msgstr "MediaPortal TV server frontend. Understøtter streaming af TV og Optagelser, Radiokanaler, EPG og Timere. Denne addon kombinerer de gamle ffmpeg og tsreader addons."
+msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
+msgstr "MediaPortal TV server frontend. Understøtter streaming af direkte tv samt optagelser, radiokanaler, EPG og timeroptagelser."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser."
+msgstr "Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer eller andre uønskede konsekvenser."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
-msgstr "Mediaportal Værtsnavn"
+msgstr "Mediaportal værtsnavn"
 
 msgctxt "#30001"
 msgid "Mediaportal Kodi plugin Port"
-msgstr "Mediaportal Kodi plug-in port"
+msgstr "Mediaportal port til Kodi plug-in"
 
 msgctxt "#30002"
 msgid "Free-to-air only"
@@ -43,7 +43,7 @@ msgstr "Kun ukodet"
 
 msgctxt "#30003"
 msgid "Include Radio"
-msgstr "Inkluder Radio"
+msgstr "Inkluder radio"
 
 msgctxt "#30004"
 msgid "Fast channel switching (don't stop timeshift)"
@@ -55,11 +55,11 @@ msgstr "Tidsfrist for forbindelse (s)"
 
 msgctxt "#30006"
 msgid "Import only TV Channels from group"
-msgstr "Importer kun TV-kanaler fra gruppe"
+msgstr "Importer kun tv-kanaler fra gruppe"
 
 msgctxt "#30007"
 msgid "Import only Radio Channels from group"
-msgstr "Importer kun Radio-kanaler fra gruppe"
+msgstr "Importer kun radiokanaler fra gruppe"
 
 msgctxt "#30008"
 msgid "Convert hostname to IP-adress"
@@ -71,7 +71,7 @@ msgstr "EPG: Læs genrestrenge (langsom)"
 
 msgctxt "#30010"
 msgid "Wait time after tuning a channel (ms)"
-msgstr "Ventetid efter valg af kanal (ms)"
+msgstr "Ventetid efter indstilling af kanal (ms)"
 
 msgctxt "#30011"
 msgid "Enable old series recording dialog"
@@ -83,7 +83,7 @@ msgstr "Standard levetid for optagelse"
 
 msgctxt "#30015"
 msgid "Streaming method"
-msgstr "Stream-metode"
+msgstr "Metode til streaming"
 
 msgctxt "#30016"
 msgid "Windows user account (SMB)"
@@ -91,11 +91,11 @@ msgstr "Windows brugerkonto (SMB)"
 
 msgctxt "#30017"
 msgid "Windows password (SMB)"
-msgstr "Windows kodeord (SMB)"
+msgstr "Windows adgangskode (SMB)"
 
 msgctxt "#30018"
 msgid "Use RTSP streaming"
-msgstr "Brug RTSP stream"
+msgstr "Brug RTSP-streaming"
 
 msgctxt "#30040"
 msgid "Connection"
@@ -155,7 +155,7 @@ msgstr "Ingen tuning-detaljer"
 
 msgctxt "#30068"
 msgid "Channel is not mapped to any card"
-msgstr "Kanalen er ikke defineret til nogen kort"
+msgstr "Kanalen er ikke defineret til noget kort"
 
 msgctxt "#30069"
 msgid "Card is disabled"
@@ -211,7 +211,7 @@ msgstr "Optag minutter før start"
 
 msgctxt "#30106"
 msgid "Record minutes after end"
-msgstr "Optag minutter før slut"
+msgstr "Optag minutter efter slut"
 
 msgctxt "#30110"
 msgid "Record Once"
@@ -219,7 +219,7 @@ msgstr "Optag en gang"
 
 msgctxt "#30111"
 msgid "Record Daily (This program)"
-msgstr "Optag daglig (Dette program)"
+msgstr "Optag daglig (dette program)"
 
 msgctxt "#30112"
 msgid "Record Weekly"
@@ -259,7 +259,7 @@ msgstr "Dette tidspunkt"
 
 msgctxt "#30121"
 msgid "Anytime"
-msgstr "Vilkårligt tidspunkt"
+msgstr "Ethvert tidspunkt"
 
 msgctxt "#30122"
 msgid "Manual"
@@ -271,11 +271,11 @@ msgstr "Denne kanal"
 
 msgctxt "#30126"
 msgid "Any Channel"
-msgstr "Hvilken som helst kanal"
+msgstr "Enhver kanal"
 
 msgctxt "#30130"
 msgid "Until space needed"
-msgstr "Indtil fri plads nødvendig"
+msgstr "Indtil påkrævet fri plads"
 
 msgctxt "#30131"
 msgid "Until watched"
