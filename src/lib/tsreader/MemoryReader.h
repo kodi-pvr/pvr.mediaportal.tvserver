@@ -41,6 +41,7 @@ namespace MPTV
       public:
         CMemoryReader(CMemoryBuffer& buffer);
         virtual ~CMemoryReader(void);
+        CMemoryReader& operator=(const CMemoryReader& memoryreader) = delete;
         virtual long Read(unsigned char* pbData, size_t lDataLength, size_t *dwReadBytes);
         virtual int64_t SetFilePointer(int64_t llDistanceToMove, unsigned long dwMoveMethod);
         virtual bool IsBuffer() { return true; };
@@ -49,7 +50,6 @@ namespace MPTV
 
       private:
         CMemoryBuffer& m_buffer;
-        CMemoryReader& operator=(const CMemoryReader& memoryreader) {};
     };
 }
 #endif //LIVE555
