@@ -5,16 +5,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Croatian (Croatia) (http://www.transifex.com/projects/p/kodi-main/language/hr_HR/)\n"
-"Language: hr_HR\n"
+"PO-Revision-Date: 2023-01-12 05:15+0000\n"
+"Last-Translator: gogogogi <trebelnik2@gmail.com>\n"
+"Language-Team: Croatian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-mediaportal-tvserver/hr_hr/>\n"
+"Language: hr_hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.15\n"
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
@@ -22,11 +23,11 @@ msgstr "Kodi sučelje za MediaPortal TV poslužitelj (ffmpeg + tsreader inačica
 
 msgctxt "Addon Description"
 msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
-msgstr "MediaPortal TV poslužitelj sučelje. Podržava stremanje i snimanje TV programa, slušanje radio programa, elektronski programski vodič (EPG) i vremenski zadano snimanje. Ovaj dodatak objedinjuje nekadašnje ffmpeg i tsreader dodatke."
+msgstr "MediaPortal TV poslužitelj sučelje. Podržava strujanje i snimanje TV programa, slušanje radio programa, elektronski programski vodič (EPG) i vremenski zadano snimanje. Ovaj dodatak objedinjuje nekadašnje ffmpeg i tsreader dodatke."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna vremena snimanja, izgubljene sate, ili bilo koje druge nepoželjne učinke."
+msgstr "Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna zakazana snimanja, izgubljene sate, ili bilo koje druge neželjene učinke."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
@@ -58,7 +59,7 @@ msgstr "Uvezi samo TV programe iz grupe"
 
 msgctxt "#30007"
 msgid "Import only Radio Channels from group"
-msgstr "Uvezi samo radijske programe iz grupe"
+msgstr "Uvezi samo Radijske programe iz grupe"
 
 msgctxt "#30008"
 msgid "Convert hostname to IP-adress"
@@ -82,7 +83,7 @@ msgstr "Zadano trajanje snimanja"
 
 msgctxt "#30015"
 msgid "Streaming method"
-msgstr "Način stremanja"
+msgstr "Način strujanja"
 
 msgctxt "#30016"
 msgid "Windows user account (SMB)"
@@ -94,7 +95,7 @@ msgstr "Windows lozinka (SMB)"
 
 msgctxt "#30018"
 msgid "Use RTSP streaming"
-msgstr "Koristi RTSP stremanje"
+msgstr "Koristi RTSP strujanje"
 
 msgctxt "#30040"
 msgid "Connection"
@@ -142,7 +143,7 @@ msgstr "Nepoznata greška"
 
 msgctxt "#30065"
 msgid "Unable to start graph"
-msgstr "Nemoguće pokretanje grafa"
+msgstr "Nemoguće pokretanje grafikona"
 
 msgctxt "#30066"
 msgid "Unknown channel"
@@ -154,7 +155,7 @@ msgstr "Nema pojedinosti o prijemu"
 
 msgctxt "#30068"
 msgid "Channel is not mapped to any card"
-msgstr "Program nije dodijeljen niti jednoj kartici"
+msgstr "Program nije mapiran niti jednoj kartici"
 
 msgctxt "#30069"
 msgid "Card is disabled"
@@ -170,7 +171,7 @@ msgstr "Nije vlasnik"
 
 msgctxt "#30072"
 msgid "Graph building failed"
-msgstr "Neuspjela izgradnja grafa"
+msgstr "Neuspjela izgradnja grafikona"
 
 msgctxt "#30073"
 msgid "SW Encoder missing"
@@ -238,7 +239,7 @@ msgstr "Snimaj svaki puta na ovom programu"
 
 msgctxt "#30116"
 msgid "Record every time on every channel"
-msgstr "Snimaj svaki puta na svakom programu"
+msgstr "Snimaj svaki puta na svim programima"
 
 msgctxt "#30117"
 msgid "Record every week at this time"
