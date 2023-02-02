@@ -42,7 +42,7 @@
     <summary lang="hu_HU">Kodi előtét a MediaPortal TV kiszolgálóhoz (ffmpeg + tsreader)</summary>
     <summary lang="id_ID">Frontend Kodi untuk Server TV MediaPortal (versi ffmpeg + tsreader)</summary>
     <summary lang="is_IS">Framendi fyrir Kodi til að nota MediaPortal TV Server (ffmpeg + tsreader version)</summary>
-    <summary lang="it_IT">Frontend Kodi per il server MediaPortal TV (versione ffmpeg + tsreader)</summary>
+    <summary lang="it_IT">Frontend Kodi per il server TV MediaPortal</summary>
     <summary lang="ja_JP">MediaPortal TV サーバー (ffmpeg + tsreader バージョン) の Kodi フロントエンド</summary>
     <summary lang="ko_KR">MediaPortal TV Server (ffmpeg + tsreader version) 을 위한 Kodi 프론트엔드</summary>
     <summary lang="lt_LT">Kodi sąsaja MediaPortal TV serveriui (ffmpeg + tsreader versija)</summary>
@@ -89,11 +89,11 @@
     <description lang="fr_FR">Interface logicielle pour le serveur TV de MediaPortal. Il gère la lecture et l&apos;enregistrement en continu de la TV en direct, l&apos;écoute de radios, le guide électronique des programmes TV et les programmations.</description>
     <description lang="gl_ES">Interface do Servidor de TV de MediaPortal. Soporta transmisión de TV en directo e Gravacións, escoita de canles de radio, Guía e programacións. Este complemento combina o antigo ffmpeg e os complementos tsreader.</description>
     <description lang="he_IL">לקוח טלוויזיה חיה של MediaPortal. תומך בהזרמת שידורים חיים והקלטות, האזנה לרדיו, הצגת לוח שידורים ותזמון הקלטות. הרחבה זו משלבת את ההרחבות הקודמות המבוססות על FFmpeg ו־TSReader.</description>
-    <description lang="hr_HR">MediaPortal TV poslužitelj sučelje. Podržava stremanje i snimanje TV programa, slušanje radio programa, elektronski programski vodič (EPG) i vremenski zadano snimanje. Ovaj dodatak objedinjuje nekadašnje ffmpeg i tsreader dodatke.</description>
+    <description lang="hr_HR">MediaPortal TV poslužitelj sučelje. Podržava strujanje i snimanje TV programa, slušanje radio programa, elektronski programski vodič (EPG) i vremenski zadano snimanje. Ovaj dodatak objedinjuje nekadašnje ffmpeg i tsreader dodatke.</description>
     <description lang="hu_HU">MediaPortal TV kiszolgáló előtét. Élő adások, felvételek és rádióadások támogatása EPG-vel és időzítéssel. Ez a kiegészítő egyesíti az ffmpeg, és a tsreader kiegészítőket.</description>
     <description lang="id_ID">Frontend Server TV MediaPortal. Mendukung pengaliran TV dan Rekaman langsung, mendengarkan kanal radio, EPG dan Timer. Pengaya ini mengkombinasikan penggaya ffmeg dan tsreader yang lama.</description>
     <description lang="is_IS">Framendi fyrir MediaPortal TV. Styður streymingu á beinum útsendingum og upptökum, hlustun á útvarpsrásum, rafrænum sjónvarpsvísum (EPG) og tímatöku. Þessi viðbók sameinar fyrri viðbætur fyrir ffmpeg og tsreader</description>
-    <description lang="it_IT">Frontend del server MediaPortal TV. Supporta lo streaming di Live TV e le registrazioni, l&apos;ascolto dei canali radio, EPG e i timer. Questo add-on combina gli add-on ffmpeg e tsreaded.</description>
+    <description lang="it_IT">Frontend per il server TV MediaPortal. Supporta lo stream e la registrazione di Live TV, l&apos;ascolto dei canali radio, EPG e timer.</description>
     <description lang="ja_JP">MediaPortal TV サーバーのフロントエンドです。ライブテレビのストリーミングや録画、ラジオチャンネルの視聴、EPG、タイマーなどをサポートしています。以前の ffmpeg アドオンと tsreader アドオンを組み合わせたものです。</description>
     <description lang="ko_KR">MediaPortal TV Server 프론트엔드. TV 시청 &amp; 녹화, 라디오 채널 청취, EPG 및 타이머 지원. 이 애드온은 이전의 ffmpeg 과 tsreader 애드온을 합친 것입니다.</description>
     <description lang="lt_LT">MediaPortal TV Serverio sąsaja. Palaiko televizijos transliacijas ir Įrašus, radijo kanalus, EPG ir laikmačius. Šis priedas apjungia ankstesnius ffmpeg ir TSreader priedus.</description>
@@ -140,12 +140,12 @@
     <disclaimer lang="fr_FR">Les auteurs ne sont en aucun cas responsables de l&apos;échec des enregistrements, programmations défectueuses, temps perdu ou autres effets indésirables.</disclaimer>
     <disclaimer lang="gl_ES">Software non estable, os autores non se fan responsábeis dos erros na gravacións, temporizadores incorrectos, e outros efectos non desexados.</disclaimer>
     <disclaimer lang="he_IL">זוהי איננה הרחבה יציבה! המפתחים אינם אחראים על כשלון בניגון, זמנים שגויים במדריך השידורים, שעות מבוזבזות או כל תופעה לא רצויה אחרת.</disclaimer>
-    <disclaimer lang="hr_HR">Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna vremena snimanja, izgubljene sate, ili bilo koje druge nepoželjne učinke.</disclaimer>
+    <disclaimer lang="hr_HR">Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna zakazana snimanja, izgubljene sate, ili bilo koje druge neželjene učinke.</disclaimer>
     <disclaimer lang="hu_HU">Ez nem stabil szoftver! A készítők nem vállalnak felelősséget, a hibás felvételért, rossz időzítésért, elvesztegetett időért.</disclaimer>
     <disclaimer lang="hy_AM">Սա անկայուն ծրագրային ապահովում է: Հեղինակները պատասխանատու չեն վատ ձայնագրումների, սխալ ժամանակացույցերի, կորած ժամանակի կամ այլ ոչ ցանկալի երևույթների համար:</disclaimer>
     <disclaimer lang="id_ID">Ini merupakan software yang tidak stabil! Penulis tidak bertanggung jawab untuk rekaman gagal, timer salah, waktu terbuang, atau efek tak diinginkan lainnya.</disclaimer>
     <disclaimer lang="is_IS">Þetta er óstöðugur hugbúnaður! Höfundarnir eru á engann hátt ábyrgir fyrir misheppnuðum upptökum, röngum upptökutímum, klukkustundum sem að fóru í súginn eða nokkrum öðrum óæskilegum áhrifum.</disclaimer>
-    <disclaimer lang="it_IT">Questo software non è stabile! Gli autori non sono responsabili per registrazioni fallite, timer non corretti, ore perse, o altri effetti indesiderati.</disclaimer>
+    <disclaimer lang="it_IT">Gli autori non sono in alcun modo responsabili per registrazioni fallite, timer errati, ore sprecate o qualsiasi altro effetto indesiderato.</disclaimer>
     <disclaimer lang="ja_JP">これは不安定なソフトウェアです！本プログラムの作者は、録画の失敗、正確に作動しなかったタイマー、無駄にした時間、その他あらゆる好ましくない結果について責任を負わないものとします。</disclaimer>
     <disclaimer lang="ko_KR">이 소프트웨어는 불안정합니다! 제작자는 녹화 실패, 부정확한 타이머, 시간 낭비 및 기타 예상하지 못한 결과에 대해 책임지지 않습니다.</disclaimer>
     <disclaimer lang="lt_LT">Autoriai jokiu būdu neatsako už nepavykusius įrašus, neteisingus laikmačius, sugaištas valandas ar bet kokius kitus nepageidaujamus padarinius.</disclaimer>
