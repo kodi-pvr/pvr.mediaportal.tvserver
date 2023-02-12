@@ -30,7 +30,7 @@
     <summary lang="en_NZ">Kodi frontend for the MediaPortal TV Server (ffmpeg + tsreader version)</summary>
     <summary lang="en_US">Kodi frontend for the MediaPortal TV Server (FFmpeg + TSReader version)</summary>
     <summary lang="es_AR">Interfaz Kodi para el MediaPortal TV Server (versión ffmpeg + tsreader)</summary>
-    <summary lang="es_ES">Interfaz Kodi para el MediaPortal TV Server (versión ffmpeg + tsreader)</summary>
+    <summary lang="es_ES">Interfaz Kodi para MediaPortal TV Server</summary>
     <summary lang="es_MX">Kodi frontend para el MediaPortal TV Server</summary>
     <summary lang="et_EE">Kodi liides MediaPortal TV serverile</summary>
     <summary lang="fi_FI">MediaPortal TV-Server -käyttöliittymä Kodille</summary>
@@ -81,7 +81,7 @@
     <description lang="en_NZ">MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers. This addon combines the former ffmpeg and tsreader addons.</description>
     <description lang="en_US">MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers. This addon combines the former FFmpeg and TSReader addons.</description>
     <description lang="es_AR">Interfaz MediaPortal TV Server. Soporta transmisión de TV en vivo y grabaciones, escuchar canales de radio, GEP y temporizadores. Este complemento combina los anteriores ffmpeg y tsreader.</description>
-    <description lang="es_ES">Interfaz MediaPortal TV Server. Soporta transmisión de TV en vivo y grabaciones, escuchar canales de radio, EPG y temporizadores. Este complemento combina los anteriores ffmpeg y tsreader.</description>
+    <description lang="es_ES">Interfaz MediaPortal TV Server. Soporta retransmisión de TV en directo y grabaciones, escucha de canales de radio, EPG y temporizadores.</description>
     <description lang="es_MX">MediaPortal TV Server frontend. Soporta streaming de TV y grabaciones en vivo, escucha de canales de radio, EPG y temporizadores.</description>
     <description lang="et_EE">MediaPortal TV serveri esi. Toetab telekanalite striimimist ja salvestamist, raadio kuulamist ja elektroonilist saatekava. See lisa kombineerib endas endised ffmpeg ja tsreader lisad.</description>
     <description lang="fi_FI">MediaPortal TV-Server -käyttöliittymä, joka tukee televisiolähetysten ja tallenteiden suoratoistoa, radiokanavien kuuntelua, ohjelmaopasta ja ajastuksia.</description>
@@ -131,7 +131,7 @@
     <disclaimer lang="en_NZ">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="en_US">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="es_AR">¡Este software es inestable! Los autores no se responsabilizan por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
-    <disclaimer lang="es_ES">¡Este es un software inestable! Los autores no son de ninguna manera responsables de las grabaciones fallidas o incorrectas, las temporizadores perdidas, ni otros efectos no deseables.</disclaimer>
+    <disclaimer lang="es_ES">Los autores no se responsabilizan en modo alguno de grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, ebaõige aegrelee, raisatud tundide ega muude soovimatute asjade eest.</disclaimer>
     <disclaimer lang="eu_ES">Egilea ez da arduratzen grabazioa erroreetaz, kronometro erroreetaz, ordu galduetaz edo beste edozein ondorio ezerosotaz.</disclaimer>
