@@ -5,32 +5,33 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Italian (Italy) (http://www.transifex.com/projects/p/kodi-main/language/it_IT/)\n"
-"Language: it_IT\n"
+"PO-Revision-Date: 2023-03-22 21:16+0000\n"
+"Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
+"Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-mediaportal-tvserver/it_it/>\n"
+"Language: it_it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.15.2\n"
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
-msgstr "Frontend Kodi per il server MediaPortal TV (versione ffmpeg + tsreader)"
+msgstr "Frontend Kodi per il server TV MediaPortal"
 
 msgctxt "Addon Description"
 msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
-msgstr "Frontend del server MediaPortal TV. Supporta lo streaming di Live TV e le registrazioni, l'ascolto dei canali radio, EPG e i timer. Questo addon combina gli addon ffmpeg e tsreaded."
+msgstr "Frontend per il server TV MediaPortal. Supporta lo stream e la registrazione di Live TV, l'ascolto dei canali radio, EPG e timer."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Questo software non è stabile! Gli autori non sono responsabili per registrazioni fallite, timer non corretti, ore perse, o altri effetti indesiderati."
+msgstr "Gli autori non sono in alcun modo responsabili per registrazioni fallite, timer errati, ore sprecate o qualsiasi altro effetto indesiderato."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
-msgstr "Nome del server Mediaportal"
+msgstr "Nome host Mediaportal"
 
 msgctxt "#30001"
 msgid "Mediaportal Kodi plugin Port"
@@ -38,11 +39,11 @@ msgstr "Porta del plugin Mediaportal di Kodi"
 
 msgctxt "#30002"
 msgid "Free-to-air only"
-msgstr "Solo free-to-air"
+msgstr "Solo in chiaro"
 
 msgctxt "#30003"
 msgid "Include Radio"
-msgstr "Includi Radio"
+msgstr "Includi radio"
 
 msgctxt "#30004"
 msgid "Fast channel switching (don't stop timeshift)"
@@ -50,7 +51,7 @@ msgstr "Cambio veloce canale (non ferma il timeshift)"
 
 msgctxt "#30005"
 msgid "Connect timeout (s)"
-msgstr "Timeout per la connessione (s)"
+msgstr "Timeout connessione (s)"
 
 msgctxt "#30006"
 msgid "Import only TV Channels from group"
@@ -62,7 +63,7 @@ msgstr "Importa solo canali radio dal gruppo"
 
 msgctxt "#30008"
 msgid "Convert hostname to IP-adress"
-msgstr "Converti il nome del server nell'indirizzo IP"
+msgstr "Converti il nome host in indirizzo IP"
 
 msgctxt "#30009"
 msgid "EPG: Read genre strings (slow)"
@@ -78,11 +79,11 @@ msgstr "Abilita la richiesta di registrazione delle vecchie serie"
 
 msgctxt "#30012"
 msgid "Default recording lifetime"
-msgstr "Durata predefinita delle registrazioni"
+msgstr "Durata predefinita registrazioni"
 
 msgctxt "#30015"
 msgid "Streaming method"
-msgstr "Metodologia di streaming"
+msgstr "Metodo di streaming"
 
 msgctxt "#30016"
 msgid "Windows user account (SMB)"
@@ -118,11 +119,11 @@ msgstr "La tua versione di TVServerKodi è troppo vecchia. Per favore, aggiornal
 
 msgctxt "#30052"
 msgid "Recording playback failed. Empty URL of filename."
-msgstr "La riproduzione della registrazione non è riuscita. URL o nome del file vuoti."
+msgstr "La riproduzione della registrazione non è riuscita. URL vuoto del nome file."
 
 msgctxt "#30060"
 msgid "All cards are busy"
-msgstr "Tutte le card sono occupate"
+msgstr "Tutte le schede sono occupate"
 
 msgctxt "#30061"
 msgid "Channel is scrambled"
@@ -130,11 +131,11 @@ msgstr "Il canale è criptato"
 
 msgctxt "#30062"
 msgid "No video or audio detected"
-msgstr "Nessun video o audio trovato"
+msgstr "Nessun video o audio rilevato"
 
 msgctxt "#30063"
 msgid "No signal detected"
-msgstr "Nessun segnale trovato"
+msgstr "Nessun segnale rilevato"
 
 msgctxt "#30064"
 msgid "Unknown error"
@@ -142,7 +143,7 @@ msgstr "Errore sconosciuto"
 
 msgctxt "#30065"
 msgid "Unable to start graph"
-msgstr "Impossibile inizializzare grafico"
+msgstr "Impossibile avviare il grafico"
 
 msgctxt "#30066"
 msgid "Unknown channel"
@@ -154,15 +155,15 @@ msgstr "Nessun dettaglio di sintonizzazione"
 
 msgctxt "#30068"
 msgid "Channel is not mapped to any card"
-msgstr "Il canale non è mappata in nessuna card"
+msgstr "Il canale non è associato a nessuna scheda"
 
 msgctxt "#30069"
 msgid "Card is disabled"
-msgstr "La card è disabilitata"
+msgstr "La scheda è disabilitata"
 
 msgctxt "#30070"
 msgid "Connection to slave failed"
-msgstr "Connessione allo slave fallita"
+msgstr "Connessione allo slave non riuscita"
 
 msgctxt "#30071"
 msgid "Not the owner"
@@ -170,7 +171,7 @@ msgstr "Non sei il proprietario"
 
 msgctxt "#30072"
 msgid "Graph building failed"
-msgstr "Costruzione del grafico fallita"
+msgstr "Creazione del grafico non riuscita"
 
 msgctxt "#30073"
 msgid "SW Encoder missing"
@@ -178,7 +179,7 @@ msgstr "Encoder SW mancante"
 
 msgctxt "#30074"
 msgid "No free disk space"
-msgstr "Spazio disco esaurito"
+msgstr "Nessuno spazio libero su disco"
 
 msgctxt "#30075"
 msgid "No PMT found"
@@ -186,7 +187,7 @@ msgstr "Nessun PMT trovato"
 
 msgctxt "#30100"
 msgid "Schedule settings"
-msgstr "Impostazioni di programmazione"
+msgstr "Impostazioni di pianificazione"
 
 msgctxt "#30101"
 msgid "Frequency"
@@ -206,11 +207,11 @@ msgstr "Mantieni"
 
 msgctxt "#30105"
 msgid "Record minutes before start"
-msgstr "Registra minuti prima dell'inizio"
+msgstr "Minuti da registrare prima dell'inizio"
 
 msgctxt "#30106"
 msgid "Record minutes after end"
-msgstr "Registra minuti dopo la fine"
+msgstr "Minuti da registrare dopo la fine"
 
 msgctxt "#30110"
 msgid "Record Once"
@@ -242,11 +243,11 @@ msgstr "Registra ogni volta su ogni canale"
 
 msgctxt "#30117"
 msgid "Record every week at this time"
-msgstr "Registra ogni settimana in questo orario"
+msgstr "Registra ogni settimana a quest'ora"
 
 msgctxt "#30118"
 msgid "Record every day at this time"
-msgstr "Registra ogni giorno in questo orario"
+msgstr "Registra ogni giorno a quest'ora"
 
 msgctxt "#30119"
 msgid "Record weekly on this channel"
@@ -266,7 +267,7 @@ msgstr "Manuale"
 
 msgctxt "#30125"
 msgid "This Channel"
-msgstr "Questo Canale"
+msgstr "Questo canale"
 
 msgctxt "#30126"
 msgid "Any Channel"
@@ -274,11 +275,11 @@ msgstr "Qualunque canale"
 
 msgctxt "#30130"
 msgid "Until space needed"
-msgstr "Fino a spazio necessario"
+msgstr "Fino allo spazio necessario"
 
 msgctxt "#30131"
 msgid "Until watched"
-msgstr "Fino a che viene guardato"
+msgstr "Fino a quando non è stato guardato"
 
 msgctxt "#30132"
 msgid "Days"
@@ -290,7 +291,7 @@ msgstr "Sempre"
 
 msgctxt "#30134"
 msgid "1 week"
-msgstr "una settimana"
+msgstr "1 settimana"
 
 msgctxt "#30135"
 msgid "Backend default"
@@ -298,7 +299,7 @@ msgstr "Predefinito del backend"
 
 msgctxt "#30136"
 msgid "Kodi default"
-msgstr "Kodi default"
+msgstr "Predefinito di Kodi"
 
 msgctxt "#30137"
 msgid "%d weeks"
@@ -306,7 +307,7 @@ msgstr "%d settimane"
 
 msgctxt "#30138"
 msgid "1 month"
-msgstr "un mese"
+msgstr "1 mese"
 
 msgctxt "#30139"
 msgid "%d months"
@@ -314,4 +315,4 @@ msgstr "%d mesi"
 
 msgctxt "#30140"
 msgid "1 year"
-msgstr "un anno"
+msgstr "1 anno"
