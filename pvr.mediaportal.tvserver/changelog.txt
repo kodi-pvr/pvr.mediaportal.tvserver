@@ -1,3 +1,6 @@
+v21.0.2
+- Update FileReader open mode so it is compatible with Kodi Omega
+
 v21.0.1
 - Translations updates from Weblate
 	- ast_es, cs_cz, da_dk, es_es, es_mx, eu_es, fi_fi, fr_fr, hr_hr, is_is, it_it, lt_lt, ru_ru, th_th, uk_ua
