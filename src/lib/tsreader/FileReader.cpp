@@ -125,7 +125,7 @@ namespace MPTV
         do
         {
             kodi::Log(ADDON_LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
-            if (m_hFile.OpenFile(m_fileName, READ_CHUNKED))
+            if (m_hFile.OpenFile(m_fileName, READ_NO_CACHE | READ_TRUNCATED | READ_BITRATE))
             {
                 break;
             }
