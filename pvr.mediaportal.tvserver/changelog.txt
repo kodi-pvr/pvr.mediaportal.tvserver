@@ -1,3 +1,6 @@
+v21.0.3
+- Use READ_NO_BUFFER for opening files with Kodi Omega 21.1
+
 v21.0.2
 - Update FileReader open mode so it is compatible with Kodi Omega
 
