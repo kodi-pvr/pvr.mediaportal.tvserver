@@ -1,32 +1,175 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-  <!-- Connection -->
-  <category label="30040">
-    <setting id="host" type="text" label="30000" default="127.0.0.1" />
-    <setting id="port" type="number" label="30001" default="9596" />
-    <setting id="timeout" type="enum" label="30005" values="0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20" default="10"/>
-    <setting id="smbusername" type="text" label="30016" default="" />
-    <setting id="smbpassword" type="text" label="30017" option="hidden" default="" />
-  </category>
+<settings version="1">
+  <section id="addon" label="-1" help="-1">
+    <!-- Connection -->
+    <category id="connection" label="30040" help="-1">
+      <group id="1" label="-1">
+        <setting id="host" type="string" label="30000" help="-1">
+          <level>0</level>
+          <default>127.0.0.1</default>
+          <constraints>
+            <allowempty>false</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="port" type="integer" label="30001" help="-1">
+          <level>0</level>
+          <default>9596</default>
+          <constraints>
+            <minimum>1</minimum>
+            <step>1</step>
+            <maximum>65535</maximum>
+          </constraints>
+          <control type="edit" format="integer" />
+        </setting>
+        <setting id="timeout" type="integer" label="30005" help="-1">
+          <level>0</level>
+          <default>10</default>
+          <constraints>
+            <minimum>0</minimum>
+            <step>1</step>
+            <maximum>20</maximum>
+          </constraints>
+          <control type="slider" format="integer" />
+        </setting>
+        <setting id="smbusername" type="string" label="30016" help="-1">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="smbpassword" type="string" label="30017" help="-1">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string">
+            <hidden>true</hidden>
+          </control>
+        </setting>
+      </group>
+    </category>
 
-  <!-- Mediaportal -->
-  <category label="30041">
-    <setting id="ftaonly" type="bool" label="30002" default="false" />
-    <setting id="useradio" type="bool" label="30003" default="true" />
-    <setting id="tvgroup" type="text" label="30006" default="" />
-    <setting id="radiogroup" type="text" label="30007" default="" />
-    <setting id="readgenre" type="bool" label="30009" default="false" />
-    <setting id="enableoldseriesdlg" type="bool" label="30011" default="false" />
-    <setting id="keepmethodtype" type="enum" label="30012" lvalues="30130|30131|30132|30133" default="3" />
-    <setting id="defaultrecordinglifetime" type="slider" label="30132" option="int" range="1,1,365" default="100" visible="eq(-1,2)" />
-  </category>
+    <!-- Mediaportal -->
+    <category id="mediaportal" label="30041" help="-1">
+      <group id="1" label="-1">
+        <setting id="ftaonly" type="boolean" label="30002" help="-1">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="useradio" type="boolean" label="30003" help="-1">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="tvgroup" type="string" label="30006" help="-1">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="radiogroup" type="string" label="30007" help="-1">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="readgenre" type="boolean" label="30009" help="-1">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="enableoldseriesdlg" type="boolean" label="30011" help="-1">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="keepmethodtype" type="integer" label="30012" help="-1">
+          <level>0</level>
+          <default>3</default>
+          <constraints>
+            <options>
+              <option label="30130">0</option> <!-- UNTIL_SPACE_NEEDED -->
+              <option label="30131">1</option> <!-- UNTIL_WATCHED -->
+              <option label="30132">2</option> <!-- DAYS -->
+              <option label="30133">3</option> <!-- ALWAYS -->
+            </options>
+          </constraints>
+          <control type="spinner" format="integer" />
+        </setting>
+        <setting id="defaultrecordinglifetime" type="integer" parent="keepmethodtype" label="30132" help="-1">
+          <level>0</level>
+          <default>100</default>
+          <constraints>
+            <minimum>1</minimum>
+            <step>1</step>
+            <maximum>365</maximum>
+          </constraints>
+          <dependencies>
+            <dependency type="visible" setting="keepmethodtype" operator="is">2</dependency>
+          </dependencies>
+          <control type="slider" format="integer" />
+        </setting>
+      </group>
+    </category>
 
-  <!-- TSReader/ffmpeg -->
-  <category label="30042">
-    <setting id="streamingmethod" type="enum" label="30015" values="TSReader|ffmpeg" default="TSReader"/>
-    <setting id="resolvertsphostname" type="bool" label="30008" default="true" visible="eq(-1,1)"/>
-    <setting id="usertsp" type="bool" label="30018" default="false" visible="eq(-2,0)"/>
-    <setting id="fastchannelswitch" type="bool" label="30004" default="true" visible="eq(-3,0)"/>
-    <setting id="sleeponrtspurl" type="enum" label="30010" values="0|100|200|300|400|500|600|700|800|900|1000|1200|1500|2000|2500|3000" default="0"/>
-  </category>
+      <!-- TSReader/ffmpeg -->
+    <category id="playback" label="30042" help="-1">
+      <group id="1" label="-1">
+        <setting id="streamingmethod" type="integer" label="30015" help="-1">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="TSReader">0</option> <!-- TSReader -->
+              <option label="ffmpeg">1</option> <!-- ffmpeg -->
+            </options>
+          </constraints>
+          <control type="spinner" format="integer" />
+        </setting>
+        <setting id="resolvertsphostname" type="boolean" parent="streamingmethod" label="30008" help="-1">
+          <level>0</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="visible" setting="streamingmethod" operator="is">1</dependency>
+          </dependencies>
+          <control type="toggle" />
+        </setting>
+        <setting id="usertsp" type="boolean" parent="streamingmethod" label="30018" help="-1">
+          <level>0</level>
+          <default>false</default>
+          <dependencies>
+            <dependency type="visible" setting="streamingmethod" operator="is">0</dependency>
+          </dependencies>
+          <control type="toggle" />
+        </setting>
+        <setting id="fastchannelswitch" type="boolean" parent="streamingmethod" label="30004" help="-1">
+          <level>0</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="visible" setting="streamingmethod" operator="is">0</dependency>
+          </dependencies>
+          <control type="toggle" />
+        </setting>
+        <setting id="sleeponrtspurl" type="integer" label="30010" help="-1">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <minimum>0</minimum>
+            <step>100</step>
+            <maximum>3000</maximum>
+          </constraints>
+          <control type="slider" format="integer" />
+        </setting>
+      </group>
+    </category>
+  </section>
 </settings>

@@ -1,3 +1,6 @@
+v21.0.3
+- Update settings to new format
+
 v21.0.2
 - Update FileReader open mode so it is compatible with Kodi Omega
 
