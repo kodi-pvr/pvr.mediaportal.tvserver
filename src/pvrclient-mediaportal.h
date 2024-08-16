@@ -86,7 +86,7 @@ public:
   void CloseLiveStream() override;
   int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) override;
   PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
-  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
+  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE source, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
   int64_t SeekLiveStream(int64_t iPosition, int iWhence = SEEK_SET) override;
   int64_t LengthLiveStream(void) override;
 

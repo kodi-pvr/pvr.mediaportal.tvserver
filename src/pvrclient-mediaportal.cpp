@@ -2256,6 +2256,7 @@ PVR_ERROR cPVRClientMediaPortal::GetRecordingStreamProperties(const kodi::addon:
 }
 
 PVR_ERROR cPVRClientMediaPortal::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
+                                                            PVR_SOURCE source,
                                                             std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   // Is this a webstream?
