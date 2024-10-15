@@ -57,6 +57,9 @@
 /* calcuate bitrate for file while reading */
 #define READ_BITRATE   0x10
 
+/* indicate that caller want open a file without intermediate buffer regardless to file type */
+#define READ_NO_BUFFER 0x200
+
 template<typename T> void SafeDelete(T*& p)
 {
   if (p)
@@ -69,7 +72,8 @@ namespace MPTV
 {
     FileReader::FileReader() :
         m_fileSize(0),
-        m_fileName("")
+        m_fileName(""),
+        m_flags(READ_NO_CACHE | READ_TRUNCATED | READ_BITRATE)
     {
     }
 
@@ -125,7 +129,7 @@ namespace MPTV
         do
         {
             kodi::Log(ADDON_LOG_INFO, "FileReader::OpenFile() %s.", m_fileName.c_str());
-            if (m_hFile.OpenFile(m_fileName, READ_NO_CACHE | READ_TRUNCATED | READ_BITRATE))
+            if (m_hFile.OpenFile(m_fileName, m_flags))
             {
                 break;
             }
@@ -202,6 +206,12 @@ namespace MPTV
     int64_t FileReader::GetFilePointer()
     {
         return m_hFile.GetPosition();
+    }
+
+
+    void FileReader::SetNoBuffer(void)
+    {
+        m_flags |= READ_NO_BUFFER;
     }
 
 
