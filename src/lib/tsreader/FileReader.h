@@ -58,10 +58,12 @@ namespace MPTV
         virtual bool IsBuffer() { return false; };
         virtual int64_t OnChannelChange(void);
         virtual size_t HasData(){ return 0; };
+        virtual void SetNoBuffer();
 
     protected:
         kodi::vfs::CFile m_hFile;         // Handle to file for streaming
         std::string m_fileName;           // The filename where we read from
         int64_t     m_fileSize;
+        uint32_t    m_flags;
     };
 }
