@@ -1,3 +1,6 @@
+v21.0.4
+- Disable buffering to fix incompatibility with Kodi's file stream buffer
+
 v21.0.3
 - Update settings to new format
 
