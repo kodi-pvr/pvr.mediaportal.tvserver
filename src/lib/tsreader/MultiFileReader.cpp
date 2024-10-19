@@ -96,6 +96,11 @@ namespace MPTV
     //
     long MultiFileReader::OpenFile()
     {
+        // The underlying CFileStreamBuffer class used by kodi::vfs::CFile.Open() appears
+        // to be incompatible with the TS buffer files created by the TvServer, so disable
+        // the buffering.
+        m_TSBufferFile.SetNoBuffer();
+
         long hResult = m_TSBufferFile.OpenFile();
         kodi::Log(ADDON_LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hResult);
 
