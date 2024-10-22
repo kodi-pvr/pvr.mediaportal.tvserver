@@ -91,11 +91,11 @@ public:
   int64_t LengthLiveStream(void) override;
 
   /* Record stream handling */
-  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
-  void CloseRecordedStream() override;
-  int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize) override;
-  int64_t SeekRecordedStream(int64_t iPosition, int iWhence = SEEK_SET) override;
-  int64_t LengthRecordedStream() override;
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId) override;
+  void CloseRecordedStream(int64_t streamId) override;
+  int ReadRecordedStream(int64_t streamId, unsigned char *pBuffer, unsigned int iBufferSize) override;
+  int64_t SeekRecordedStream(int64_t streamId, int64_t iPosition, int iWhence = SEEK_SET) override;
+  int64_t LengthRecordedStream(int64_t streamId) override;
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
   /* Common stream handing functions */
