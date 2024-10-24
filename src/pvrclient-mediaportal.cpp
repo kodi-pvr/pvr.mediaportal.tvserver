@@ -2073,7 +2073,7 @@ PVR_ERROR cPVRClientMediaPortal::GetSignalStatus(int channelUid, kodi::addon::PV
 // respect to the live tv streams is that the URLs for the recordings
 // can be requested on beforehand (done in the TVServerKodi plugin).
 
-bool cPVRClientMediaPortal::OpenRecordedStream(const kodi::addon::PVRRecording& recording)
+bool cPVRClientMediaPortal::OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId)
 {
   kodi::Log(ADDON_LOG_INFO, "OpenRecordedStream (id=%s, RTSP=%d)", recording.GetRecordingId().c_str(), (CSettings::Get().GetUseRTSP() ? "true" : "false"));
 
@@ -2142,7 +2142,7 @@ bool cPVRClientMediaPortal::OpenRecordedStream(const kodi::addon::PVRRecording& 
   return true;
 }
 
-void cPVRClientMediaPortal::CloseRecordedStream(void)
+void cPVRClientMediaPortal::CloseRecordedStream(int64_t streamId)
 {
   if (!IsUp() || CSettings::Get().GetStreamingMethod() == ffmpeg)
      return;
@@ -2159,7 +2159,7 @@ void cPVRClientMediaPortal::CloseRecordedStream(void)
   }
 }
 
-int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
+int cPVRClientMediaPortal::ReadRecordedStream(int64_t streamId, unsigned char *pBuffer, unsigned int iBufferSize)
 {
   size_t read_wanted = static_cast<size_t>(iBufferSize);
   size_t read_done   = 0;
@@ -2191,7 +2191,7 @@ int cPVRClientMediaPortal::ReadRecordedStream(unsigned char *pBuffer, unsigned i
   return static_cast<int>(read_done);
 }
 
-int64_t cPVRClientMediaPortal::SeekRecordedStream(int64_t iPosition, int iWhence)
+int64_t cPVRClientMediaPortal::SeekRecordedStream(int64_t streamId, int64_t iPosition, int iWhence)
 {
   if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
@@ -2205,7 +2205,7 @@ int64_t cPVRClientMediaPortal::SeekRecordedStream(int64_t iPosition, int iWhence
   return m_tsreader->SetFilePointer(iPosition, iWhence);
 }
 
-int64_t  cPVRClientMediaPortal::LengthRecordedStream(void)
+int64_t  cPVRClientMediaPortal::LengthRecordedStream(int64_t streamId)
 {
   if (CSettings::Get().GetStreamingMethod() == ffmpeg || !m_tsreader)
   {
