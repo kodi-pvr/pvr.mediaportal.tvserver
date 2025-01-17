@@ -117,7 +117,7 @@
     <description lang="vi_VN">Giao tiếp cho MediaPortal TV Server. Hỗ trợ truyền phát và thu chương trình Live TV, nghe Radio, hẹn giờ và hiển thị lịch trình chiếu (EPG). Addon này kết hợp cho các addon cũ của ffmpeg và tsreader.</description>
     <description lang="zh_CN">MediaPortal TV 服务器前端。支持流媒体直播电视和录像、收听电台、电子节目单和定时器。</description>
     <description lang="zh_TW">MediaPortal電視服務器的前端。支援的串流檔案包括有：電視直播和錄影，收聽廣播頻道，電子節目表和計時器。這個插件結合了先前ffmpeg和tsreader的插件。</description>
-    <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorsde ure, of enige ander ongewensde effekte.</disclaimer>
+    <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorste ure, of enige ander ongewensde effekte.</disclaimer>
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляното време и други нежелани ефекти.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat.</disclaimer>
@@ -131,7 +131,7 @@
     <disclaimer lang="en_NZ">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="en_US">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="es_AR">¡Este software es inestable! Los autores no se responsabilizan por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
-    <disclaimer lang="es_ES">Los autores no se responsabilizan en modo alguno de grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
+    <disclaimer lang="es_ES">Los autores no se responsabilizan en modo alguno de grabaciones erroneas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, ebaõige aegrelee, raisatud tundide ega muude soovimatute asjade eest.</disclaimer>
     <disclaimer lang="eu_ES">Egilea ez da arduratzen grabazioa erroreetaz, kronometro erroreetaz, ordu galduetaz edo beste edozein ondorio ezerosotaz.</disclaimer>
