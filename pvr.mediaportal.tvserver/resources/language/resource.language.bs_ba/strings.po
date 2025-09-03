@@ -7,107 +7,107 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-01-17 23:22+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2025-09-01 07:29+0000\n"
+"Last-Translator: SecularSteve <fairfull.playing@gmail.com>\n"
 "Language-Team: Bosnian (Bosnia and Herzegovina) <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-mediaportal-tvserver/bs_ba/>\n"
 "Language: bs_ba\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.9.2\n"
+"X-Generator: Weblate 5.13\n"
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
-msgstr ""
+msgstr "Kodi frontend za MediaPortal TV server"
 
 msgctxt "Addon Description"
 msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
-msgstr ""
+msgstr "Predokraj MediaPortal TV servera. Podržava prijenos uživo TV programa i snimaka, slušanje radio kanala, EPG i mjerače vremena."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr ""
+msgstr "Autori ni na koji način nisu odgovorni za neuspjela snimanja, netačne mjerače vremena, izgubljene sate ili bilo koje druge neželjene efekte."
 
 # Settings labels
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
-msgstr ""
+msgstr "Naziv hosta Mediaportala"
 
 msgctxt "#30001"
 msgid "Mediaportal Kodi plugin Port"
-msgstr ""
+msgstr "Port dodatka Mediaportal Kodi"
 
 msgctxt "#30002"
 msgid "Free-to-air only"
-msgstr ""
+msgstr "Samo besplatno emitiranje"
 
 msgctxt "#30003"
 msgid "Include Radio"
-msgstr ""
+msgstr "Uključi radio"
 
 msgctxt "#30004"
 msgid "Fast channel switching (don't stop timeshift)"
-msgstr ""
+msgstr "Brzo prebacivanje kanala (ne zaustavljajte vremenski pomak)"
 
 msgctxt "#30005"
 msgid "Connect timeout (s)"
-msgstr ""
+msgstr "Vremensko ograničenje povezivanja (s)"
 
 msgctxt "#30006"
 msgid "Import only TV Channels from group"
-msgstr ""
+msgstr "Uvezi samo TV kanale iz grupe"
 
 msgctxt "#30007"
 msgid "Import only Radio Channels from group"
-msgstr ""
+msgstr "Uvezi samo radio kanale iz grupe"
 
 msgctxt "#30008"
 msgid "Convert hostname to IP-adress"
-msgstr ""
+msgstr "Konvertujte ime hosta u IP adresu"
 
 msgctxt "#30009"
 msgid "EPG: Read genre strings (slow)"
-msgstr ""
+msgstr "EPG: Čitanje žanrovskih nizova (sporo)"
 
 msgctxt "#30010"
 msgid "Wait time after tuning a channel (ms)"
-msgstr ""
+msgstr "Vrijeme čekanja nakon podešavanja kanala (ms)"
 
 msgctxt "#30011"
 msgid "Enable old series recording dialog"
-msgstr ""
+msgstr "Omogući dijalog za snimanje starih serija"
 
 msgctxt "#30012"
 msgid "Default recording lifetime"
-msgstr ""
+msgstr "Zadani vijek trajanja snimka"
 
 # empty strings from id 30013 to 30014
 msgctxt "#30015"
 msgid "Streaming method"
-msgstr ""
+msgstr "Metoda strimovanja"
 
 msgctxt "#30016"
 msgid "Windows user account (SMB)"
-msgstr ""
+msgstr "Windows korisnički račun (SMB)"
 
 msgctxt "#30017"
 msgid "Windows password (SMB)"
-msgstr ""
+msgstr "Windows lozinka (SMB)"
 
 msgctxt "#30018"
 msgid "Use RTSP streaming"
-msgstr ""
+msgstr "Koristite RTSP streaming"
 
 # empty strings from id 30019 to 30039
 # Category labels
 msgctxt "#30040"
 msgid "Connection"
-msgstr ""
+msgstr "Veza"
 
 msgctxt "#30041"
 msgid "MediaPortal"
-msgstr ""
+msgstr "MediaPortal"
 
 msgctxt "#30042"
 msgid "Playback"
@@ -117,95 +117,95 @@ msgstr "Reprodukcija"
 # On-screen error messages
 msgctxt "#30050"
 msgid "Your TVServerKodi version '%s' is too old. Please upgrade to '%s' or higher!"
-msgstr ""
+msgstr "Vaša verzija TVServerKodi-ja '%s' je prestara. Molimo vas da nadogradite na '%s' ili noviju verziju!"
 
 msgctxt "#30051"
 msgid "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!"
-msgstr ""
+msgstr "Vaša verzija TVServerKodi-ja je prestara. Molimo vas da nadogradite na '0}' ili noviju verziju!"
 
 msgctxt "#30052"
 msgid "Recording playback failed. Empty URL of filename."
-msgstr ""
+msgstr "Reprodukcija snimka nije uspjela. URL datoteke je prazan."
 
 # empty strings from id 30053 to 30059
 # Status message strings corresponding to the MediaPortal TvResult enum
 msgctxt "#30060"
 msgid "All cards are busy"
-msgstr ""
+msgstr "Sve kartice su zauzete"
 
 msgctxt "#30061"
 msgid "Channel is scrambled"
-msgstr ""
+msgstr "Kanal je kodiran"
 
 msgctxt "#30062"
 msgid "No video or audio detected"
-msgstr ""
+msgstr "Nije detektovan video ili audio"
 
 msgctxt "#30063"
 msgid "No signal detected"
-msgstr ""
+msgstr "Nije detektovan signal"
 
 msgctxt "#30064"
 msgid "Unknown error"
-msgstr ""
+msgstr "Nepoznata greška"
 
 msgctxt "#30065"
 msgid "Unable to start graph"
-msgstr ""
+msgstr "Nije moguće pokrenuti grafikon"
 
 msgctxt "#30066"
 msgid "Unknown channel"
-msgstr ""
+msgstr "Nepoznati kanal"
 
 msgctxt "#30067"
 msgid "No tuning details"
-msgstr ""
+msgstr "Nema detalja o podešavanju"
 
 msgctxt "#30068"
 msgid "Channel is not mapped to any card"
-msgstr ""
+msgstr "Kanal nije mapiran ni na jednu karticu"
 
 msgctxt "#30069"
 msgid "Card is disabled"
-msgstr ""
+msgstr "Kartica je onemogućena"
 
 msgctxt "#30070"
 msgid "Connection to slave failed"
-msgstr ""
+msgstr "Povezivanje sa podređenim uređajem nije uspjelo"
 
 msgctxt "#30071"
 msgid "Not the owner"
-msgstr ""
+msgstr "Nije vlasnik"
 
 msgctxt "#30072"
 msgid "Graph building failed"
-msgstr ""
+msgstr "Izgradnja grafa nije uspjela"
 
 msgctxt "#30073"
 msgid "SW Encoder missing"
-msgstr ""
+msgstr "Nedostaje SW enkoder"
 
 msgctxt "#30074"
 msgid "No free disk space"
-msgstr ""
+msgstr "Nema slobodnog prostora na disku"
 
 msgctxt "#30075"
 msgid "No PMT found"
-msgstr ""
+msgstr "Nije pronađen PMT"
 
 # empty strings from id 30076 to 30099
 # Schedule settings dialog
 msgctxt "#30100"
 msgid "Schedule settings"
-msgstr ""
+msgstr "Postavke rasporeda"
 
 msgctxt "#30101"
 msgid "Frequency"
-msgstr ""
+msgstr "Učestalost"
 
 msgctxt "#30102"
 msgid "Airtime"
-msgstr ""
+msgstr "Vrijeme emitiranja"
 
 msgctxt "#30103"
 msgid "Channels"
@@ -213,66 +213,66 @@ msgstr "Kanali"
 
 msgctxt "#30104"
 msgid "Keep"
-msgstr ""
+msgstr "Zadrži"
 
 msgctxt "#30105"
 msgid "Record minutes before start"
-msgstr ""
+msgstr "Zabilježite minute prije početka"
 
 msgctxt "#30106"
 msgid "Record minutes after end"
-msgstr ""
+msgstr "Rekordne minute nakon završetka"
 
 # empty strings from id 30107 to 30109
 # Frequency:
 msgctxt "#30110"
 msgid "Record Once"
-msgstr ""
+msgstr "Snimi jednom"
 
 msgctxt "#30111"
 msgid "Record Daily (This program)"
-msgstr ""
+msgstr "Snimaj dnevno (Ovaj program)"
 
 msgctxt "#30112"
 msgid "Record Weekly"
-msgstr ""
+msgstr "Sedmični snimak"
 
 msgctxt "#30113"
 msgid "Record Weekends"
-msgstr ""
+msgstr "Rekordni vikendi"
 
 msgctxt "#30114"
 msgid "Record Weekdays"
-msgstr ""
+msgstr "Rekordni radni dani"
 
 msgctxt "#30115"
 msgid "Record every time on this channel"
-msgstr ""
+msgstr "Snimaj svaki put na ovom kanalu"
 
 msgctxt "#30116"
 msgid "Record every time on every channel"
-msgstr ""
+msgstr "Snimanje svaki put na svakom kanalu"
 
 msgctxt "#30117"
 msgid "Record every week at this time"
-msgstr ""
+msgstr "Snimaj svake sedmice u ovo vrijeme"
 
 msgctxt "#30118"
 msgid "Record every day at this time"
-msgstr ""
+msgstr "Snimajte svaki dan u ovo vrijeme"
 
 msgctxt "#30119"
 msgid "Record weekly on this channel"
-msgstr ""
+msgstr "Snimanje sedmično na ovom kanalu"
 
 # Airtime:
 msgctxt "#30120"
 msgid "This time"
-msgstr ""
+msgstr "Ovaj put"
 
 msgctxt "#30121"
 msgid "Anytime"
-msgstr ""
+msgstr "Bilo kada"
 
 msgctxt "#30122"
 msgid "Manual"
@@ -282,25 +282,25 @@ msgstr "Ručno"
 # Channel:
 msgctxt "#30125"
 msgid "This Channel"
-msgstr ""
+msgstr "Ovaj kanal"
 
 msgctxt "#30126"
 msgid "Any Channel"
-msgstr ""
+msgstr "Bilo koji kanal"
 
 # empty strings from id 30127 to 30129
 # Keep:
 msgctxt "#30130"
 msgid "Until space needed"
-msgstr ""
+msgstr "Dok ne zatreba prostor"
 
 msgctxt "#30131"
 msgid "Until watched"
-msgstr ""
+msgstr "Dok nije odgledano"
 
 msgctxt "#30132"
 msgid "Days"
-msgstr "dana"
+msgstr "Dani"
 
 msgctxt "#30133"
 msgid "Always"
@@ -308,29 +308,29 @@ msgstr "Uvijek"
 
 msgctxt "#30134"
 msgid "1 week"
-msgstr ""
+msgstr "1 sedmica"
 
 # Pre/post record time
 msgctxt "#30135"
 msgid "Backend default"
-msgstr ""
+msgstr "Zadano za pozadinski sistem"
 
 msgctxt "#30136"
 msgid "Kodi default"
-msgstr ""
+msgstr "Kodi zadano"
 
 msgctxt "#30137"
 msgid "%d weeks"
-msgstr ""
+msgstr "%d sedmica"
 
 msgctxt "#30138"
 msgid "1 month"
-msgstr ""
+msgstr "1 mjesec"
 
 msgctxt "#30139"
 msgid "%d months"
-msgstr ""
+msgstr "%d mjeseci"
 
 msgctxt "#30140"
 msgid "1 year"
-msgstr ""
+msgstr "1 godina"
