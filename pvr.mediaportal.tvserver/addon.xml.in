@@ -19,6 +19,7 @@
     <summary lang="af_ZA">Kodi voorprogram vir die MediaPortal TV Bediener (ffmpeg + tsreader weergawe)</summary>
     <summary lang="be_BY">Kodi frontend for the MediaPortal TV Server (ffmpeg + tsreader version)</summary>
     <summary lang="bg_BG">Клиент за ТВ сървър „MediaPortal“</summary>
+    <summary lang="bs_BA">Kodi frontend za MediaPortal TV server</summary>
     <summary lang="ca_ES">Frontal de Kodi per al servidor de TV MediaPortal</summary>
     <summary lang="cs_CZ">Rozhraní Kodi pro televizní server MediaPortal</summary>
     <summary lang="cy_GB">Blaen Kodi ar gyfer Gweinydd Teledu MediaPortal (fersiwn ffmpeg + tsreader)</summary>
@@ -70,6 +71,7 @@
     <description lang="af_ZA">MediaPortal TV Bediener voorprogram. Ondersteun stroom van Lewendige TV &amp; Opnames, luister na Radio kanale, EPG en Tydhouers. Hierdie byvoegsel kombineer die voormalige ffmpeg en tsreader byvoegsels.</description>
     <description lang="be_BY">MediaPortal TV Server frontend. Supports streaming of Live TV &amp; Recordings, listening to Radio channels, EPG and Timers. This addon combines the former ffmpeg and tsreader addons.</description>
     <description lang="bg_BG">Клиент за ТВ сървър „MediaPortal“. Поддържа телевизия на живо и записване, слушане на радио канали, електронен програмен справочник и броячи.</description>
+    <description lang="bs_BA">Predokraj MediaPortal TV servera. Podržava prijenos uživo TV programa i snimaka, slušanje radio kanala, EPG i mjerače vremena.</description>
     <description lang="ca_ES">Frontal del servidor de TV MediaPortal. És compatible amb les transmissions en línia de TV en directe i enregistraments, escolta de canals de ràdio, guia electrònica de programació (EPG) i temporitzadors.</description>
     <description lang="cs_CZ">Rozhraní pro televizní server MediaPortal. Podporuje streamování živého vysílání a nahrávek, poslech kanálů rádia, televizní program a časovače.</description>
     <description lang="cy_GB">Blaen Gweinydd Teledu Media Portal. Mae&apos;n cynnal ffrydio Teledu Byw a Recordiadau, gwrando ar sianeli Radio, Amserlenni Rhaglenni Electronig ac Amseryddion. Mae&apos;r ychwanegyn yn cynnwys y cyn ychwanegion ffmpeg a tsreader.</description>
@@ -120,6 +122,7 @@
     <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorsde ure, of enige ander ongewensde effekte.</disclaimer>
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляното време и други нежелани ефекти.</disclaimer>
+    <disclaimer lang="bs_BA">Autori ni na koji način nisu odgovorni za neuspjela snimanja, netačne mjerače vremena, izgubljene sate ili bilo koje druge neželjene efekte.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat.</disclaimer>
     <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky.</disclaimer>
     <disclaimer lang="cy_GB">Mae&apos;r feddalwedd hon yn fregus! Nid yw&apos;r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu nac effeithiau anymunol eraill.</disclaimer>
