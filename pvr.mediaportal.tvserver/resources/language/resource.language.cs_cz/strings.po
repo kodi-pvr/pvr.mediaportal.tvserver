@@ -7,31 +7,31 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-07-28 01:27+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-07-06 15:50+0000\n"
+"Last-Translator: Michal Várady <miko.vaji@gmail.com>\n"
 "Language-Team: Czech <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-mediaportal-tvserver/cs_cz/>\n"
 "Language: cs_cz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 2026.7\n"
 
 msgctxt "Addon Summary"
 msgid "Kodi frontend for the MediaPortal TV Server"
-msgstr "Rozhraní Kodi pro televizní server MediaPortal"
+msgstr "Rozhraní Kodi pro MediaPortal TV Server"
 
 msgctxt "Addon Description"
 msgid "MediaPortal TV Server frontend. Supports streaming of Live TV & Recordings, listening to Radio channels, EPG and Timers."
-msgstr "Rozhraní pro televizní server MediaPortal. Podporuje streamování živého vysílání a nahrávek, poslech kanálů rádia, televizní program a časovače."
+msgstr "Rozhraní pro MediaPortal TV Server. Podporuje streamování živé TV a nahrávek, poslech rozhlasových kanálů, EPG a časovače."
 
 msgctxt "Addon Disclaimer"
 msgid "The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky."
+msgstr "Autoři nenesou žádnou odpovědnost za neúspěšná nahrávání, nesprávné časovače, ztracený čas ani jakékoli jiné nežádoucí následky."
 
 msgctxt "#30000"
 msgid "Mediaportal Hostname"
-msgstr "Název hostitele Mediaportal"
+msgstr "Název hostitele MediaPortal"
 
 msgctxt "#30001"
 msgid "Mediaportal Kodi plugin Port"
@@ -51,7 +51,7 @@ msgstr "Rychlé přepínání kanálů (nezastavovat časový posun)"
 
 msgctxt "#30005"
 msgid "Connect timeout (s)"
-msgstr "Časový limit spojení (s)"
+msgstr "Časový limit připojení (s)"
 
 msgctxt "#30006"
 msgid "Import only TV Channels from group"
@@ -67,7 +67,7 @@ msgstr "Převést název hostitele na adresu IP"
 
 msgctxt "#30009"
 msgid "EPG: Read genre strings (slow)"
-msgstr "Televizní program: číst informace o žánru (pomalé)"
+msgstr "EPG: číst texty žánrů (pomalé)"
 
 msgctxt "#30010"
 msgid "Wait time after tuning a channel (ms)"
@@ -79,7 +79,7 @@ msgstr "Povolit staré dialogové okno pro nahrávání seriálů"
 
 msgctxt "#30012"
 msgid "Default recording lifetime"
-msgstr "Výchozí doba platnosti nahrávání"
+msgstr "Výchozí doba platnosti nahrávky"
 
 msgctxt "#30015"
 msgid "Streaming method"
@@ -99,7 +99,7 @@ msgstr "Použít streamování RTSP"
 
 msgctxt "#30040"
 msgid "Connection"
-msgstr "Spojení"
+msgstr "Připojení"
 
 msgctxt "#30041"
 msgid "MediaPortal"
@@ -115,11 +115,11 @@ msgstr "Nainstalovaná verze TVServerKodi „%s“ je příliš stará. Přejdě
 
 msgctxt "#30051"
 msgid "Your TVServerKodi version is too old. Please upgrade to '%s' or higher!"
-msgstr "Vámi používaná verze TVServerKodi je příliš stará. Přejděte na „%s“ a novější!"
+msgstr "Vámi používaná verze TVServerKodi je příliš stará. Přejděte na verzi „%s“ nebo novější!"
 
 msgctxt "#30052"
 msgid "Recording playback failed. Empty URL of filename."
-msgstr "Přehrávání nahrávky se nezdařilo. Nevyplněná URL adresa nebo název souboru."
+msgstr "Přehrávání nahrávky se nezdařilo. Prázdná URL nebo název souboru."
 
 msgctxt "#30060"
 msgid "All cards are busy"
@@ -131,7 +131,7 @@ msgstr "Kanál je šifrovaný"
 
 msgctxt "#30062"
 msgid "No video or audio detected"
-msgstr "Nebylo rozpoznáno žádné video nebo audio"
+msgstr "Nebylo zjištěno žádné video ani zvuk"
 
 msgctxt "#30063"
 msgid "No signal detected"
@@ -155,7 +155,7 @@ msgstr "Žádné podrobnosti ladění"
 
 msgctxt "#30068"
 msgid "Channel is not mapped to any card"
-msgstr "Kanál není namapován k žádné kartě"
+msgstr "Kanál není namapován na žádnou kartu"
 
 msgctxt "#30069"
 msgid "Card is disabled"
@@ -167,7 +167,7 @@ msgstr "Připojení k podřízenému zařízení se nezdařilo"
 
 msgctxt "#30071"
 msgid "Not the owner"
-msgstr "Není vlastník"
+msgstr "Nejste vlastníkem"
 
 msgctxt "#30072"
 msgid "Graph building failed"
@@ -179,7 +179,7 @@ msgstr "Chybí softwarový kodér"
 
 msgctxt "#30074"
 msgid "No free disk space"
-msgstr "Žádné volné místo na disku"
+msgstr "Na disku není volné místo"
 
 msgctxt "#30075"
 msgid "No PMT found"
@@ -207,11 +207,11 @@ msgstr "Ponechat"
 
 msgctxt "#30105"
 msgid "Record minutes before start"
-msgstr "Počet nahraných minut před začátkem"
+msgstr "Minuty nahrávání před začátkem"
 
 msgctxt "#30106"
 msgid "Record minutes after end"
-msgstr "Počet nahraných minut po konci"
+msgstr "Minuty nahrávání po konci"
 
 msgctxt "#30110"
 msgid "Record Once"
@@ -271,15 +271,15 @@ msgstr "Tento kanál"
 
 msgctxt "#30126"
 msgid "Any Channel"
-msgstr "Jakýkoliv kanál"
+msgstr "Libovolný kanál"
 
 msgctxt "#30130"
 msgid "Until space needed"
-msgstr "Dokud není potřeba místo"
+msgstr "Dokud nebude potřeba místo"
 
 msgctxt "#30131"
 msgid "Until watched"
-msgstr "Dokud není zhlédnuto"
+msgstr "Dokud nebude zhlédnuto"
 
 msgctxt "#30132"
 msgid "Days"
@@ -295,7 +295,7 @@ msgstr "1 týden"
 
 msgctxt "#30135"
 msgid "Backend default"
-msgstr "Výchozí nástavení serveru"
+msgstr "Výchozí nastavení backendu"
 
 msgctxt "#30136"
 msgid "Kodi default"
