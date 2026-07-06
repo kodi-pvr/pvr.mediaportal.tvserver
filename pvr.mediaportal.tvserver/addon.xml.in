@@ -21,7 +21,7 @@
     <summary lang="bg_BG">Клиент за ТВ сървър „MediaPortal“</summary>
     <summary lang="bs_BA">Kodi frontend za MediaPortal TV server</summary>
     <summary lang="ca_ES">Frontal de Kodi per al servidor de TV MediaPortal</summary>
-    <summary lang="cs_CZ">Rozhraní Kodi pro televizní server MediaPortal</summary>
+    <summary lang="cs_CZ">Rozhraní Kodi pro MediaPortal TV Server</summary>
     <summary lang="cy_GB">Blaen Kodi ar gyfer Gweinydd Teledu MediaPortal (fersiwn ffmpeg + tsreader)</summary>
     <summary lang="da_DK">Kodi frontend til MediaPortal tv-server</summary>
     <summary lang="de_DE">Kodi Oberfläche für den MediaPortal TV Server (ffmpeg + tsreader Version)</summary>
@@ -73,7 +73,7 @@
     <description lang="bg_BG">Клиент за ТВ сървър „MediaPortal“. Поддържа телевизия на живо и записване, слушане на радио канали, електронен програмен справочник и броячи.</description>
     <description lang="bs_BA">Predokraj MediaPortal TV servera. Podržava prijenos uživo TV programa i snimaka, slušanje radio kanala, EPG i mjerače vremena.</description>
     <description lang="ca_ES">Frontal del servidor de TV MediaPortal. És compatible amb les transmissions en línia de TV en directe i enregistraments, escolta de canals de ràdio, guia electrònica de programació (EPG) i temporitzadors.</description>
-    <description lang="cs_CZ">Rozhraní pro televizní server MediaPortal. Podporuje streamování živého vysílání a nahrávek, poslech kanálů rádia, televizní program a časovače.</description>
+    <description lang="cs_CZ">Rozhraní pro MediaPortal TV Server. Podporuje streamování živé TV a nahrávek, poslech rozhlasových kanálů, EPG a časovače.</description>
     <description lang="cy_GB">Blaen Gweinydd Teledu Media Portal. Mae&apos;n cynnal ffrydio Teledu Byw a Recordiadau, gwrando ar sianeli Radio, Amserlenni Rhaglenni Electronig ac Amseryddion. Mae&apos;r ychwanegyn yn cynnwys y cyn ychwanegion ffmpeg a tsreader.</description>
     <description lang="da_DK">MediaPortal TV server frontend. Understøtter streaming af direkte tv samt optagelser, radiokanaler, EPG og timeroptagelser.</description>
     <description lang="de_DE">Mediaportal TV Server Oberfläche. Unterstützt Live TV &amp; Aufnahmen, Radiokanäle, EPG und Timer. Dieses Addon kombiniert die ehemaligen ffmpeg- und tsreader-Addons.</description>
@@ -124,7 +124,7 @@
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляното време и други нежелани ефекти.</disclaimer>
     <disclaimer lang="bs_BA">Autori ni na koji način nisu odgovorni za neuspjela snimanja, netačne mjerače vremena, izgubljene sate ili bilo koje druge neželjene efekte.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat.</disclaimer>
-    <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky.</disclaimer>
+    <disclaimer lang="cs_CZ">Autoři nenesou žádnou odpovědnost za neúspěšná nahrávání, nesprávné časovače, ztracený čas ani jakékoli jiné nežádoucí následky.</disclaimer>
     <disclaimer lang="cy_GB">Mae&apos;r feddalwedd hon yn fregus! Nid yw&apos;r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu nac effeithiau anymunol eraill.</disclaimer>
     <disclaimer lang="da_DK">Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer eller andre uønskede konsekvenser.</disclaimer>
     <disclaimer lang="de_DE">Dies ist instabile Software! Die Autoren sind in keiner Weise verantwortlich für fehlgeschlagene Aufnahmen, falsche Timer, verschwendete Zeit oder andere ungewünschte Effekte.</disclaimer>
