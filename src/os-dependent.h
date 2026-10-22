@@ -34,7 +34,7 @@ typedef _W64 int   ssize_t;
 
 #else
 
-#if (defined(TARGET_LINUX) || defined(TARGET_DARWIN))
+#if defined(TARGET_POSIX)
 #include <sys/types.h>
 #include <chrono>
 #include <cstring>
@@ -88,7 +88,7 @@ inline size_t WcsToMbs(char *s, const Wchar_t *w, size_t n)
   return (i);
 };
 
-#endif /* TARGET_LINUX || TARGET_DARWIN */
+#endif /* TARGET_POSIX */
 
 #endif
 
