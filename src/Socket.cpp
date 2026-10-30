@@ -598,7 +598,7 @@ void Socket::osCleanup()
   }
 }
 
-#elif defined TARGET_LINUX || defined TARGET_DARWIN || defined TARGET_FREEBSD
+#elif defined TARGET_POSIX
 bool Socket::set_non_blocking ( const bool b )
 {
   int opts;
@@ -710,6 +710,6 @@ void Socket::osCleanup()
 {
   // Not needed for Linux
 }
-#endif //TARGET_WINDOWS || TARGET_LINUX || TARGET_DARWIN || TARGET_FREEBSD
+#endif // TARGET_WINDOWS || TARGET_POSIX
 
 } //namespace MPTV
